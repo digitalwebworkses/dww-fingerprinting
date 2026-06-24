@@ -22,9 +22,19 @@ if (file_exists(DWW_FP_PLUGIN_DIR . 'vendor/autoload.php')) {
     require_once DWW_FP_PLUGIN_DIR . 'vendor/autoload.php';
 }
 
+require_once DWW_FP_PLUGIN_DIR . 'includes/class-installer.php';
+require_once DWW_FP_PLUGIN_DIR . 'includes/class-fingerprint-db.php';
+require_once DWW_FP_PLUGIN_DIR . 'includes/class-fingerprint-generator.php';
+require_once DWW_FP_PLUGIN_DIR . 'includes/class-admin-page.php';
 require_once DWW_FP_PLUGIN_DIR . 'includes/class-plugin.php';
 require_once DWW_FP_PLUGIN_DIR . 'includes/class-pdf-processor.php';
 require_once DWW_FP_PLUGIN_DIR . 'includes/class-test-runner.php';
 
+register_activation_hook(
+    __FILE__,
+    ['DWW_Fingerprinting\\Installer', 'install']
+);
+
+DWW_Fingerprinting\Admin_Page::init();
 DWW_Fingerprinting\Plugin::init();
 DWW_Fingerprinting\Test_Runner::init();

@@ -23,7 +23,7 @@ class PDF_Processor
 
         $pdf = new Fpdi();
 
-        $fingerprint_id = self::generate_fingerprint_id(
+        $fingerprint_id = Fingerprint_Generator::generate(
             $customer_email,
             $order_id
         );
@@ -87,10 +87,5 @@ class PDF_Processor
     {
         // Pendiente: implementar rotación con clase extendida de FPDF/FPDI.
         // De momento no hacemos nada para mantener estable la PoC.
-    }
-
-    private static function generate_fingerprint_id(string $customer_email, string $order_id): string
-    {
-        return 'DWW-' . strtoupper(substr(hash('sha256', $customer_email . '|' . $order_id . '|' . time()), 0, 16));
     }
 }
