@@ -24,6 +24,7 @@ if (file_exists(DWW_FP_PLUGIN_DIR . 'vendor/autoload.php')) {
 }
 
 require_once DWW_FP_PLUGIN_DIR . 'includes/class-installer.php';
+require_once DWW_FP_PLUGIN_DIR . 'includes/class-logger.php';
 require_once DWW_FP_PLUGIN_DIR . 'includes/class-fingerprint-db.php';
 require_once DWW_FP_PLUGIN_DIR . 'includes/class-fingerprint-generator.php';
 require_once DWW_FP_PLUGIN_DIR . 'includes/class-admin-page.php';
