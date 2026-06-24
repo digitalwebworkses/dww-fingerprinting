@@ -1,0 +1,10 @@
+{
+    "name": "digitalwebworks/dww-fingerprinting",
+    "description": "Document fingerprinting for WooCommerce",
+    "license": "proprietary",
+    "minimum-stability": "stable",
+    "require": {
+        "setasign/fpdf": "^1.9",
+        "setasign/fpdi": "^2.6"
+    }
+}
