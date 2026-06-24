@@ -10,28 +10,28 @@ class Installer
 {
     public static function install(): void
     {
-        global $wpdb;
+        Fingerprint_DB::create_table();
+        Download_Token_DB::create_table();
 
-        $table_name = $wpdb->prefix . 'dww_fingerprints';
-        $charset_collate = $wpdb->get_charset_collate();
+        self::create_upload_directories();
+    }
 
-        $sql = "CREATE TABLE {$table_name} (
-            id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
-            fingerprint_id VARCHAR(64) NOT NULL,
-            customer_email VARCHAR(255) NOT NULL,
-            order_id VARCHAR(50) NOT NULL,
-            product_id VARCHAR(50) NOT NULL,
-            source_file TEXT NOT NULL,
-            generated_file TEXT NOT NULL,
-            created_at DATETIME NOT NULL,
-            PRIMARY KEY (id),
-            KEY fingerprint_id (fingerprint_id),
-            KEY order_id (order_id),
-            KEY customer_email (customer_email)
-        ) {$charset_collate};";
+    private static function create_upload_directories(): void
+    {
+        $upload_dir = wp_upload_dir();
 
-        require_once ABSPATH . 'wp-admin/includes/upgrade.php';
+        $base_dir = trailingslashit($upload_dir['basedir']) . 'dww-fingerprinting';
 
-        dbDelta($sql);
+        $directories = [
+            $base_dir,
+            $base_dir . '/generated',
+            $base_dir . '/temp',
+        ];
+
+        foreach ($directories as $directory) {
+            if (!file_exists($directory)) {
+                wp_mkdir_p($directory);
+            }
+        }
     }
 }
