@@ -50,7 +50,7 @@ class Download_Token_DB
 
         $token = self::generate_token();
 
-        $wpdb->insert(
+        $inserted = $wpdb->insert(
             self::get_table_name(),
             [
                 'fingerprint_id'   => sanitize_text_field($fingerprint_id),
@@ -70,6 +70,10 @@ class Download_Token_DB
             ]
         );
 
+        if ($inserted === false) {
+            return '';
+        }
+
         return $token;
     }
 
@@ -81,6 +85,23 @@ class Download_Token_DB
             $wpdb->prepare(
                 "SELECT * FROM " . self::get_table_name() . " WHERE token = %s LIMIT 1",
                 sanitize_text_field($token)
+            )
+        );
+
+        return $result ?: null;
+    }
+
+    public static function get_by_fingerprint(string $fingerprint_id): ?object
+    {
+        global $wpdb;
+
+        $result = $wpdb->get_row(
+            $wpdb->prepare(
+                "SELECT * FROM " . self::get_table_name() . "
+                 WHERE fingerprint_id = %s
+                 ORDER BY created_at DESC
+                 LIMIT 1",
+                sanitize_text_field($fingerprint_id)
             )
         );
 

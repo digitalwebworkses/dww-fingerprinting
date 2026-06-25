@@ -77,6 +77,7 @@ class WooCommerce_Integration
         Logger::log('Customer email: ' . $customer_email);
 
         foreach ($order->get_items() as $item) {
+
             $product = $item->get_product();
 
             if (!$product) {
@@ -85,8 +86,17 @@ class WooCommerce_Integration
             }
 
             $product_id = (string) $product->get_id();
+            $product_name = $product->get_name();
 
             Logger::log('Checking product: ' . $product_id);
+
+            Logger::log(
+                sprintf(
+                    'Product: %s (%s)',
+                    $product_name,
+                    $product_id
+                )
+            );
 
             if (!Product_Settings::is_enabled($product)) {
                 Logger::log('Product not enabled for fingerprinting: ' . $product_id);
@@ -96,6 +106,7 @@ class WooCommerce_Integration
             $source_pdf = Product_Settings::get_source_pdf($product);
 
             Logger::log('Source PDF: ' . $source_pdf);
+
             Logger::log(
                 'Source exists: ' .
                 (file_exists($source_pdf) ? 'yes' : 'no')
@@ -112,6 +123,7 @@ class WooCommerce_Integration
             );
 
             Logger::log('Fingerprint: ' . $fingerprint_id);
+
             Logger::log(
                 'Fingerprint exists: ' .
                 (Fingerprint_DB::exists($fingerprint_id) ? 'yes' : 'no')
@@ -151,14 +163,34 @@ class WooCommerce_Integration
                 'customer_email' => $customer_email,
                 'order_id'       => (string) $order_id,
                 'product_id'     => $product_id,
+                'product_name'   => $product_name,
                 'source_file'    => $source_pdf,
                 'generated_file' => $destination,
             ]);
 
-            if ($registry_id > 0) {
-                Logger::log('Fingerprint inserted: ' . $fingerprint_id);
-            } else {
+            if ($registry_id <= 0) {
                 Logger::log('Fingerprint insert failed: ' . $fingerprint_id);
+                continue;
+            }
+
+            Logger::log('Fingerprint inserted: ' . $fingerprint_id);
+
+            $download_token = Download_Token_DB::create_token(
+                $fingerprint_id,
+                72,
+                3
+            );
+
+            if (!empty($download_token)) {
+                Logger::log(
+                    'Download token created for fingerprint: ' .
+                    $fingerprint_id
+                );
+            } else {
+                Logger::log(
+                    'Download token creation failed for fingerprint: ' .
+                    $fingerprint_id
+                );
             }
         }
     }
@@ -170,7 +202,8 @@ class WooCommerce_Integration
     ): string {
         $upload_dir = wp_upload_dir();
 
-        $generated_dir = trailingslashit($upload_dir['basedir']) . 'dww-fingerprinting/generated';
+        $generated_dir = trailingslashit($upload_dir['basedir'])
+            . 'dww-fingerprinting/generated';
 
         if (!file_exists($generated_dir)) {
             wp_mkdir_p($generated_dir);

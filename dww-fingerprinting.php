@@ -28,6 +28,8 @@ require_once DWW_FP_PLUGIN_DIR . 'includes/class-logger.php';
 require_once DWW_FP_PLUGIN_DIR . 'includes/class-fingerprint-db.php';
 require_once DWW_FP_PLUGIN_DIR . 'includes/class-fingerprint-generator.php';
 require_once DWW_FP_PLUGIN_DIR . 'includes/class-download-token-db.php';
+require_once DWW_FP_PLUGIN_DIR . 'includes/class-download-handler.php';
+require_once DWW_FP_PLUGIN_DIR . 'includes/class-order-downloads.php';
 require_once DWW_FP_PLUGIN_DIR . 'includes/class-admin-page.php';
 require_once DWW_FP_PLUGIN_DIR . 'includes/class-woocommerce-integration.php';
 require_once DWW_FP_PLUGIN_DIR . 'includes/class-product-settings.php';
@@ -43,5 +45,7 @@ register_activation_hook(
 DWW_Fingerprinting\Admin_Page::init();
 DWW_Fingerprinting\WooCommerce_Integration::init();
 DWW_Fingerprinting\Product_Settings::init();
+DWW_Fingerprinting\Download_Handler::init();
+DWW_Fingerprinting\Order_Downloads::init();
 DWW_Fingerprinting\Plugin::init();
 DWW_Fingerprinting\Test_Runner::init();

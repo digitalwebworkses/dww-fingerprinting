@@ -28,6 +28,7 @@ class Fingerprint_DB
             customer_email VARCHAR(255) NOT NULL,
             order_id VARCHAR(50) NOT NULL,
             product_id VARCHAR(50) NOT NULL,
+            product_name VARCHAR(255) NOT NULL,
             source_file TEXT NOT NULL,
             generated_file TEXT NOT NULL,
             created_at DATETIME NOT NULL,
@@ -58,11 +59,13 @@ class Fingerprint_DB
                 'customer_email' => sanitize_email($data['customer_email'] ?? ''),
                 'order_id'       => sanitize_text_field($data['order_id'] ?? ''),
                 'product_id'     => sanitize_text_field($data['product_id'] ?? ''),
+                'product_name'   => sanitize_text_field($data['product_name'] ?? ''),
                 'source_file'    => sanitize_text_field($data['source_file'] ?? ''),
                 'generated_file' => sanitize_text_field($data['generated_file'] ?? ''),
                 'created_at'     => current_time('mysql'),
             ],
             [
+                '%s',
                 '%s',
                 '%s',
                 '%s',
@@ -87,10 +90,24 @@ class Fingerprint_DB
         $result = $wpdb->get_row(
             $wpdb->prepare(
                 "SELECT * FROM " . self::get_table_name() . " WHERE fingerprint_id = %s LIMIT 1",
-                $fingerprint_id
+                sanitize_text_field($fingerprint_id)
             )
         );
 
         return $result ?: null;
+    }
+
+    public static function get_by_order(string $order_id): array
+    {
+        global $wpdb;
+
+        $results = $wpdb->get_results(
+            $wpdb->prepare(
+                "SELECT * FROM " . self::get_table_name() . " WHERE order_id = %s ORDER BY created_at DESC",
+                sanitize_text_field($order_id)
+            )
+        );
+
+        return is_array($results) ? $results : [];
     }
 }
