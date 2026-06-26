@@ -12,6 +12,7 @@ class Installer
     {
         Fingerprint_DB::create_table();
         Download_Token_DB::create_table();
+        Migration_Manager::run();
 
         self::create_upload_directories();
     }
