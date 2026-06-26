@@ -80,7 +80,7 @@
 
     border-top: 4px solid #2271b1;
 
-    box-shadow: 0 2px 6px rgba(0,0,0,.05);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, .05);
 
     transition:
         transform .2s ease,
@@ -94,7 +94,7 @@
 
     transform: translateY(-3px);
 
-    box-shadow: 0 8px 18px rgba(0,0,0,.08);
+    box-shadow: 0 8px 18px rgba(0, 0, 0, .08);
 
 }
 
@@ -306,4 +306,32 @@
 
     }
 
+}
+
+/* ==========================================================================
+   Current Token Highlight
+   ========================================================================== */
+
+.dww-current-token td {
+    background: #f6fbff !important;
+}
+
+.dww-current-token td:first-child {
+    border-left: 4px solid #2271b1;
+}
+
+.dww-current-token code {
+    font-weight: 600;
+}
+
+.dww-badge-current {
+    display: inline-block;
+    margin-bottom: 6px;
+    padding: 2px 8px;
+    border-radius: 12px;
+    background: #2271b1;
+    color: #fff;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
 }

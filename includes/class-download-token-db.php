@@ -161,6 +161,23 @@ class Download_Token_DB
         return $result ?: null;
     }
 
+    public static function get_all_by_fingerprint(string $fingerprint_id): array
+    {
+        global $wpdb;
+
+        $results = $wpdb->get_results(
+            $wpdb->prepare(
+                "SELECT *
+                 FROM " . self::get_table_name() . "
+                 WHERE fingerprint_id = %s
+                 ORDER BY created_at DESC, id DESC",
+                sanitize_text_field($fingerprint_id)
+            )
+        );
+
+        return is_array($results) ? $results : [];
+    }
+
     public static function is_valid(object $token_row): bool
     {
         if (

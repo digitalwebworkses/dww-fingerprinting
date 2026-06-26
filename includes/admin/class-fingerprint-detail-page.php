@@ -30,6 +30,7 @@ class Fingerprint_Detail_Page
         }
 
         $token = Download_Token_DB::get_by_fingerprint($fingerprint->fingerprint_id);
+        $token_history = Download_Token_DB::get_all_by_fingerprint($fingerprint->fingerprint_id);
 
         $back_url = admin_url(
             'admin.php?page=' . Admin_Menu::get_fingerprints_slug()
@@ -56,7 +57,7 @@ class Fingerprint_Detail_Page
             admin_url('admin.php')
         );
 
-        ?>
+?>
 
         <div class="wrap">
 
@@ -79,61 +80,61 @@ class Fingerprint_Detail_Page
             Admin_UI::section(
                 'Documento',
                 function () use ($fingerprint, $source_filename, $generated_filename) {
-                    ?>
+            ?>
 
-                    <table class="widefat striped">
-                        <tbody>
-                            <tr>
-                                <td><strong>Cliente</strong></td>
-                                <td><?php echo esc_html($fingerprint->customer_email); ?></td>
-                            </tr>
+                <table class="widefat striped">
+                    <tbody>
+                        <tr>
+                            <td><strong>Cliente</strong></td>
+                            <td><?php echo esc_html($fingerprint->customer_email); ?></td>
+                        </tr>
 
-                            <tr>
-                                <td><strong>Pedido</strong></td>
-                                <td><?php echo esc_html($fingerprint->order_id); ?></td>
-                            </tr>
+                        <tr>
+                            <td><strong>Pedido</strong></td>
+                            <td><?php echo esc_html($fingerprint->order_id); ?></td>
+                        </tr>
 
-                            <tr>
-                                <td><strong>Producto</strong></td>
-                                <td>
-                                    <?php
-                                    $product = $fingerprint->product_name;
+                        <tr>
+                            <td><strong>Producto</strong></td>
+                            <td>
+                                <?php
+                                $product = $fingerprint->product_name;
 
-                                    if ($product === '') {
-                                        $product = 'Producto #' . $fingerprint->product_id;
-                                    }
+                                if ($product === '') {
+                                    $product = 'Producto #' . $fingerprint->product_id;
+                                }
 
-                                    echo esc_html($product);
-                                    ?>
-                                </td>
-                            </tr>
+                                echo esc_html($product);
+                                ?>
+                            </td>
+                        </tr>
 
-                            <tr>
-                                <td><strong>Archivo origen</strong></td>
-                                <td>
-                                    <code title="<?php echo esc_attr($fingerprint->source_file); ?>">
-                                        <?php echo esc_html($source_filename); ?>
-                                    </code>
-                                </td>
-                            </tr>
+                        <tr>
+                            <td><strong>Archivo origen</strong></td>
+                            <td>
+                                <code title="<?php echo esc_attr($fingerprint->source_file); ?>">
+                                    <?php echo esc_html($source_filename); ?>
+                                </code>
+                            </td>
+                        </tr>
 
-                            <tr>
-                                <td><strong>Archivo generado</strong></td>
-                                <td>
-                                    <code title="<?php echo esc_attr($fingerprint->generated_file); ?>">
-                                        <?php echo esc_html($generated_filename); ?>
-                                    </code>
-                                </td>
-                            </tr>
+                        <tr>
+                            <td><strong>Archivo generado</strong></td>
+                            <td>
+                                <code title="<?php echo esc_attr($fingerprint->generated_file); ?>">
+                                    <?php echo esc_html($generated_filename); ?>
+                                </code>
+                            </td>
+                        </tr>
 
-                            <tr>
-                                <td><strong>Fecha</strong></td>
-                                <td><?php echo esc_html($fingerprint->created_at); ?></td>
-                            </tr>
-                        </tbody>
-                    </table>
+                        <tr>
+                            <td><strong>Fecha</strong></td>
+                            <td><?php echo esc_html($fingerprint->created_at); ?></td>
+                        </tr>
+                    </tbody>
+                </table>
 
-                    <?php
+            <?php
                 }
             );
 
@@ -153,152 +154,211 @@ class Fingerprint_Detail_Page
                         ? substr($token->token, 0, 24) . '…'
                         : $token->token;
 
-                    ?>
+            ?>
 
-                    <table class="widefat striped">
-                        <tbody>
+                <table class="widefat striped">
+                    <tbody>
+                        <tr>
+                            <td width="220"><strong>Token</strong></td>
+                            <td>
+                                <code title="<?php echo esc_attr($token->token); ?>">
+                                    <?php echo esc_html($short_token); ?>
+                                </code>
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <td><strong>Estado</strong></td>
+                            <td>
+                                <?php self::render_token_status($token); ?>
+                            </td>
+                        </tr>
+
+                        <?php if (!empty($token->revoked_at)) : ?>
                             <tr>
-                                <td width="220"><strong>Token</strong></td>
+                                <td><strong>Revocado</strong></td>
+                                <td><?php echo esc_html($token->revoked_at); ?></td>
+                            </tr>
+                        <?php endif; ?>
+
+                        <tr>
+                            <td><strong>Descargas</strong></td>
+                            <td>
+                                <?php
+                                echo esc_html(
+                                    $token->downloads_count .
+                                        ' / ' .
+                                        $token->max_downloads
+                                );
+                                ?>
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <td><strong>Caduca</strong></td>
+                            <td><?php echo esc_html($token->expires_at); ?></td>
+                        </tr>
+                    </tbody>
+                </table>
+
+            <?php
+                }
+            );
+
+            Admin_UI::section(
+                'Historial de tokens',
+                function () use ($token_history) {
+                    if (empty($token_history)) {
+                        Admin_UI::empty_state(
+                            'Sin historial',
+                            'Todavía no hay tokens asociados a este fingerprint.'
+                        );
+
+                        return;
+                    }
+
+            ?>
+
+                <table class="widefat striped">
+                    <thead>
+                        <tr>
+                            <th>Token</th>
+                            <th>Estado</th>
+                            <th>Descargas</th>
+                            <th>Caduca</th>
+                            <th>Revocado</th>
+                            <th>Creado</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        <?php foreach ($token_history as $index => $history_token) :
+
+                            $short_history_token = strlen($history_token->token) > 18
+                                ? substr($history_token->token, 0, 18) . '…'
+                                : $history_token->token;
+
+                        ?>
+
+                            <tr<?php echo $index === 0 ? ' class="dww-current-token"' : ''; ?>>
                                 <td>
-                                    <code title="<?php echo esc_attr($token->token); ?>">
-                                        <?php echo esc_html($short_token); ?>
+                                    <?php if ($index === 0) : ?>
+                                        <span class="dww-badge-current">Actual</span><br>
+                                    <?php endif; ?>
+
+                                    <code title="<?php echo esc_attr($history_token->token); ?>">
+                                        <?php echo esc_html($short_history_token); ?>
                                     </code>
                                 </td>
-                            </tr>
 
-                            <tr>
-                                <td><strong>Estado</strong></td>
                                 <td>
-                                    <?php
-                                    if (!empty($token->revoked_at)) {
-                                        Admin_UI::badge('Revocado', 'danger');
-                                        $status_message = 'Este token ha sido revocado manualmente.';
-                                    } elseif (strtotime($token->expires_at) < time()) {
-                                        Admin_UI::badge('Caducado', 'danger');
-                                        $status_message = 'La fecha de expiración ha finalizado.';
-                                    } elseif ((int) $token->downloads_count >= (int) $token->max_downloads) {
-                                        Admin_UI::badge('Agotado', 'warning');
-                                        $status_message = 'Se alcanzó el número máximo de descargas.';
-                                    } else {
-                                        Admin_UI::badge('Activo', 'success');
-                                        $status_message = 'El documento todavía puede descargarse.';
-                                    }
-                                    ?>
-
-                                    <br>
-
-                                    <small style="display:block;margin-top:6px;color:#646970;">
-                                        <?php echo esc_html($status_message); ?>
-                                    </small>
+                                    <?php self::render_token_badge($history_token); ?>
                                 </td>
-                            </tr>
 
-                            <?php if (!empty($token->revoked_at)) : ?>
-                                <tr>
-                                    <td><strong>Revocado</strong></td>
-                                    <td><?php echo esc_html($token->revoked_at); ?></td>
-                                </tr>
-                            <?php endif; ?>
-
-                            <tr>
-                                <td><strong>Descargas</strong></td>
                                 <td>
                                     <?php
                                     echo esc_html(
-                                        $token->downloads_count .
-                                        ' / ' .
-                                        $token->max_downloads
+                                        $history_token->downloads_count .
+                                            ' / ' .
+                                            $history_token->max_downloads
                                     );
                                     ?>
                                 </td>
-                            </tr>
 
-                            <tr>
-                                <td><strong>Caduca</strong></td>
-                                <td><?php echo esc_html($token->expires_at); ?></td>
-                            </tr>
-                        </tbody>
-                    </table>
+                                <td><?php echo esc_html($history_token->expires_at); ?></td>
 
-                    <?php
+                                <td>
+                                    <?php echo !empty($history_token->revoked_at)
+                                        ? esc_html($history_token->revoked_at)
+                                        : '—'; ?>
+                                </td>
+
+                                <td><?php echo esc_html($history_token->created_at); ?></td>
+                                </tr>
+
+                            <?php endforeach; ?>
+                    </tbody>
+                </table>
+
+            <?php
                 }
             );
 
             Admin_UI::section(
                 'Acciones',
                 function () use ($download_url, $token, $fingerprint, $current_url) {
-                    ?>
+            ?>
 
-                    <p>
-                        <?php if ($token && Download_Token_DB::is_valid($token)) : ?>
+                <p>
+                    <?php if ($token && Download_Token_DB::is_valid($token)) : ?>
 
-                            <a
-                                class="button button-primary"
-                                href="<?php echo esc_url($download_url); ?>">
+                        <a
+                            class="button button-primary"
+                            href="<?php echo esc_url($download_url); ?>">
 
-                                Descargar PDF
-                            </a>
+                            Descargar PDF
+                        </a>
 
-                        <?php else : ?>
+                    <?php else : ?>
 
-                            <button class="button button-primary" disabled>
-                                Descargar PDF
-                            </button>
+                        <button class="button button-primary" disabled>
+                            Descargar PDF
+                        </button>
 
-                        <?php endif; ?>
+                    <?php endif; ?>
 
-                        <form
-                            method="post"
-                            action="<?php echo esc_url($current_url); ?>"
-                            style="display:inline-block;margin:0 4px;">
+                <form
+                    method="post"
+                    action="<?php echo esc_url($current_url); ?>"
+                    style="display:inline-block;margin:0 4px;">
 
-                            <?php wp_nonce_field('dww_fp_regenerate_token', 'dww_fp_nonce'); ?>
+                    <?php wp_nonce_field('dww_fp_regenerate_token', 'dww_fp_nonce'); ?>
 
-                            <input type="hidden" name="dww_fp_action" value="regenerate_token">
-                            <input type="hidden" name="fingerprint" value="<?php echo esc_attr($fingerprint->fingerprint_id); ?>">
+                    <input type="hidden" name="dww_fp_action" value="regenerate_token">
+                    <input type="hidden" name="fingerprint" value="<?php echo esc_attr($fingerprint->fingerprint_id); ?>">
 
-                            <button
-                                type="submit"
-                                class="button"
-                                onclick="return confirm('¿Regenerar el token de descarga? El token anterior quedará revocado.');">
+                    <button
+                        type="submit"
+                        class="button"
+                        onclick="return confirm('¿Regenerar el token de descarga? El token anterior quedará revocado.');">
 
-                                Regenerar token
-                            </button>
+                        Regenerar token
+                    </button>
 
-                        </form>
+                </form>
 
-                        <?php if ($token && Download_Token_DB::is_valid($token)) : ?>
+                <?php if ($token && Download_Token_DB::is_valid($token)) : ?>
 
-                            <form
-                                method="post"
-                                action="<?php echo esc_url($current_url); ?>"
-                                style="display:inline-block;margin:0 4px;">
+                    <form
+                        method="post"
+                        action="<?php echo esc_url($current_url); ?>"
+                        style="display:inline-block;margin:0 4px;">
 
-                                <?php wp_nonce_field('dww_fp_revoke_token', 'dww_fp_nonce'); ?>
+                        <?php wp_nonce_field('dww_fp_revoke_token', 'dww_fp_nonce'); ?>
 
-                                <input type="hidden" name="dww_fp_action" value="revoke_token">
-                                <input type="hidden" name="fingerprint" value="<?php echo esc_attr($fingerprint->fingerprint_id); ?>">
+                        <input type="hidden" name="dww_fp_action" value="revoke_token">
+                        <input type="hidden" name="fingerprint" value="<?php echo esc_attr($fingerprint->fingerprint_id); ?>">
 
-                                <button
-                                    type="submit"
-                                    class="button"
-                                    onclick="return confirm('¿Revocar este token? El enlace de descarga dejará de funcionar.');">
+                        <button
+                            type="submit"
+                            class="button"
+                            onclick="return confirm('¿Revocar este token? El enlace de descarga dejará de funcionar.');">
 
-                                    Revocar
-                                </button>
+                            Revocar
+                        </button>
 
-                            </form>
+                    </form>
 
-                        <?php else : ?>
+                <?php else : ?>
 
-                            <button class="button" disabled>
-                                Revocar
-                            </button>
+                    <button class="button" disabled>
+                        Revocar
+                    </button>
 
-                        <?php endif; ?>
-                    </p>
+                <?php endif; ?>
+                </p>
 
-                    <?php
+            <?php
                 }
             );
 
@@ -306,7 +366,7 @@ class Fingerprint_Detail_Page
 
         </div>
 
-        <?php
+    <?php
     }
 
     private static function maybe_regenerate_token(string $fingerprint_id): void
@@ -405,6 +465,46 @@ class Fingerprint_Detail_Page
         return true;
     }
 
+    private static function render_token_status(object $token): void
+    {
+        self::render_token_badge($token);
+
+        if (!empty($token->revoked_at)) {
+            $status_message = 'Este token ha sido revocado manualmente.';
+        } elseif (strtotime($token->expires_at) < time()) {
+            $status_message = 'La fecha de expiración ha finalizado.';
+        } elseif ((int) $token->downloads_count >= (int) $token->max_downloads) {
+            $status_message = 'Se alcanzó el número máximo de descargas.';
+        } else {
+            $status_message = 'El documento todavía puede descargarse.';
+        }
+
+        echo '<br>';
+        echo '<small style="display:block;margin-top:6px;color:#646970;">';
+        echo esc_html($status_message);
+        echo '</small>';
+    }
+
+    private static function render_token_badge(object $token): void
+    {
+        if (!empty($token->revoked_at)) {
+            Admin_UI::badge('Revocado', 'danger');
+            return;
+        }
+
+        if (strtotime($token->expires_at) < time()) {
+            Admin_UI::badge('Caducado', 'danger');
+            return;
+        }
+
+        if ((int) $token->downloads_count >= (int) $token->max_downloads) {
+            Admin_UI::badge('Agotado', 'warning');
+            return;
+        }
+
+        Admin_UI::badge('Activo', 'success');
+    }
+
     private static function redirect_after_action(
         string $fingerprint_id,
         string $message
@@ -476,7 +576,7 @@ class Fingerprint_Detail_Page
 
     private static function render_error(string $message): void
     {
-        ?>
+    ?>
 
         <div class="wrap">
 
@@ -491,6 +591,6 @@ class Fingerprint_Detail_Page
 
         </div>
 
-        <?php
+<?php
     }
 }
