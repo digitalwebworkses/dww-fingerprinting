@@ -18,6 +18,7 @@ class Migration_Manager
 
         $migrations = [
             '0.2.0' => Migration_020::class,
+            '0.3.0' => Migration_030::class,
         ];
 
         foreach ($migrations as $version => $migration_class) {
@@ -58,7 +59,6 @@ class Migration_Manager
                         $version
                     )
                 );
-
             } catch (\Throwable $exception) {
 
                 Logger::log(

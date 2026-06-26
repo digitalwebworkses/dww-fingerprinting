@@ -43,6 +43,7 @@ require_once DWW_FP_PLUGIN_DIR . 'includes/class-pdf-processor.php';
 require_once DWW_FP_PLUGIN_DIR . 'includes/class-test-runner.php';
 require_once DWW_FP_PLUGIN_DIR . 'includes/class-migration-manager.php';
 require_once DWW_FP_PLUGIN_DIR . 'includes/migrations/class-migration-020.php';
+require_once DWW_FP_PLUGIN_DIR . 'includes/migrations/class-migration-030.php';
 
 register_activation_hook(
     __FILE__,

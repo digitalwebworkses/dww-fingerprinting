@@ -118,6 +118,29 @@ class Fingerprint_DB
         $fingerprints_table = self::get_table_name();
         $tokens_table = Download_Token_DB::get_table_name();
 
+        $latest_token_join = "
+            LEFT JOIN {$tokens_table} dt
+                ON dt.id = (
+                    SELECT dt2.id
+                    FROM {$tokens_table} dt2
+                    WHERE dt2.fingerprint_id = fp.fingerprint_id
+                    ORDER BY dt2.created_at DESC, dt2.id DESC
+                    LIMIT 1
+                )
+        ";
+
+        $select = "
+            SELECT
+                fp.*,
+                dt.token,
+                dt.downloads_count,
+                dt.max_downloads,
+                dt.expires_at,
+                dt.revoked_at
+            FROM {$fingerprints_table} fp
+            {$latest_token_join}
+        ";
+
         if ($search !== '') {
 
             $like = '%' . $wpdb->esc_like($search) . '%';
@@ -125,23 +148,15 @@ class Fingerprint_DB
             $results = $wpdb->get_results(
                 $wpdb->prepare(
                     "
-                SELECT
-                    fp.*,
-                    dt.token,
-                    dt.downloads_count,
-                    dt.max_downloads,
-                    dt.expires_at
-                FROM {$fingerprints_table} fp
-                LEFT JOIN {$tokens_table} dt
-                    ON dt.fingerprint_id = fp.fingerprint_id
-                WHERE
-                    fp.fingerprint_id LIKE %s
-                    OR fp.customer_email LIKE %s
-                    OR fp.order_id LIKE %s
-                    OR fp.product_id LIKE %s
-                    OR fp.product_name LIKE %s
-                ORDER BY fp.created_at DESC
-                ",
+                    {$select}
+                    WHERE
+                        fp.fingerprint_id LIKE %s
+                        OR fp.customer_email LIKE %s
+                        OR fp.order_id LIKE %s
+                        OR fp.product_id LIKE %s
+                        OR fp.product_name LIKE %s
+                    ORDER BY fp.created_at DESC
+                    ",
                     $like,
                     $like,
                     $like,
@@ -153,17 +168,9 @@ class Fingerprint_DB
 
             $results = $wpdb->get_results(
                 "
-            SELECT
-                fp.*,
-                dt.token,
-                dt.downloads_count,
-                dt.max_downloads,
-                dt.expires_at
-            FROM {$fingerprints_table} fp
-            LEFT JOIN {$tokens_table} dt
-                ON dt.fingerprint_id = fp.fingerprint_id
-            ORDER BY fp.created_at DESC
-            "
+                {$select}
+                ORDER BY fp.created_at DESC
+                "
             );
         }
 
