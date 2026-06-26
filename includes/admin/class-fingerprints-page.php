@@ -10,100 +10,247 @@ class Fingerprints_Page
 {
     public static function render(): void
     {
-        global $wpdb;
+        $action = isset($_GET['action'])
+            ? sanitize_key(wp_unslash($_GET['action']))
+            : '';
 
-        $table_name = Fingerprint_DB::get_table_name();
+        /*
+         * Vista de detalle.
+         */
+        if ($action === 'view') {
+            Fingerprint_Detail_Page::render();
+            return;
+        }
 
         $search = isset($_GET['dww_fp_search'])
             ? sanitize_text_field(wp_unslash($_GET['dww_fp_search']))
             : '';
 
-        if ($search !== '') {
-            $rows = $wpdb->get_results(
-                $wpdb->prepare(
-                    "SELECT *
-                     FROM {$table_name}
-                     WHERE fingerprint_id LIKE %s
-                        OR customer_email LIKE %s
-                        OR order_id LIKE %s
-                        OR product_id LIKE %s
-                     ORDER BY created_at DESC",
-                    '%' . $wpdb->esc_like($search) . '%',
-                    '%' . $wpdb->esc_like($search) . '%',
-                    '%' . $wpdb->esc_like($search) . '%',
-                    '%' . $wpdb->esc_like($search) . '%'
-                )
-            );
-        } else {
-            $rows = $wpdb->get_results(
-                "SELECT * FROM {$table_name} ORDER BY created_at DESC"
-            );
-        }
-        ?>
+        $rows = Fingerprint_DB::search($search);
 
-        <div class="wrap">
-            <h1>Fingerprints</h1>
+?>
 
-            <p>Registros de fingerprints generados por el sistema.</p>
+<div class="wrap">
 
-            <form method="get" style="margin: 16px 0;">
-                <input type="hidden" name="page" value="dww-fingerprinting-fingerprints">
+    <h1>Fingerprints</h1>
 
-                <input
-                    type="search"
-                    name="dww_fp_search"
-                    value="<?php echo esc_attr($search); ?>"
-                    placeholder="Buscar por fingerprint, email, pedido o producto"
-                    style="min-width: 360px;">
+    <p>
+        Registros de fingerprints generados por el sistema.
+    </p>
 
-                <button class="button button-primary" type="submit">
-                    Buscar
-                </button>
+    <form method="get" style="margin:20px 0;">
 
-                <?php if ($search !== '') : ?>
-                    <a class="button" href="<?php echo esc_url(admin_url('admin.php?page=dww-fingerprinting-fingerprints')); ?>">
-                        Limpiar
-                    </a>
-                <?php endif; ?>
-            </form>
+        <input
+            type="hidden"
+            name="page"
+            value="<?php echo esc_attr(Admin_Menu::get_fingerprints_slug()); ?>">
 
-            <table class="widefat striped">
-                <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>Fingerprint</th>
-                        <th>Cliente</th>
-                        <th>Pedido</th>
-                        <th>Producto</th>
-                        <th>Fecha</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php if (empty($rows)) : ?>
-                        <tr>
-                            <td colspan="6">No hay registros.</td>
-                        </tr>
-                    <?php else : ?>
-                        <?php foreach ($rows as $row) : ?>
-                            <?php
-                            $product_name = property_exists($row, 'product_name') && $row->product_name !== ''
-                                ? $row->product_name
-                                : $row->product_id;
-                            ?>
-                            <tr>
-                                <td><?php echo esc_html($row->id); ?></td>
-                                <td><code><?php echo esc_html($row->fingerprint_id); ?></code></td>
-                                <td><?php echo esc_html($row->customer_email); ?></td>
-                                <td><?php echo esc_html($row->order_id); ?></td>
-                                <td><?php echo esc_html($product_name); ?></td>
-                                <td><?php echo esc_html($row->created_at); ?></td>
-                            </tr>
-                        <?php endforeach; ?>
-                    <?php endif; ?>
-                </tbody>
-            </table>
-        </div>
+        <input
+            type="search"
+            name="dww_fp_search"
+            value="<?php echo esc_attr($search); ?>"
+            placeholder="Buscar por fingerprint, email, pedido o producto"
+            style="min-width:360px;">
 
-        <?php
+        <button
+            type="submit"
+            class="button button-primary">
+
+            Buscar
+
+        </button>
+
+        <?php if ($search !== '') : ?>
+
+            <a
+                class="button"
+                href="<?php echo esc_url(admin_url('admin.php?page=' . Admin_Menu::get_fingerprints_slug())); ?>">
+
+                Limpiar
+
+            </a>
+
+        <?php endif; ?>
+
+    </form>
+
+    <table class="widefat striped">
+
+        <thead>
+
+            <tr>
+
+                <th>ID</th>
+
+                <th>Pedido</th>
+
+                <th>Cliente</th>
+
+                <th>Producto</th>
+
+                <th>Fingerprint</th>
+
+                <th>Descargas</th>
+
+                <th>Estado</th>
+
+                <th>Fecha</th>
+
+                <th>Acciones</th>
+
+            </tr>
+
+        </thead>
+
+        <tbody>
+
+        <?php if (empty($rows)) : ?>
+
+            <tr>
+
+                <td colspan="9">
+
+                    No hay registros.
+
+                </td>
+
+            </tr>
+
+        <?php else : ?>
+
+            <?php foreach ($rows as $row) :
+
+                $short_fp = strlen($row->fingerprint_id) > 18
+                    ? substr($row->fingerprint_id, 0, 18) . '…'
+                    : $row->fingerprint_id;
+
+                $detail_url = add_query_arg(
+                    [
+                        'page'        => Admin_Menu::get_fingerprints_slug(),
+                        'action'      => 'view',
+                        'fingerprint' => $row->fingerprint_id,
+                    ],
+                    admin_url('admin.php')
+                );
+
+            ?>
+
+                <tr>
+
+                    <td><?php echo esc_html($row->id); ?></td>
+
+                    <td><?php echo esc_html($row->order_id); ?></td>
+
+                    <td><?php echo esc_html($row->customer_email); ?></td>
+
+                    <td><?php echo esc_html($row->product_name ?: $row->product_id); ?></td>
+
+                    <td>
+
+                        <code title="<?php echo esc_attr($row->fingerprint_id); ?>">
+
+                            <?php echo esc_html($short_fp); ?>
+
+                        </code>
+
+                    </td>
+
+                    <td>
+
+                        <?php
+
+                        if ($row->max_downloads) {
+
+                            echo esc_html(
+                                (int) $row->downloads_count .
+                                ' / ' .
+                                (int) $row->max_downloads
+                            );
+
+                        } else {
+
+                            echo '—';
+
+                        }
+
+                        ?>
+
+                    </td>
+
+                    <td>
+
+                        <?php
+
+                        if (!$row->expires_at) {
+
+                            Admin_UI::badge(
+                                'Sin token',
+                                'info'
+                            );
+
+                        } elseif (
+                            strtotime($row->expires_at) < time()
+                        ) {
+
+                            Admin_UI::badge(
+                                'Caducado',
+                                'danger'
+                            );
+
+                        } elseif (
+                            (int) $row->downloads_count >=
+                            (int) $row->max_downloads
+                        ) {
+
+                            Admin_UI::badge(
+                                'Agotado',
+                                'warning'
+                            );
+
+                        } else {
+
+                            Admin_UI::badge(
+                                'Activo',
+                                'success'
+                            );
+
+                        }
+
+                        ?>
+
+                    </td>
+
+                    <td>
+
+                        <?php echo esc_html($row->created_at); ?>
+
+                    </td>
+
+                    <td>
+
+                        <a
+                            class="button button-secondary"
+                            href="<?php echo esc_url($detail_url); ?>">
+
+                            Ver
+
+                        </a>
+
+                    </td>
+
+                </tr>
+
+            <?php endforeach; ?>
+
+        <?php endif; ?>
+
+        </tbody>
+
+    </table>
+
+</div>
+
+<?php
+
     }
 }

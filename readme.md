@@ -10,6 +10,10 @@ Cada documento queda asociado a un fingerprint único, permitiendo su trazabilid
 
 La entrega se realiza mediante enlaces seguros protegidos por token, con caducidad y límite máximo de descargas configurable.
 
+El proyecto está desarrollado con una arquitectura modular, preparada para evolucionar hacia una solución completa de gestión documental y auditoría.
+
+---
+
 ## Características
 
 - Integración completa con WooCommerce.
@@ -25,14 +29,31 @@ La entrega se realiza mediante enlaces seguros protegidos por token, con caducid
 - Descarga integrada en el área **Mi cuenta** de WooCommerce.
 - Sistema de migraciones de base de datos.
 - Panel de administración propio.
+- Dashboard con estadísticas generales.
+- Listado de fingerprints con búsqueda.
+- Vista detallada de cada documento protegido.
+- Indicadores visuales del estado de los tokens.
+- Arquitectura preparada para futuras ampliaciones.
+
+---
 
 ## Estado del proyecto
 
-**Versión actual:** `0.2.0`
+**Versión actual:** `0.3.0`
 
 **Estado:** MVP funcional.
 
-Actualmente el plugin permite proteger documentos PDF vendidos mediante WooCommerce mediante una entrega segura y completamente trazable.
+### Fases completadas
+
+- ✅ Fase 1 — Investigación técnica PDF.
+- ✅ Fase 2 — Generación de fingerprints.
+- ✅ Fase 3 — Sistema de tokens de descarga.
+- ✅ Fase 4 — Integración con WooCommerce.
+- ✅ Fase 5 — Panel de administración.
+
+Actualmente el plugin permite vender documentos PDF mediante WooCommerce con una entrega completamente personalizada, segura y trazable.
+
+---
 
 ## Requisitos
 
@@ -41,6 +62,8 @@ Actualmente el plugin permite proteger documentos PDF vendidos mediante WooComme
 - PHP 8.1 o superior
 - Composer
 - FPDI
+
+---
 
 ## Instalación
 
@@ -56,6 +79,8 @@ composer install
 
 4. Configurar un producto indicando el PDF origen que será personalizado.
 
+---
+
 ## Arquitectura
 
 ```text
@@ -68,14 +93,22 @@ Compra realizada
 Generación del PDF personalizado
         │
         ▼
-Registro del Fingerprint
+Inserción del Fingerprint
+        │
+        ▼
+Registro en Base de Datos
         │
         ▼
 Generación del Token Seguro
         │
         ▼
 Entrega del Documento
+        │
+        ▼
+Descarga controlada
 ```
+
+---
 
 ## Estructura del proyecto
 
@@ -83,36 +116,62 @@ Entrega del Documento
 includes/
 │
 ├── admin/
+│   ├── class-admin-assets.php
+│   ├── class-admin-menu.php
+│   ├── class-admin-ui.php
+│   ├── class-dashboard-page.php
+│   ├── class-fingerprint-detail-page.php
+│   └── class-fingerprints-page.php
+│
 ├── migrations/
+│   └── class-migration-020.php
 │
 ├── class-download-handler.php
 ├── class-download-token-db.php
 ├── class-fingerprint-db.php
 ├── class-fingerprint-generator.php
+├── class-installer.php
+├── class-logger.php
 ├── class-migration-manager.php
 ├── class-order-downloads.php
 ├── class-pdf-processor.php
 ├── class-plugin.php
 ├── class-product-settings.php
+├── class-test-runner.php
 └── class-woocommerce-integration.php
 ```
 
+---
+
 ## Roadmap
 
-Próximas funcionalidades previstas:
+### Fase 6 — Gestión documental
 
-- Dashboard avanzado.
-- Estadísticas.
-- Gestión de fingerprints.
-- Gestión de tokens.
-- Revocación de documentos.
-- Regeneración de enlaces de descarga.
-- Sistema de auditoría.
+Objetivos previstos:
+
+- Descarga directa desde el panel de administración.
+- Regeneración de tokens.
+- Revocación de enlaces.
+- Historial de acciones.
+- Auditoría de documentos.
+- Acciones masivas.
+- Mejoras de experiencia de usuario.
+
+### Fases posteriores
+
 - API REST.
+- Exportación de registros.
+- Integración con almacenamiento externo.
+- Estadísticas avanzadas.
+- Automatización de auditorías.
+
+---
 
 ## Changelog
 
-Consulta el historial completo de cambios en [CHANGELOG.md](CHANGELOG.md).
+Consulta el historial completo de cambios en `CHANGELOG.md`.
+
+---
 
 ## Licencia
 

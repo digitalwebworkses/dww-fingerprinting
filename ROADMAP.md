@@ -1,29 +1,124 @@
 # Roadmap
 
-## 0.3.0
+Estado del desarrollo de DWW Fingerprinting.
 
-- Dashboard avanzado.
+---
+
+# ✅ Fase 1 — Investigación técnica
+
+Estado: **Completada**
+
+## Objetivos
+
+- Investigación de FPDI.
+- Personalización de documentos PDF.
+- Prueba de concepto.
+- Generación inicial de fingerprints.
+
+---
+
+# ✅ Fase 2 — Motor de Fingerprinting
+
+Estado: **Completada**
+
+## Objetivos
+
+- Base de datos.
+- Registro de fingerprints.
+- Asociación documento ↔ compra.
+- Persistencia.
+
+---
+
+# ✅ Fase 3 — Entrega segura
+
+Estado: **Completada**
+
+## Objetivos
+
+- Tokens.
+- Caducidad.
+- Límite de descargas.
+- Descarga segura.
+
+---
+
+# ✅ Fase 4 — Integración WooCommerce
+
+Estado: **Completada**
+
+## Objetivos
+
+- Configuración por producto.
+- Área Mi Cuenta.
+- Generación automática.
+- Flujo completo de compra.
+
+---
+
+# ✅ Fase 5 — Panel de administración
+
+Estado: **Completada**
+
+## Objetivos
+
+- Dashboard.
 - Estadísticas.
-- Logs.
+- Listado de fingerprints.
+- Buscador.
+- Vista de detalle.
+- Componentes reutilizables.
+- Arquitectura modular.
 
-## 0.4.0
+---
 
-- Gestión avanzada de tokens.
-- Regeneración de enlaces.
+# 🚧 Fase 6 — Gestión documental
+
+Estado: **En desarrollo**
+
+## Objetivos
+
+- Descarga desde el panel.
+- Regeneración de tokens.
 - Revocación.
+- Historial de acciones.
+- Acciones masivas.
+- Mejoras de UX.
 
-## 0.5.0
+---
 
-- Auditoría documental.
+# 📋 Fase 7 — Auditoría
 
-## 0.6.0
+Pendiente.
 
-- API REST.
+## Objetivos
 
-## 0.7.0
+- Registro de eventos.
+- Historial completo.
+- Exportación.
+- Búsqueda avanzada.
 
-- CLI.
+---
 
-## 1.0.0
+# 📋 Fase 8 — API
 
-- Primera versión estable.
+Pendiente.
+
+## Objetivos
+
+- REST API.
+- Integraciones externas.
+- Automatización.
+
+---
+
+# 📋 Fase 9 — Optimización
+
+Pendiente.
+
+## Objetivos
+
+- Caché.
+- Rendimiento.
+- Refactorización.
+- Cobertura de tests.

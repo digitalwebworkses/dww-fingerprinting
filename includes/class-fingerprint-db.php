@@ -110,4 +110,65 @@ class Fingerprint_DB
 
         return is_array($results) ? $results : [];
     }
+
+    public static function search(string $search = ''): array
+    {
+        global $wpdb;
+
+        $fingerprints_table = self::get_table_name();
+        $tokens_table = Download_Token_DB::get_table_name();
+
+        if ($search !== '') {
+
+            $like = '%' . $wpdb->esc_like($search) . '%';
+
+            $results = $wpdb->get_results(
+                $wpdb->prepare(
+                    "
+                SELECT
+                    fp.*,
+                    dt.token,
+                    dt.downloads_count,
+                    dt.max_downloads,
+                    dt.expires_at
+                FROM {$fingerprints_table} fp
+                LEFT JOIN {$tokens_table} dt
+                    ON dt.fingerprint_id = fp.fingerprint_id
+                WHERE
+                    fp.fingerprint_id LIKE %s
+                    OR fp.customer_email LIKE %s
+                    OR fp.order_id LIKE %s
+                    OR fp.product_id LIKE %s
+                    OR fp.product_name LIKE %s
+                ORDER BY fp.created_at DESC
+                ",
+                    $like,
+                    $like,
+                    $like,
+                    $like,
+                    $like
+                )
+            );
+        } else {
+
+            $results = $wpdb->get_results(
+                "
+            SELECT
+                fp.*,
+                dt.token,
+                dt.downloads_count,
+                dt.max_downloads,
+                dt.expires_at
+            FROM {$fingerprints_table} fp
+            LEFT JOIN {$tokens_table} dt
+                ON dt.fingerprint_id = fp.fingerprint_id
+            ORDER BY fp.created_at DESC
+            "
+            );
+        }
+
+        return is_array($results)
+            ? $results
+            : [];
+    }
 }

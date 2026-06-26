@@ -15,18 +15,29 @@ class Dashboard_Page
         $fingerprints_table = Fingerprint_DB::get_table_name();
         $tokens_table = Download_Token_DB::get_table_name();
 
-        $total_documents = (int) $wpdb->get_var("SELECT COUNT(*) FROM {$fingerprints_table}");
-        $total_tokens = (int) $wpdb->get_var("SELECT COUNT(*) FROM {$tokens_table}");
-        $total_downloads = (int) $wpdb->get_var("SELECT COALESCE(SUM(downloads_count), 0) FROM {$tokens_table}");
+        $total_documents = (int) $wpdb->get_var(
+            "SELECT COUNT(*) FROM {$fingerprints_table}"
+        );
+
+        $total_tokens = (int) $wpdb->get_var(
+            "SELECT COUNT(*) FROM {$tokens_table}"
+        );
+
+        $total_downloads = (int) $wpdb->get_var(
+            "SELECT COALESCE(SUM(downloads_count),0)
+             FROM {$tokens_table}"
+        );
 
         $active_tokens = (int) $wpdb->get_var(
-            "SELECT COUNT(*) FROM {$tokens_table}
+            "SELECT COUNT(*)
+             FROM {$tokens_table}
              WHERE downloads_count < max_downloads
              AND expires_at >= UTC_TIMESTAMP()"
         );
 
         $expired_tokens = (int) $wpdb->get_var(
-            "SELECT COUNT(*) FROM {$tokens_table}
+            "SELECT COUNT(*)
+             FROM {$tokens_table}
              WHERE downloads_count >= max_downloads
              OR expires_at < UTC_TIMESTAMP()"
         );
@@ -37,89 +48,223 @@ class Dashboard_Page
              ORDER BY created_at DESC
              LIMIT 10"
         );
-        ?>
 
-        <div class="wrap">
-            <h1>DWW Fingerprinting</h1>
+?>
 
-            <p>Sistema de trazabilidad documental.</p>
+<div class="wrap">
 
-            <hr>
+    <h1>DWW Fingerprinting</h1>
 
-            <h2>Resumen</h2>
+    <p>
+        Sistema de trazabilidad documental para WooCommerce.
+    </p>
 
-            <table class="widefat striped" style="max-width: 700px;">
-                <tbody>
-                    <tr>
-                        <td><strong>Versión plugin</strong></td>
-                        <td><?php echo esc_html(DWW_FP_VERSION); ?></td>
-                    </tr>
-                    <tr>
-                        <td><strong>Versión base de datos</strong></td>
-                        <td><?php echo esc_html(Migration_Manager::get_installed_version()); ?></td>
-                    </tr>
-                    <tr>
-                        <td><strong>Documentos protegidos</strong></td>
-                        <td><?php echo esc_html($total_documents); ?></td>
-                    </tr>
-                    <tr>
-                        <td><strong>Tokens creados</strong></td>
-                        <td><?php echo esc_html($total_tokens); ?></td>
-                    </tr>
-                    <tr>
-                        <td><strong>Tokens activos</strong></td>
-                        <td><?php echo esc_html($active_tokens); ?></td>
-                    </tr>
-                    <tr>
-                        <td><strong>Tokens caducados o agotados</strong></td>
-                        <td><?php echo esc_html($expired_tokens); ?></td>
-                    </tr>
-                    <tr>
-                        <td><strong>Descargas realizadas</strong></td>
-                        <td><?php echo esc_html($total_downloads); ?></td>
-                    </tr>
-                </tbody>
-            </table>
+    <div class="dww-dashboard-top">
 
-            <br>
+        <div class="dww-dashboard-main">
 
-            <h2>Últimos documentos generados</h2>
+            <?php
 
-            <table class="widefat striped">
-                <thead>
-                    <tr>
-                        <th>Pedido</th>
-                        <th>Cliente</th>
-                        <th>Producto</th>
-                        <th>Fingerprint</th>
-                        <th>Fecha</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php if (empty($last_documents)) : ?>
-                        <tr>
-                            <td colspan="5">No hay documentos generados.</td>
-                        </tr>
-                    <?php else : ?>
-                        <?php foreach ($last_documents as $row) : ?>
-                            <?php
-                            $product_name = property_exists($row, 'product_name') && $row->product_name !== ''
-                                ? $row->product_name
-                                : $row->product_id;
-                            ?>
-                            <tr>
-                                <td><?php echo esc_html($row->order_id); ?></td>
-                                <td><?php echo esc_html($row->customer_email); ?></td>
-                                <td><?php echo esc_html($product_name); ?></td>
-                                <td><code><?php echo esc_html($row->fingerprint_id); ?></code></td>
-                                <td><?php echo esc_html($row->created_at); ?></td>
-                            </tr>
-                        <?php endforeach; ?>
-                    <?php endif; ?>
-                </tbody>
-            </table>
+            Admin_UI::section(
+                'Resumen',
+                function () use (
+                    $total_documents,
+                    $total_downloads,
+                    $active_tokens,
+                    $expired_tokens
+                ) {
+
+                    Admin_UI::stat_card(
+                        'Documentos protegidos',
+                        (string) $total_documents,
+                        'blue'
+                    );
+
+                    Admin_UI::stat_card(
+                        'Descargas',
+                        (string) $total_downloads,
+                        'green'
+                    );
+
+                    Admin_UI::stat_card(
+                        'Tokens activos',
+                        (string) $active_tokens,
+                        'orange'
+                    );
+
+                    Admin_UI::stat_card(
+                        'Caducados',
+                        (string) $expired_tokens,
+                        'red'
+                    );
+
+                }
+            );
+
+            ?>
+
         </div>
 
-        <?php
+        <aside class="dww-dashboard-side">
+
+            <?php
+
+            Admin_UI::section(
+                'Información del sistema',
+                function () use ($total_tokens) {
+
+            ?>
+
+            <table class="widefat striped">
+
+                <tbody>
+
+                    <tr>
+                        <td><strong>Versión del plugin</strong></td>
+                        <td><?php echo esc_html(DWW_FP_VERSION); ?></td>
+                    </tr>
+
+                    <tr>
+                        <td><strong>Versión BD</strong></td>
+                        <td><?php echo esc_html(Migration_Manager::get_installed_version()); ?></td>
+                    </tr>
+
+                    <tr>
+                        <td><strong>PHP</strong></td>
+                        <td><?php echo esc_html(PHP_VERSION); ?></td>
+                    </tr>
+
+                    <tr>
+                        <td><strong>WordPress</strong></td>
+                        <td><?php echo esc_html(get_bloginfo('version')); ?></td>
+                    </tr>
+
+                    <tr>
+                        <td><strong>WooCommerce</strong></td>
+                        <td>
+
+                            <?php
+
+                            echo defined('WC_VERSION')
+                                ? esc_html(WC_VERSION)
+                                : 'No instalado';
+
+                            ?>
+
+                        </td>
+
+                    </tr>
+
+                    <tr>
+                        <td><strong>Tokens</strong></td>
+                        <td><?php echo esc_html($total_tokens); ?></td>
+                    </tr>
+
+                </tbody>
+
+            </table>
+
+            <?php
+
+                }
+            );
+
+            ?>
+
+        </aside>
+
+    </div>
+
+    <?php
+
+    Admin_UI::section(
+        'Últimos documentos generados',
+        function () use ($last_documents) {
+
+            if (empty($last_documents)) {
+
+                Admin_UI::empty_state(
+                    'Todavía no hay documentos.',
+                    'Los documentos protegidos aparecerán aquí automáticamente.'
+                );
+
+                return;
+            }
+
+    ?>
+
+    <table class="widefat striped">
+
+        <thead>
+
+            <tr>
+
+                <th>Pedido</th>
+
+                <th>Cliente</th>
+
+                <th>Producto</th>
+
+                <th>Fingerprint</th>
+
+                <th>Fecha</th>
+
+            </tr>
+
+        </thead>
+
+        <tbody>
+
+        <?php foreach ($last_documents as $row) :
+
+            $product_name = !empty($row->product_name)
+                ? $row->product_name
+                : $row->product_id;
+
+            $short_fp = strlen($row->fingerprint_id) > 18
+                ? substr($row->fingerprint_id, 0, 18) . '…'
+                : $row->fingerprint_id;
+
+        ?>
+
+            <tr>
+
+                <td><?php echo esc_html($row->order_id); ?></td>
+
+                <td><?php echo esc_html($row->customer_email); ?></td>
+
+                <td><?php echo esc_html($product_name); ?></td>
+
+                <td>
+
+                    <code title="<?php echo esc_attr($row->fingerprint_id); ?>">
+
+                        <?php echo esc_html($short_fp); ?>
+
+                    </code>
+
+                </td>
+
+                <td><?php echo esc_html($row->created_at); ?></td>
+
+            </tr>
+
+        <?php endforeach; ?>
+
+        </tbody>
+
+    </table>
+
+    <?php
+
+        }
+    );
+
+    ?>
+
+</div>
+
+<?php
+
     }
 }
