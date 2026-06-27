@@ -109,7 +109,7 @@ class WooCommerce_Integration
 
             Logger::log(
                 'Source exists: ' .
-                (file_exists($source_pdf) ? 'yes' : 'no')
+                    (file_exists($source_pdf) ? 'yes' : 'no')
             );
 
             if (empty($source_pdf) || !file_exists($source_pdf)) {
@@ -126,7 +126,7 @@ class WooCommerce_Integration
 
             Logger::log(
                 'Fingerprint exists: ' .
-                (Fingerprint_DB::exists($fingerprint_id) ? 'yes' : 'no')
+                    (Fingerprint_DB::exists($fingerprint_id) ? 'yes' : 'no')
             );
 
             if (Fingerprint_DB::exists($fingerprint_id)) {
@@ -143,12 +143,17 @@ class WooCommerce_Integration
             Logger::log('Destination PDF: ' . $destination);
             Logger::log('Generating PDF...');
 
-            $generated = PDF_Processor::personalize_pdf(
+            $generated = Fingerprint_Manager::process(
                 $source_pdf,
                 $destination,
-                $customer_name,
-                $customer_email,
-                (string) $order_id
+                [
+                    'customer_name'  => $customer_name,
+                    'customer_email' => $customer_email,
+                    'order_id'       => (string) $order_id,
+                    'product_id'     => $product_id,
+                    'product_name'   => $product_name,
+                    'fingerprint_id' => $fingerprint_id,
+                ]
             );
 
             if (!$generated) {
@@ -184,12 +189,12 @@ class WooCommerce_Integration
             if (!empty($download_token)) {
                 Logger::log(
                     'Download token created for fingerprint: ' .
-                    $fingerprint_id
+                        $fingerprint_id
                 );
             } else {
                 Logger::log(
                     'Download token creation failed for fingerprint: ' .
-                    $fingerprint_id
+                        $fingerprint_id
                 );
             }
         }
