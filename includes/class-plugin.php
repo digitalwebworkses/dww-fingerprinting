@@ -2,8 +2,6 @@
 
 namespace DWW_Fingerprinting;
 
-use DWW_Fingerprinting\Handlers\Pdf_Fingerprint_Handler;
-
 if (!defined('ABSPATH')) {
     exit;
 }
@@ -19,12 +17,6 @@ class Plugin
 
     private static function register_fingerprint_handlers(): void
     {
-        Fingerprint_Manager::clear_handlers();
-
-        Fingerprint_Manager::register_handler(
-            new Pdf_Fingerprint_Handler()
-        );
-
-        do_action('dww_fingerprinting_register_handlers');
+        Fingerprint_Manager::register_default_handlers();
     }
 }

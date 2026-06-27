@@ -105,16 +105,35 @@ class Fingerprint_Manager
      * Registra todos los handlers nativos y permite
      * que terceros registren los suyos.
      */
+    /**
+     * Registra automáticamente todos los handlers disponibles.
+     */
     public static function register_default_handlers(): void
     {
-        self::$handlers = [];
+        self::clear_handlers();
 
-        self::register_handler(
-            new \DWW_Fingerprinting\Handlers\Pdf_Fingerprint_Handler()
-        );
+        foreach (get_declared_classes() as $class) {
+
+            if (!is_subclass_of(
+                $class,
+                \DWW_Fingerprinting\Handlers\Abstract_Fingerprint_Handler::class
+            )) {
+                continue;
+            }
+
+            $reflection = new \ReflectionClass($class);
+
+            if ($reflection->isAbstract()) {
+                continue;
+            }
+
+            self::register_handler(
+                $reflection->newInstance()
+            );
+        }
 
         /**
-         * Permite registrar handlers externos.
+         * Permite a plugins externos registrar handlers adicionales.
          */
         do_action('dww_fingerprinting_register_handlers');
     }
