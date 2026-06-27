@@ -4,7 +4,7 @@
  * Plugin Name: DWW Fingerprinting
  * Plugin URI: https://www.digitalwebworks.es
  * Description: Trazabilidad documental para WooCommerce.
- * Version: 0.3.0
+ * Version: 0.4.0
  * Author: Digital Web Works
  * Author URI: https://www.digitalwebworks.es
  * Text Domain: dww-fingerprinting
@@ -14,7 +14,7 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-define('DWW_FP_VERSION', '0.3.0');
+define('DWW_FP_VERSION', '0.4.0');
 define('DWW_FP_PLUGIN_FILE', __FILE__);
 define('DWW_FP_PLUGIN_DIR', plugin_dir_path(__FILE__));
 define('DWW_FP_PLUGIN_URL', plugin_dir_url(__FILE__));
@@ -30,6 +30,7 @@ require_once DWW_FP_PLUGIN_DIR . 'includes/admin/class-admin-ui.php';
 require_once DWW_FP_PLUGIN_DIR . 'includes/class-fingerprint-db.php';
 require_once DWW_FP_PLUGIN_DIR . 'includes/class-fingerprint-generator.php';
 require_once DWW_FP_PLUGIN_DIR . 'includes/class-download-token-db.php';
+require_once DWW_FP_PLUGIN_DIR . 'includes/class-fingerprint-log-db.php';
 require_once DWW_FP_PLUGIN_DIR . 'includes/class-download-handler.php';
 require_once DWW_FP_PLUGIN_DIR . 'includes/class-order-downloads.php';
 require_once DWW_FP_PLUGIN_DIR . 'includes/admin/class-admin-menu.php';
@@ -44,6 +45,7 @@ require_once DWW_FP_PLUGIN_DIR . 'includes/class-test-runner.php';
 require_once DWW_FP_PLUGIN_DIR . 'includes/class-migration-manager.php';
 require_once DWW_FP_PLUGIN_DIR . 'includes/migrations/class-migration-020.php';
 require_once DWW_FP_PLUGIN_DIR . 'includes/migrations/class-migration-030.php';
+require_once DWW_FP_PLUGIN_DIR . 'includes/migrations/class-migration-040.php';
 
 register_activation_hook(
     __FILE__,

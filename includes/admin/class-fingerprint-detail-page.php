@@ -31,6 +31,7 @@ class Fingerprint_Detail_Page
 
         $token = Download_Token_DB::get_by_fingerprint($fingerprint->fingerprint_id);
         $token_history = Download_Token_DB::get_all_by_fingerprint($fingerprint->fingerprint_id);
+        $activity_logs = Fingerprint_Log_DB::get_by_fingerprint($fingerprint->fingerprint_id);
 
         $back_url = admin_url(
             'admin.php?page=' . Admin_Menu::get_fingerprints_slug()
@@ -274,9 +275,64 @@ class Fingerprint_Detail_Page
                                 </td>
 
                                 <td><?php echo esc_html($history_token->created_at); ?></td>
+
                                 </tr>
 
                             <?php endforeach; ?>
+                    </tbody>
+                </table>
+
+            <?php
+                }
+            );
+
+            Admin_UI::section(
+                'Historial de actividad',
+                function () use ($activity_logs) {
+                    if (empty($activity_logs)) {
+                        Admin_UI::empty_state(
+                            'Sin actividad registrada',
+                            'Todavía no hay eventos de auditoría asociados a este fingerprint.'
+                        );
+
+                        return;
+                    }
+
+            ?>
+
+                <table class="widefat striped">
+                    <thead>
+                        <tr>
+                            <th>Fecha</th>
+                            <th>Acción</th>
+                            <th>Mensaje</th>
+                            <th>Usuario</th>
+                            <th>IP</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        <?php foreach ($activity_logs as $log) : ?>
+
+                            <tr>
+                                <td><?php echo esc_html($log->created_at); ?></td>
+
+                                <td>
+                                    <code><?php echo esc_html($log->action); ?></code>
+                                </td>
+
+                                <td><?php echo esc_html($log->message); ?></td>
+
+                                <td>
+                                    <?php echo esc_html((string) $log->user_id); ?>
+                                </td>
+
+                                <td>
+                                    <?php echo esc_html((string) $log->ip_address); ?>
+                                </td>
+                            </tr>
+
+                        <?php endforeach; ?>
                     </tbody>
                 </table>
 

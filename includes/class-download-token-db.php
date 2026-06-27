@@ -50,17 +50,20 @@ class Download_Token_DB
     ): string {
         global $wpdb;
 
+        $fingerprint_id = sanitize_text_field($fingerprint_id);
+        $max_downloads = absint($max_downloads);
+        $expires_at = gmdate('Y-m-d H:i:s', time() + ($expires_in_hours * HOUR_IN_SECONDS));
         $token = self::generate_token();
 
         $inserted = $wpdb->insert(
             self::get_table_name(),
             [
-                'fingerprint_id'  => sanitize_text_field($fingerprint_id),
+                'fingerprint_id'  => $fingerprint_id,
                 'token'           => $token,
-                'expires_at'      => gmdate('Y-m-d H:i:s', time() + ($expires_in_hours * HOUR_IN_SECONDS)),
+                'expires_at'      => $expires_at,
                 'revoked_at'      => null,
                 'downloads_count' => 0,
-                'max_downloads'   => absint($max_downloads),
+                'max_downloads'   => $max_downloads,
                 'created_at'      => current_time('mysql'),
             ],
             [
@@ -78,6 +81,17 @@ class Download_Token_DB
             return '';
         }
 
+        self::log_event(
+            $fingerprint_id,
+            'token_created',
+            'Token de descarga creado.',
+            [
+                'token' => self::mask_token($token),
+                'expires_at' => $expires_at,
+                'max_downloads' => $max_downloads,
+            ]
+        );
+
         return $token;
     }
 
@@ -92,17 +106,40 @@ class Download_Token_DB
             return '';
         }
 
-        self::revoke_by_fingerprint($fingerprint_id);
+        $previous_token = self::get_by_fingerprint($fingerprint_id);
 
-        return self::create_token(
+        self::revoke_by_fingerprint(
+            $fingerprint_id,
+            false
+        );
+
+        $new_token = self::create_token(
             $fingerprint_id,
             $expires_in_hours,
             $max_downloads
         );
+
+        if ($new_token !== '') {
+            self::log_event(
+                $fingerprint_id,
+                'token_regenerated',
+                'Token de descarga regenerado.',
+                [
+                    'previous_token' => $previous_token
+                        ? self::mask_token((string) $previous_token->token)
+                        : null,
+                    'new_token' => self::mask_token($new_token),
+                ]
+            );
+        }
+
+        return $new_token;
     }
 
-    public static function revoke_by_fingerprint(string $fingerprint_id): bool
-    {
+    public static function revoke_by_fingerprint(
+        string $fingerprint_id,
+        bool $log = true
+    ): bool {
         global $wpdb;
 
         $fingerprint_id = sanitize_text_field($fingerprint_id);
@@ -110,6 +147,8 @@ class Download_Token_DB
         if ($fingerprint_id === '') {
             return false;
         }
+
+        $current_token = self::get_by_fingerprint($fingerprint_id);
 
         $updated = $wpdb->query(
             $wpdb->prepare(
@@ -122,7 +161,22 @@ class Download_Token_DB
             )
         );
 
-        return $updated !== false;
+        $success = $updated !== false;
+
+        if ($success && $log) {
+            self::log_event(
+                $fingerprint_id,
+                'token_revoked',
+                'Token de descarga revocado.',
+                [
+                    'token' => $current_token
+                        ? self::mask_token((string) $current_token->token)
+                        : null,
+                ]
+            );
+        }
+
+        return $success;
     }
 
     public static function expire_by_fingerprint(string $fingerprint_id): bool
@@ -222,5 +276,32 @@ class Download_Token_DB
     private static function generate_token(): string
     {
         return bin2hex(random_bytes(32));
+    }
+
+    private static function log_event(
+        string $fingerprint_id,
+        string $action,
+        string $message,
+        array $context = []
+    ): void {
+        if (!class_exists(Fingerprint_Log_DB::class)) {
+            return;
+        }
+
+        Fingerprint_Log_DB::insert(
+            $fingerprint_id,
+            $action,
+            $message,
+            $context
+        );
+    }
+
+    private static function mask_token(string $token): string
+    {
+        if (strlen($token) <= 16) {
+            return $token;
+        }
+
+        return substr($token, 0, 8) . '…' . substr($token, -8);
     }
 }
