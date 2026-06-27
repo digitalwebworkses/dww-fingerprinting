@@ -318,10 +318,14 @@ class Fingerprint_Detail_Page
                                 <td><?php echo esc_html($log->created_at); ?></td>
 
                                 <td>
-                                    <code><?php echo esc_html($log->action); ?></code>
+                                    <?php self::render_activity_badge($log->action); ?>
                                 </td>
 
-                                <td><?php echo esc_html($log->message); ?></td>
+                                <td>
+                                    <?php echo esc_html($log->message); ?>
+
+                                    <?php self::render_log_context($log->context); ?>
+                                </td>
 
                                 <td>
                                     <?php echo esc_html((string) $log->user_id); ?>
@@ -559,6 +563,128 @@ class Fingerprint_Detail_Page
         }
 
         Admin_UI::badge('Activo', 'success');
+    }
+
+    private static function render_activity_badge(string $action): void
+    {
+        switch ($action) {
+
+            case 'token_created':
+                Admin_UI::badge('Token creado', 'success');
+                break;
+
+            case 'token_regenerated':
+                Admin_UI::badge('Regenerado', 'info');
+                break;
+
+            case 'token_revoked':
+                Admin_UI::badge('Revocado', 'danger');
+                break;
+
+            case 'download_success':
+                Admin_UI::badge('Descarga', 'success');
+                break;
+
+            case 'download_expired':
+                Admin_UI::badge('Caducado', 'warning');
+                break;
+
+            case 'download_limit_reached':
+                Admin_UI::badge('Límite', 'warning');
+                break;
+
+            case 'download_revoked':
+                Admin_UI::badge('Revocado', 'danger');
+                break;
+
+            case 'download_invalid_token':
+                Admin_UI::badge('Token inválido', 'danger');
+                break;
+
+            case 'download_file_missing':
+                Admin_UI::badge('Archivo ausente', 'danger');
+                break;
+
+            case 'download_fingerprint_not_found':
+                Admin_UI::badge('Fingerprint inexistente', 'danger');
+                break;
+
+            case 'download_mark_failed':
+                Admin_UI::badge('Error interno', 'danger');
+                break;
+
+            default:
+                Admin_UI::badge('Evento', 'info');
+                break;
+        }
+    }
+
+    private static function render_log_context(?string $context): void
+    {
+        if (empty($context)) {
+            return;
+        }
+
+        $context = json_decode($context, true);
+
+        if (!is_array($context)) {
+            return;
+        }
+
+        echo '<div class="dww-log-context">';
+
+        foreach ($context as $key => $value) {
+
+            if ($value === '' || $value === null) {
+                continue;
+            }
+
+            $translations = [
+                'token' => 'Token',
+                'previous_token' => 'Token anterior',
+                'new_token' => 'Nuevo token',
+                'expires_at' => 'Caduca',
+                'revoked_at' => 'Revocado',
+                'max_downloads' => 'Máximo de descargas',
+                'downloads_before' => 'Descargas antes',
+                'downloads_after' => 'Descargas después',
+                'remaining_downloads' => 'Descargas restantes',
+                'downloads_count' => 'Descargas realizadas',
+                'file' => 'Archivo',
+                'reason' => 'Motivo',
+            ];
+
+            $label = $translations[$key]
+                ?? ucwords(str_replace('_', ' ', (string) $key));
+
+            if (
+                in_array(
+                    $key,
+                    ['expires_at', 'revoked_at'],
+                    true
+                ) &&
+                !empty($value)
+            ) {
+                $value = wp_date(
+                    'd/m/Y H:i:s',
+                    strtotime((string) $value)
+                );
+            }
+
+            echo '<div>';
+
+            echo '<strong>' .
+                esc_html($label) .
+                ':</strong> ';
+
+            echo '<code>' .
+                esc_html((string) $value) .
+                '</code>';
+
+            echo '</div>';
+        }
+
+        echo '</div>';
     }
 
     private static function redirect_after_action(
