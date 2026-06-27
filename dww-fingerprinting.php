@@ -32,6 +32,7 @@ require_once DWW_FP_PLUGIN_DIR . 'includes/admin/class-admin-ui.php';
 require_once DWW_FP_PLUGIN_DIR . 'includes/handlers/interface-fingerprint-handler.php';
 require_once DWW_FP_PLUGIN_DIR . 'includes/handlers/abstract-fingerprint-handler.php';
 require_once DWW_FP_PLUGIN_DIR . 'includes/handlers/class-pdf-fingerprint-handler.php';
+require_once DWW_FP_PLUGIN_DIR . 'includes/handlers/class-epub-fingerprint-handler.php';
 require_once DWW_FP_PLUGIN_DIR . 'includes/class-fingerprint-manager.php';
 
 require_once DWW_FP_PLUGIN_DIR . 'includes/class-fingerprint-db.php';
@@ -48,6 +49,7 @@ require_once DWW_FP_PLUGIN_DIR . 'includes/class-woocommerce-integration.php';
 require_once DWW_FP_PLUGIN_DIR . 'includes/class-product-settings.php';
 require_once DWW_FP_PLUGIN_DIR . 'includes/class-plugin.php';
 require_once DWW_FP_PLUGIN_DIR . 'includes/class-pdf-processor.php';
+require_once DWW_FP_PLUGIN_DIR . 'includes/class-epub-processor.php';
 require_once DWW_FP_PLUGIN_DIR . 'includes/class-test-runner.php';
 require_once DWW_FP_PLUGIN_DIR . 'includes/class-migration-manager.php';
 require_once DWW_FP_PLUGIN_DIR . 'includes/migrations/class-migration-020.php';
