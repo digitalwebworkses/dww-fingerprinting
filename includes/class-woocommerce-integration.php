@@ -88,8 +88,6 @@ class WooCommerce_Integration
             $product_id = (string) $product->get_id();
             $product_name = $product->get_name();
 
-            Logger::log('Checking product: ' . $product_id);
-
             Logger::log(
                 sprintf(
                     'Product: %s (%s)',
@@ -103,17 +101,22 @@ class WooCommerce_Integration
                 continue;
             }
 
-            $source_pdf = Product_Settings::get_source_pdf($product);
+            $source_file = Product_Settings::get_source_pdf($product);
 
-            Logger::log('Source PDF: ' . $source_pdf);
+            Logger::log('Source file: ' . $source_file);
 
             Logger::log(
                 'Source exists: ' .
-                    (file_exists($source_pdf) ? 'yes' : 'no')
+                (file_exists($source_file) ? 'yes' : 'no')
             );
 
-            if (empty($source_pdf) || !file_exists($source_pdf)) {
-                Logger::log('Invalid source PDF for product: ' . $product_id);
+            if (empty($source_file) || !file_exists($source_file)) {
+                Logger::log('Invalid source file for product: ' . $product_id);
+                continue;
+            }
+
+            if (!Fingerprint_Manager::can_process($source_file)) {
+                Logger::log('Unsupported source file for fingerprinting: ' . $source_file);
                 continue;
             }
 
@@ -126,7 +129,7 @@ class WooCommerce_Integration
 
             Logger::log(
                 'Fingerprint exists: ' .
-                    (Fingerprint_DB::exists($fingerprint_id) ? 'yes' : 'no')
+                (Fingerprint_DB::exists($fingerprint_id) ? 'yes' : 'no')
             );
 
             if (Fingerprint_DB::exists($fingerprint_id)) {
@@ -134,17 +137,18 @@ class WooCommerce_Integration
                 continue;
             }
 
-            $destination = self::build_generated_pdf_path(
+            $destination = self::build_generated_file_path(
                 $order_id,
                 $product_id,
-                $fingerprint_id
+                $fingerprint_id,
+                $source_file
             );
 
-            Logger::log('Destination PDF: ' . $destination);
-            Logger::log('Generating PDF...');
+            Logger::log('Destination file: ' . $destination);
+            Logger::log('Generating protected file...');
 
             $generated = Fingerprint_Manager::process(
-                $source_pdf,
+                $source_file,
                 $destination,
                 [
                     'customer_name'  => $customer_name,
@@ -157,11 +161,11 @@ class WooCommerce_Integration
             );
 
             if (!$generated) {
-                Logger::log('PDF generation failed for fingerprint: ' . $fingerprint_id);
+                Logger::log('File generation failed for fingerprint: ' . $fingerprint_id);
                 continue;
             }
 
-            Logger::log('PDF generated successfully: ' . $destination);
+            Logger::log('Protected file generated successfully: ' . $destination);
 
             $registry_id = Fingerprint_DB::insert([
                 'fingerprint_id' => $fingerprint_id,
@@ -169,7 +173,7 @@ class WooCommerce_Integration
                 'order_id'       => (string) $order_id,
                 'product_id'     => $product_id,
                 'product_name'   => $product_name,
-                'source_file'    => $source_pdf,
+                'source_file'    => $source_file,
                 'generated_file' => $destination,
             ]);
 
@@ -189,21 +193,22 @@ class WooCommerce_Integration
             if (!empty($download_token)) {
                 Logger::log(
                     'Download token created for fingerprint: ' .
-                        $fingerprint_id
+                    $fingerprint_id
                 );
             } else {
                 Logger::log(
                     'Download token creation failed for fingerprint: ' .
-                        $fingerprint_id
+                    $fingerprint_id
                 );
             }
         }
     }
 
-    private static function build_generated_pdf_path(
+    private static function build_generated_file_path(
         int $order_id,
         string $product_id,
-        string $fingerprint_id
+        string $fingerprint_id,
+        string $source_file
     ): string {
         $upload_dir = wp_upload_dir();
 
@@ -214,11 +219,18 @@ class WooCommerce_Integration
             wp_mkdir_p($generated_dir);
         }
 
+        $extension = strtolower(pathinfo($source_file, PATHINFO_EXTENSION));
+
+        if ($extension === '') {
+            $extension = 'bin';
+        }
+
         $filename = sprintf(
-            'order-%s-%s-product-%s.pdf',
+            'order-%s-%s-product-%s.%s',
             $order_id,
             sanitize_file_name($fingerprint_id),
-            sanitize_file_name($product_id)
+            sanitize_file_name($product_id),
+            sanitize_file_name($extension)
         );
 
         return trailingslashit($generated_dir) . $filename;

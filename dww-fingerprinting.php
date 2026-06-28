@@ -25,6 +25,7 @@ if (file_exists(DWW_FP_PLUGIN_DIR . 'vendor/autoload.php')) {
 
 require_once DWW_FP_PLUGIN_DIR . 'includes/class-installer.php';
 require_once DWW_FP_PLUGIN_DIR . 'includes/class-logger.php';
+require_once DWW_FP_PLUGIN_DIR . 'includes/class-upload-mimes.php';
 
 require_once DWW_FP_PLUGIN_DIR . 'includes/admin/class-admin-assets.php';
 require_once DWW_FP_PLUGIN_DIR . 'includes/admin/class-admin-ui.php';
@@ -63,6 +64,7 @@ register_activation_hook(
 
 DWW_Fingerprinting\Admin_Menu::init();
 DWW_Fingerprinting\Admin_Assets::init();
+DWW_Fingerprinting\Upload_Mimes::init();
 DWW_Fingerprinting\WooCommerce_Integration::init();
 DWW_Fingerprinting\Product_Settings::init();
 DWW_Fingerprinting\Download_Handler::init();
