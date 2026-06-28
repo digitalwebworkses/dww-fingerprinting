@@ -280,6 +280,7 @@ class Download_Handler
             'Content-Type: ' .
                 self::get_mime_type($extension)
         );
+        header('X-Content-Type-Options: nosniff');
         header(
             'Content-Disposition: attachment; filename="' .
                 $download_name .
