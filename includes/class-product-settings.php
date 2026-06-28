@@ -59,16 +59,16 @@ class Product_Settings
         echo '<p class="form-field dww-fingerprinting-source-file-field">';
         echo '<label for="_dww_fingerprinting_source_file">Documento protegido</label>';
 
-        echo '<input type="text" id="_dww_fingerprinting_source_file" value="' . esc_attr($attachment_name) . '" readonly style="width:40%;" placeholder="Ningún documento seleccionado" />';
+        echo '<input type="text" id="_dww_fingerprinting_source_file" value="' . esc_attr($attachment_name) . '" readonly style="width:40%;" placeholder="Ningún archivo seleccionado" />';
 
         if (!empty($attachment_url)) {
-            echo ' <a href="' . esc_url($attachment_url) . '" target="_blank" class="button">Ver PDF</a>';
+            echo ' <a href="' . esc_url($attachment_url) . '" target="_blank" class="button">Ver archivo</a>';
         }
 
-        echo ' <button type="button" class="button dww-fp-select-file">Seleccionar PDF</button>';
-        echo ' <button type="button" class="button dww-fp-remove-file">Eliminar</button>';
+        echo ' <button type="button" class="button dww-fp-select-file">Seleccionar archivo</button>';
+        echo ' <button type="button" class="button dww-fp-remove-file">Quitar</button>';
 
-        echo '<span class="description">Selecciona el PDF origen que se usará para generar la copia personalizada.</span>';
+        echo '<span class="description">Selecciona el archivo origen que se usará para generar la copia personalizada.</span>';
         echo '</p>';
 
         echo '</div>';
@@ -122,7 +122,7 @@ class Product_Settings
         return $product->get_meta('_dww_fingerprinting_enabled') === 'yes';
     }
 
-    public static function get_source_pdf($product): string
+    public static function get_source_file($product): string
     {
         if (!$product) {
             return '';
@@ -137,6 +137,11 @@ class Product_Settings
         $file_path = get_attached_file($attachment_id);
 
         return $file_path ? (string) $file_path : '';
+    }
+
+    public static function get_source_pdf($product): string
+    {
+        return self::get_source_file($product);
     }
 
     private static function get_media_uploader_script(): string
@@ -154,12 +159,9 @@ class Product_Settings
                     }
 
                     frame = wp.media({
-                        title: 'Seleccionar documento protegido',
+                        title: 'Seleccionar archivo protegido',
                         button: {
-                            text: 'Usar este PDF'
-                        },
-                        library: {
-                            type: 'application/pdf'
+                            text: 'Usar este archivo'
                         },
                         multiple: false
                     });

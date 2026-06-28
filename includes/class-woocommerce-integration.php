@@ -101,7 +101,7 @@ class WooCommerce_Integration
                 continue;
             }
 
-            $source_file = Product_Settings::get_source_pdf($product);
+            $source_file = Product_Settings::get_source_file($product);
 
             Logger::log('Source file: ' . $source_file);
 
