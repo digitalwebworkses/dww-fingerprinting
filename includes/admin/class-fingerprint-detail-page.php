@@ -356,13 +356,13 @@ class Fingerprint_Detail_Page
                             class="button button-primary"
                             href="<?php echo esc_url($download_url); ?>">
 
-                            Descargar PDF
+                            Descargar Archivo
                         </a>
 
                     <?php else : ?>
 
                         <button class="button button-primary" disabled>
-                            Descargar PDF
+                            Descargar Archivo
                         </button>
 
                     <?php endif; ?>

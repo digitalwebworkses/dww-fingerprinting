@@ -155,7 +155,7 @@ class Download_Handler
 
         Logger::log(
             'Serving file for fingerprint: ' .
-            $fingerprint->fingerprint_id
+                $fingerprint->fingerprint_id
         );
 
         self::serve_file(
@@ -227,6 +227,28 @@ class Download_Handler
         return substr($token, 0, 8) . '…' . substr($token, -8);
     }
 
+    private static function get_mime_type(
+
+        string $extension
+
+    ): string {
+
+        switch ($extension) {
+
+            case 'pdf':
+
+                return 'application/pdf';
+
+            case 'epub':
+
+                return 'application/epub+zip';
+
+            default:
+
+                return 'application/octet-stream';
+        }
+    }
+
     private static function serve_file(
         string $file_path,
         string $product_name
@@ -254,11 +276,14 @@ class Download_Handler
             $download_name . '.' . $extension
         );
 
-        header('Content-Type: application/pdf');
+        header(
+            'Content-Type: ' .
+                self::get_mime_type($extension)
+        );
         header(
             'Content-Disposition: attachment; filename="' .
-            $download_name .
-            '"'
+                $download_name .
+                '"'
         );
         header('Content-Length: ' . filesize($file_path));
         header('Cache-Control: private, no-store, no-cache, must-revalidate');
