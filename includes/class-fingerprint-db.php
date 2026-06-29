@@ -29,13 +29,16 @@ class Fingerprint_DB
             order_id VARCHAR(50) NOT NULL,
             product_id VARCHAR(50) NOT NULL,
             product_name VARCHAR(255) NOT NULL,
+            asset_format VARCHAR(50) NOT NULL DEFAULT '',
+            asset_id VARCHAR(50) NOT NULL DEFAULT '',
             source_file TEXT NOT NULL,
             generated_file TEXT NOT NULL,
             created_at DATETIME NOT NULL,
             PRIMARY KEY (id),
             KEY fingerprint_id (fingerprint_id),
             KEY order_id (order_id),
-            KEY customer_email (customer_email)
+            KEY customer_email (customer_email),
+            KEY asset_format (asset_format)
         ) {$charset_collate};";
 
         require_once ABSPATH . 'wp-admin/includes/upgrade.php';
@@ -60,11 +63,15 @@ class Fingerprint_DB
                 'order_id'       => sanitize_text_field($data['order_id'] ?? ''),
                 'product_id'     => sanitize_text_field($data['product_id'] ?? ''),
                 'product_name'   => sanitize_text_field($data['product_name'] ?? ''),
+                'asset_format'   => sanitize_text_field($data['asset_format'] ?? ''),
+                'asset_id'       => sanitize_text_field($data['asset_id'] ?? ''),
                 'source_file'    => sanitize_text_field($data['source_file'] ?? ''),
                 'generated_file' => sanitize_text_field($data['generated_file'] ?? ''),
                 'created_at'     => current_time('mysql'),
             ],
             [
+                '%s',
+                '%s',
                 '%s',
                 '%s',
                 '%s',
@@ -155,8 +162,12 @@ class Fingerprint_DB
                         OR fp.order_id LIKE %s
                         OR fp.product_id LIKE %s
                         OR fp.product_name LIKE %s
+                        OR fp.asset_format LIKE %s
+                        OR fp.asset_id LIKE %s
                     ORDER BY fp.created_at DESC
                     ",
+                    $like,
+                    $like,
                     $like,
                     $like,
                     $like,

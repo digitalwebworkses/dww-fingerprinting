@@ -39,13 +39,14 @@ class Order_Downloads
         }
 
         echo '<section class="woocommerce-order-downloads dww-fingerprinting-downloads">';
-        echo '<h2>Documentos protegidos</h2>';
+        echo '<h2>Archivos protegidos</h2>';
 
         echo '<table class="woocommerce-table shop_table shop_table_responsive">';
 
         echo '<thead>';
         echo '<tr>';
         echo '<th>Producto</th>';
+        echo '<th>Formato</th>';
         echo '<th>Fingerprint</th>';
         echo '<th>Descarga</th>';
         echo '</tr>';
@@ -64,10 +65,16 @@ class Order_Downloads
                 $fingerprint->fingerprint_id
             );
 
+            $format = self::get_fingerprint_format($fingerprint);
+
             echo '<tr>';
 
             echo '<td data-title="Producto">';
             echo esc_html($fingerprint->product_name);
+            echo '</td>';
+
+            echo '<td data-title="Formato">';
+            echo esc_html(strtoupper($format));
             echo '</td>';
 
             echo '<td data-title="Fingerprint">';
@@ -92,7 +99,9 @@ class Order_Downloads
 
                 echo '<a class="button" href="' .
                     esc_url($download_url) .
-                    '">⬇ Descargar</a>';
+                    '">⬇ Descargar ' .
+                    esc_html(strtoupper($format)) .
+                    '</a>';
 
             } else {
 
@@ -109,5 +118,17 @@ class Order_Downloads
         echo '</table>';
 
         echo '</section>';
+    }
+
+    private static function get_fingerprint_format(object $fingerprint): string
+    {
+        if (!empty($fingerprint->asset_format)) {
+            return sanitize_key((string) $fingerprint->asset_format);
+        }
+
+        $generated_file = (string) ($fingerprint->generated_file ?? '');
+        $extension = strtolower(pathinfo($generated_file, PATHINFO_EXTENSION));
+
+        return $extension !== '' ? $extension : 'archivo';
     }
 }

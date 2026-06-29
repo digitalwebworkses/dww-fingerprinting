@@ -101,106 +101,140 @@ class WooCommerce_Integration
                 continue;
             }
 
-            $source_file = Product_Settings::get_source_file($product);
+            $assets = Product_Assets::get_supported_assets($product);
 
-            Logger::log('Source file: ' . $source_file);
-
-            Logger::log(
-                'Source exists: ' .
-                (file_exists($source_file) ? 'yes' : 'no')
-            );
-
-            if (empty($source_file) || !file_exists($source_file)) {
-                Logger::log('Invalid source file for product: ' . $product_id);
+            if (empty($assets)) {
+                Logger::log('No supported assets for product: ' . $product_id);
                 continue;
             }
 
-            if (!Fingerprint_Manager::can_process($source_file)) {
-                Logger::log('Unsupported source file for fingerprinting: ' . $source_file);
-                continue;
+            foreach ($assets as $asset) {
+                self::process_product_asset(
+                    $order_id,
+                    $product,
+                    $asset,
+                    $customer_name,
+                    $customer_email
+                );
             }
+        }
+    }
 
-            $fingerprint_id = Fingerprint_Generator::generate(
-                $customer_email,
-                (string) $order_id
-            );
+    private static function process_product_asset(
+        int $order_id,
+        $product,
+        Product_Asset $asset,
+        string $customer_name,
+        string $customer_email
+    ): void {
+        $product_id = (string) $product->get_id();
+        $product_name = $product->get_name();
 
-            Logger::log('Fingerprint: ' . $fingerprint_id);
+        $source_file = $asset->get_file_path();
+        $format = $asset->get_format();
+        $asset_id = (string) $asset->get_attachment_id();
 
-            Logger::log(
-                'Fingerprint exists: ' .
+        Logger::log('Processing asset for product: ' . $product_id);
+        Logger::log('Asset format: ' . $format);
+        Logger::log('Source file: ' . $source_file);
+
+        if (empty($source_file) || !file_exists($source_file)) {
+            Logger::log('Invalid source file for product asset: ' . $product_id);
+            return;
+        }
+
+        if (!Fingerprint_Manager::can_process($source_file)) {
+            Logger::log('Unsupported source file for fingerprinting: ' . $source_file);
+            return;
+        }
+
+        $fingerprint_id = Fingerprint_Generator::generate(
+            $customer_email,
+            (string) $order_id,
+            $product_id,
+            $format,
+            $asset_id
+        );
+
+        Logger::log('Fingerprint: ' . $fingerprint_id);
+
+        Logger::log(
+            'Fingerprint exists: ' .
                 (Fingerprint_DB::exists($fingerprint_id) ? 'yes' : 'no')
-            );
+        );
 
-            if (Fingerprint_DB::exists($fingerprint_id)) {
-                Logger::log('Skipping existing fingerprint: ' . $fingerprint_id);
-                continue;
-            }
+        if (Fingerprint_DB::exists($fingerprint_id)) {
+            Logger::log('Skipping existing fingerprint: ' . $fingerprint_id);
+            return;
+        }
 
-            $destination = self::build_generated_file_path(
-                $order_id,
-                $product_id,
-                $fingerprint_id,
-                $source_file
-            );
+        $destination = self::build_generated_file_path(
+            $order_id,
+            $product_id,
+            $fingerprint_id,
+            $source_file
+        );
 
-            Logger::log('Destination file: ' . $destination);
-            Logger::log('Generating protected file...');
+        Logger::log('Destination file: ' . $destination);
+        Logger::log('Generating protected file...');
 
-            $generated = Fingerprint_Manager::process(
-                $source_file,
-                $destination,
-                [
-                    'customer_name'  => $customer_name,
-                    'customer_email' => $customer_email,
-                    'order_id'       => (string) $order_id,
-                    'product_id'     => $product_id,
-                    'product_name'   => $product_name,
-                    'fingerprint_id' => $fingerprint_id,
-                ]
-            );
-
-            if (!$generated) {
-                Logger::log('File generation failed for fingerprint: ' . $fingerprint_id);
-                continue;
-            }
-
-            Logger::log('Protected file generated successfully: ' . $destination);
-
-            $registry_id = Fingerprint_DB::insert([
-                'fingerprint_id' => $fingerprint_id,
+        $generated = Fingerprint_Manager::process(
+            $source_file,
+            $destination,
+            [
+                'customer_name'  => $customer_name,
                 'customer_email' => $customer_email,
                 'order_id'       => (string) $order_id,
                 'product_id'     => $product_id,
                 'product_name'   => $product_name,
-                'source_file'    => $source_file,
-                'generated_file' => $destination,
-            ]);
+                'asset_format'   => $format,
+                'asset_id'       => $asset_id,
+                'fingerprint_id' => $fingerprint_id,
+            ]
+        );
 
-            if ($registry_id <= 0) {
-                Logger::log('Fingerprint insert failed: ' . $fingerprint_id);
-                continue;
-            }
+        if (!$generated) {
+            Logger::log('File generation failed for fingerprint: ' . $fingerprint_id);
+            return;
+        }
 
-            Logger::log('Fingerprint inserted: ' . $fingerprint_id);
+        Logger::log('Protected file generated successfully: ' . $destination);
 
-            $download_token = Download_Token_DB::create_token(
-                $fingerprint_id,
-                72,
-                3
+        $registry_id = Fingerprint_DB::insert([
+            'fingerprint_id' => $fingerprint_id,
+            'customer_email' => $customer_email,
+            'order_id'       => (string) $order_id,
+            'product_id'     => $product_id,
+            'product_name'   => $product_name,
+            'asset_format'   => $format,
+            'asset_id'       => $asset_id,
+            'source_file'    => $source_file,
+            'generated_file' => $destination,
+        ]);
+
+        if ($registry_id <= 0) {
+            Logger::log('Fingerprint insert failed: ' . $fingerprint_id);
+            return;
+        }
+
+        Logger::log('Fingerprint inserted: ' . $fingerprint_id);
+
+        $download_token = Download_Token_DB::create_token(
+            $fingerprint_id,
+            72,
+            3
+        );
+
+        if (!empty($download_token)) {
+            Logger::log(
+                'Download token created for fingerprint: ' .
+                    $fingerprint_id
             );
-
-            if (!empty($download_token)) {
-                Logger::log(
-                    'Download token created for fingerprint: ' .
+        } else {
+            Logger::log(
+                'Download token creation failed for fingerprint: ' .
                     $fingerprint_id
-                );
-            } else {
-                Logger::log(
-                    'Download token creation failed for fingerprint: ' .
-                    $fingerprint_id
-                );
-            }
+            );
         }
     }
 
@@ -213,7 +247,7 @@ class WooCommerce_Integration
         $upload_dir = wp_upload_dir();
 
         $generated_dir = trailingslashit($upload_dir['basedir'])
-            . 'dww-fingerprinting/generated';
+            . 'dww-fingerprinting/storage/generated';
 
         if (!file_exists($generated_dir)) {
             wp_mkdir_p($generated_dir);
@@ -226,10 +260,8 @@ class WooCommerce_Integration
         }
 
         $filename = sprintf(
-            'order-%s-%s-product-%s.%s',
-            $order_id,
-            sanitize_file_name($fingerprint_id),
-            sanitize_file_name($product_id),
+            '%s.%s',
+            bin2hex(random_bytes(16)),
             sanitize_file_name($extension)
         );
 

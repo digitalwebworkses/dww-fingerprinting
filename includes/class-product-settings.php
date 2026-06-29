@@ -30,17 +30,10 @@ class Product_Settings
     {
         global $post;
 
-        $attachment_id = $post
-            ? (int) get_post_meta($post->ID, '_dww_fingerprinting_source_attachment_id', true)
-            : 0;
+        $product = $post ? wc_get_product($post->ID) : null;
 
-        $attachment_url = $attachment_id > 0
-            ? wp_get_attachment_url($attachment_id)
-            : '';
-
-        $attachment_name = $attachment_id > 0
-            ? basename((string) get_attached_file($attachment_id))
-            : '';
+        $assets = Product_Assets::get_assets($product);
+        $format_options = Fingerprint_Manager::get_supported_format_options();
 
         echo '<div class="options_group">';
 
@@ -51,24 +44,39 @@ class Product_Settings
             'desc_tip'    => true,
         ]);
 
-        woocommerce_wp_hidden_input([
-            'id'    => '_dww_fingerprinting_source_attachment_id',
-            'value' => $attachment_id,
-        ]);
+        echo '<p class="form-field dww-fingerprinting-assets-field">';
+        echo '<label>Activos maestros</label>';
 
-        echo '<p class="form-field dww-fingerprinting-source-file-field">';
-        echo '<label for="_dww_fingerprinting_source_file">Documento protegido</label>';
+        echo '<span class="description">';
+        echo 'Añade los archivos origen que se usarán para generar copias personalizadas.';
+        echo '</span>';
 
-        echo '<input type="text" id="_dww_fingerprinting_source_file" value="' . esc_attr($attachment_name) . '" readonly style="width:40%;" placeholder="Ningún archivo seleccionado" />';
+        echo '<table class="widefat dww-fp-assets-table" style="margin-top:10px; max-width:850px;">';
 
-        if (!empty($attachment_url)) {
-            echo ' <a href="' . esc_url($attachment_url) . '" target="_blank" class="button">Ver archivo</a>';
+        echo '<thead>';
+        echo '<tr>';
+        echo '<th style="width:180px;">Formato</th>';
+        echo '<th>Archivo</th>';
+        echo '<th style="width:220px;">Acciones</th>';
+        echo '</tr>';
+        echo '</thead>';
+
+        echo '<tbody class="dww-fp-assets-rows">';
+
+        if (empty($assets)) {
+            self::render_asset_row(0, null, $format_options);
+        } else {
+            foreach ($assets as $index => $asset) {
+                self::render_asset_row((int) $index, $asset, $format_options);
+            }
         }
 
-        echo ' <button type="button" class="button dww-fp-select-file">Seleccionar archivo</button>';
-        echo ' <button type="button" class="button dww-fp-remove-file">Quitar</button>';
+        echo '</tbody>';
 
-        echo '<span class="description">Selecciona el archivo origen que se usará para generar la copia personalizada.</span>';
+        echo '</table>';
+
+        echo '<button type="button" class="button dww-fp-add-asset" style="margin-top:10px;">+ Añadir activo</button>';
+
         echo '</p>';
 
         echo '<p class="form-field dww-fp-native-downloads-notice" style="display:none;">';
@@ -81,13 +89,66 @@ class Product_Settings
         echo '</div>';
     }
 
+    private static function render_asset_row(
+        int $index,
+        ?Product_Asset $asset,
+        array $format_options
+    ): void {
+        $format = $asset?->get_format() ?? '';
+        $attachment_id = $asset?->get_attachment_id() ?? 0;
+
+        $attachment_url = $attachment_id > 0
+            ? wp_get_attachment_url($attachment_id)
+            : '';
+
+        $attachment_name = $attachment_id > 0
+            ? basename((string) get_attached_file($attachment_id))
+            : '';
+
+        echo '<tr class="dww-fp-asset-row">';
+
+        echo '<td>';
+        echo '<select name="dww_fingerprinting_assets[' . esc_attr((string) $index) . '][format]" class="dww-fp-asset-format">';
+
+        foreach ($format_options as $extension => $label) {
+            echo '<option value="' . esc_attr($extension) . '" ' . selected($format, $extension, false) . '>';
+            echo esc_html($label);
+            echo '</option>';
+        }
+
+        echo '</select>';
+        echo '</td>';
+
+        echo '<td>';
+        echo '<input type="hidden" class="dww-fp-asset-id" name="dww_fingerprinting_assets[' . esc_attr((string) $index) . '][attachment_id]" value="' . esc_attr((string) $attachment_id) . '" />';
+        echo '<input type="text" class="dww-fp-asset-file" value="' . esc_attr($attachment_name) . '" readonly style="width:95%;" placeholder="Ningún archivo seleccionado" />';
+        echo '</td>';
+
+        echo '<td>';
+
+        if (!empty($attachment_url)) {
+            echo '<a href="' . esc_url($attachment_url) . '" target="_blank" class="button dww-fp-view-asset">Ver</a> ';
+        } else {
+            echo '<a href="#" target="_blank" class="button dww-fp-view-asset" style="display:none;">Ver</a> ';
+        }
+
+        echo '<button type="button" class="button dww-fp-select-asset">Seleccionar</button> ';
+        echo '<button type="button" class="button dww-fp-remove-asset">Quitar</button>';
+
+        echo '</td>';
+
+        echo '</tr>';
+    }
+
     public static function save_fields($product): void
     {
         $enabled = isset($_POST['_dww_fingerprinting_enabled']) ? 'yes' : 'no';
 
-        $attachment_id = isset($_POST['_dww_fingerprinting_source_attachment_id'])
-            ? absint($_POST['_dww_fingerprinting_source_attachment_id'])
-            : 0;
+        $assets = isset($_POST['dww_fingerprinting_assets']) && is_array($_POST['dww_fingerprinting_assets'])
+            ? wp_unslash($_POST['dww_fingerprinting_assets'])
+            : [];
+
+        $assets = Product_Assets::sanitize_assets($assets);
 
         $product->update_meta_data(
             '_dww_fingerprinting_enabled',
@@ -101,36 +162,42 @@ class Product_Settings
             $product->set_download_expiry(-1);
         }
 
-        if ($enabled === 'yes' && $attachment_id <= 0) {
+        if ($enabled === 'yes' && empty($assets)) {
             WC_Admin_Meta_Boxes::add_error(
-                'DWW Fingerprinting está activo, pero no se ha seleccionado ningún archivo protegido.'
+                'DWW Fingerprinting está activo, pero no se ha seleccionado ningún activo maestro.'
             );
         }
 
-        if ($enabled === 'no' && $attachment_id > 0) {
+        if ($enabled === 'no' && !empty($assets)) {
             WC_Admin_Meta_Boxes::add_error(
-                'Hay un archivo protegido seleccionado, pero DWW Fingerprinting está desactivado.'
+                'Hay activos maestros seleccionados, pero DWW Fingerprinting está desactivado.'
             );
         }
 
-        if ($enabled === 'yes' && $attachment_id > 0) {
-            $file_path = get_attached_file($attachment_id);
+        foreach ($assets as $asset) {
 
-            if (empty($file_path) || !file_exists($file_path)) {
+            if (!$asset instanceof Product_Asset) {
+                continue;
+            }
+
+            if (!$asset->exists()) {
+
                 WC_Admin_Meta_Boxes::add_error(
-                    'El archivo protegido seleccionado no existe o no está disponible.'
+                    'Uno de los activos maestros seleccionados no existe o no está disponible.'
                 );
-            } elseif (!Fingerprint_Manager::can_process((string) $file_path)) {
+
+                continue;
+            }
+
+            if (!$asset->is_processable()) {
+
                 WC_Admin_Meta_Boxes::add_error(
-                    'El archivo protegido seleccionado no está soportado por ningún handler activo.'
+                    'Uno de los activos maestros seleccionados no está soportado por ningún handler activo.'
                 );
             }
         }
 
-        $product->update_meta_data(
-            '_dww_fingerprinting_source_attachment_id',
-            $attachment_id
-        );
+        Product_Assets::save_assets($product, $assets);
     }
 
     public static function enqueue_admin_scripts(string $hook): void
@@ -162,22 +229,26 @@ class Product_Settings
         return $product->get_meta('_dww_fingerprinting_enabled') === 'yes';
     }
 
+    /**
+     * @deprecated
+     * Usar Product_Assets::get_supported_assets().
+     */
+
     public static function get_source_file($product): string
     {
-        if (!$product) {
+        $assets = Product_Assets::get_supported_assets($product);
+
+        if (empty($assets)) {
             return '';
         }
 
-        $attachment_id = (int) $product->get_meta('_dww_fingerprinting_source_attachment_id');
-
-        if ($attachment_id <= 0) {
-            return '';
-        }
-
-        $file_path = get_attached_file($attachment_id);
-
-        return $file_path ? (string) $file_path : '';
+        return $assets[0]->get_file_path();
     }
+
+    /**
+     * @deprecated
+     * Usar Product_Assets::get_supported_assets().
+     */
 
     public static function get_source_pdf($product): string
     {
@@ -189,6 +260,7 @@ class Product_Settings
         return "
             jQuery(function($) {
                 var frame;
+                var currentRow;
 
                 function toggleNativeDownloadsPanel() {
                     var enabled = $('#_dww_fingerprinting_enabled').is(':checked');
@@ -200,14 +272,37 @@ class Product_Settings
                         .toggle(!enabled);
                 }
 
+                function reindexRows() {
+                    $('.dww-fp-assets-rows .dww-fp-asset-row').each(function(index) {
+                        $(this).find('.dww-fp-asset-format').attr('name', 'dww_fingerprinting_assets[' + index + '][format]');
+                        $(this).find('.dww-fp-asset-id').attr('name', 'dww_fingerprinting_assets[' + index + '][attachment_id]');
+                    });
+                }
+
                 toggleNativeDownloadsPanel();
 
                 $('#_dww_fingerprinting_enabled').on('change', function() {
                     toggleNativeDownloadsPanel();
                 });
 
-                $('.dww-fp-select-file').on('click', function(e) {
+                $('.dww-fp-add-asset').on('click', function(e) {
                     e.preventDefault();
+
+                    var row = $('.dww-fp-assets-rows .dww-fp-asset-row:first').clone();
+
+                    row.find('.dww-fp-asset-id').val('');
+                    row.find('.dww-fp-asset-file').val('');
+                    row.find('.dww-fp-view-asset').attr('href', '#').hide();
+
+                    $('.dww-fp-assets-rows').append(row);
+
+                    reindexRows();
+                });
+
+                $(document).on('click', '.dww-fp-select-asset', function(e) {
+                    e.preventDefault();
+
+                    currentRow = $(this).closest('.dww-fp-asset-row');
 
                     if (frame) {
                         frame.open();
@@ -225,18 +320,34 @@ class Product_Settings
                     frame.on('select', function() {
                         var attachment = frame.state().get('selection').first().toJSON();
 
-                        $('#_dww_fingerprinting_source_attachment_id').val(attachment.id);
-                        $('#_dww_fingerprinting_source_file').val(attachment.filename || attachment.title || attachment.url);
+                        if (!currentRow) {
+                            return;
+                        }
+
+                        currentRow.find('.dww-fp-asset-id').val(attachment.id);
+                        currentRow.find('.dww-fp-asset-file').val(attachment.filename || attachment.title || attachment.url);
+                        currentRow.find('.dww-fp-view-asset').attr('href', attachment.url).show();
                     });
 
                     frame.open();
                 });
 
-                $('.dww-fp-remove-file').on('click', function(e) {
+                $(document).on('click', '.dww-fp-remove-asset', function(e) {
                     e.preventDefault();
 
-                    $('#_dww_fingerprinting_source_attachment_id').val('');
-                    $('#_dww_fingerprinting_source_file').val('');
+                    var rows = $('.dww-fp-assets-rows .dww-fp-asset-row');
+
+                    if (rows.length > 1) {
+                        $(this).closest('.dww-fp-asset-row').remove();
+                        reindexRows();
+                        return;
+                    }
+
+                    var row = $(this).closest('.dww-fp-asset-row');
+
+                    row.find('.dww-fp-asset-id').val('');
+                    row.find('.dww-fp-asset-file').val('');
+                    row.find('.dww-fp-view-asset').attr('href', '#').hide();
                 });
             });
         ";

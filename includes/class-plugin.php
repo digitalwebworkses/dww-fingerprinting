@@ -12,6 +12,8 @@ class Plugin
     {
         Migration_Manager::run();
 
+        Installer::ensure_runtime_environment();
+
         self::register_fingerprint_handlers();
     }
 

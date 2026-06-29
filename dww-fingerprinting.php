@@ -48,6 +48,8 @@ require_once DWW_FP_PLUGIN_DIR . 'includes/admin/class-fingerprints-page.php';
 require_once DWW_FP_PLUGIN_DIR . 'includes/admin/class-fingerprint-detail-page.php';
 require_once DWW_FP_PLUGIN_DIR . 'includes/class-woocommerce-integration.php';
 require_once DWW_FP_PLUGIN_DIR . 'includes/class-product-settings.php';
+require_once DWW_FP_PLUGIN_DIR . 'includes/class-product-asset.php';
+require_once DWW_FP_PLUGIN_DIR . 'includes/class-product-assets.php';
 require_once DWW_FP_PLUGIN_DIR . 'includes/class-plugin.php';
 require_once DWW_FP_PLUGIN_DIR . 'includes/class-pdf-processor.php';
 require_once DWW_FP_PLUGIN_DIR . 'includes/class-epub-processor.php';

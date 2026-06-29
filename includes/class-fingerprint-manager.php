@@ -123,7 +123,7 @@ class Fingerprint_Manager
 
             Logger::log(
                 'Fingerprint handler validation failed for file: ' .
-                $source_file
+                    $source_file
             );
 
             return false;
@@ -150,7 +150,7 @@ class Fingerprint_Manager
     public static function get_handler_names(): array
     {
         return array_map(
-            static fn (Fingerprint_Handler_Interface $handler) => $handler->get_name(),
+            static fn(Fingerprint_Handler_Interface $handler) => $handler->get_name(),
             self::$handlers
         );
     }
@@ -173,6 +173,31 @@ class Fingerprint_Manager
         return array_values(
             array_unique($extensions)
         );
+    }
+
+    public static function get_supported_format_options(): array
+    {
+        $options = [];
+
+        foreach (self::$handlers as $handler) {
+            foreach ($handler->get_supported_extensions() as $extension) {
+                $extension = strtolower((string) $extension);
+
+                if ($extension === '') {
+                    continue;
+                }
+
+                $options[$extension] = sprintf(
+                    '%s (.%s)',
+                    $handler->get_name(),
+                    $extension
+                );
+            }
+        }
+
+        ksort($options);
+
+        return $options;
     }
 
     /**
