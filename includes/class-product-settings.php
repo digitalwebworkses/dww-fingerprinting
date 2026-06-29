@@ -47,7 +47,7 @@ class Product_Settings
         woocommerce_wp_checkbox([
             'id'          => '_dww_fingerprinting_enabled',
             'label'       => 'Activar DWW Fingerprinting',
-            'description' => 'Generar fingerprint documental para las compras de este producto.',
+            'description' => 'Las descargas de este producto serán gestionadas por DWW Fingerprinting.',
             'desc_tip'    => true,
         ]);
 
@@ -71,6 +71,13 @@ class Product_Settings
         echo '<span class="description">Selecciona el archivo origen que se usará para generar la copia personalizada.</span>';
         echo '</p>';
 
+        echo '<p class="form-field dww-fp-native-downloads-notice" style="display:none;">';
+        echo '<label></label>';
+        echo '<span class="description" style="color:#996800;">';
+        echo 'DWW Fingerprinting está activo: los archivos descargables nativos de WooCommerce quedan ocultos para evitar duplicidades.';
+        echo '</span>';
+        echo '</p>';
+
         echo '</div>';
     }
 
@@ -78,14 +85,47 @@ class Product_Settings
     {
         $enabled = isset($_POST['_dww_fingerprinting_enabled']) ? 'yes' : 'no';
 
+        $attachment_id = isset($_POST['_dww_fingerprinting_source_attachment_id'])
+            ? absint($_POST['_dww_fingerprinting_source_attachment_id'])
+            : 0;
+
         $product->update_meta_data(
             '_dww_fingerprinting_enabled',
             $enabled
         );
 
-        $attachment_id = isset($_POST['_dww_fingerprinting_source_attachment_id'])
-            ? absint($_POST['_dww_fingerprinting_source_attachment_id'])
-            : 0;
+        if ($enabled === 'yes') {
+            $product->set_downloadable(false);
+            $product->set_downloads([]);
+            $product->set_download_limit(-1);
+            $product->set_download_expiry(-1);
+        }
+
+        if ($enabled === 'yes' && $attachment_id <= 0) {
+            WC_Admin_Meta_Boxes::add_error(
+                'DWW Fingerprinting está activo, pero no se ha seleccionado ningún archivo protegido.'
+            );
+        }
+
+        if ($enabled === 'no' && $attachment_id > 0) {
+            WC_Admin_Meta_Boxes::add_error(
+                'Hay un archivo protegido seleccionado, pero DWW Fingerprinting está desactivado.'
+            );
+        }
+
+        if ($enabled === 'yes' && $attachment_id > 0) {
+            $file_path = get_attached_file($attachment_id);
+
+            if (empty($file_path) || !file_exists($file_path)) {
+                WC_Admin_Meta_Boxes::add_error(
+                    'El archivo protegido seleccionado no existe o no está disponible.'
+                );
+            } elseif (!Fingerprint_Manager::can_process((string) $file_path)) {
+                WC_Admin_Meta_Boxes::add_error(
+                    'El archivo protegido seleccionado no está soportado por ningún handler activo.'
+                );
+            }
+        }
 
         $product->update_meta_data(
             '_dww_fingerprinting_source_attachment_id',
@@ -149,6 +189,22 @@ class Product_Settings
         return "
             jQuery(function($) {
                 var frame;
+
+                function toggleNativeDownloadsPanel() {
+                    var enabled = $('#_dww_fingerprinting_enabled').is(':checked');
+
+                    $('.dww-fp-native-downloads-notice').toggle(enabled);
+
+                    $('#_downloadable_files')
+                        .closest('.options_group')
+                        .toggle(!enabled);
+                }
+
+                toggleNativeDownloadsPanel();
+
+                $('#_dww_fingerprinting_enabled').on('change', function() {
+                    toggleNativeDownloadsPanel();
+                });
 
                 $('.dww-fp-select-file').on('click', function(e) {
                     e.preventDefault();
