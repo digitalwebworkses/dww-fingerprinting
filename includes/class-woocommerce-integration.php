@@ -178,20 +178,31 @@ class WooCommerce_Integration
         Logger::log('Destination file: ' . $destination);
         Logger::log('Generating protected file...');
 
-        $generated = Fingerprint_Manager::process(
-            $source_file,
-            $destination,
-            [
-                'customer_name'  => $customer_name,
-                'customer_email' => $customer_email,
-                'order_id'       => (string) $order_id,
-                'product_id'     => $product_id,
-                'product_name'   => $product_name,
-                'asset_format'   => $format,
-                'asset_id'       => $asset_id,
-                'fingerprint_id' => $fingerprint_id,
-            ]
-        );
+        try {
+            $generated = Fingerprint_Manager::process(
+                $source_file,
+                $destination,
+                [
+                    'customer_name'  => $customer_name,
+                    'customer_email' => $customer_email,
+                    'order_id'       => (string) $order_id,
+                    'product_id'     => $product_id,
+                    'product_name'   => $product_name,
+                    'asset_format'   => $format,
+                    'asset_id'       => $asset_id,
+                    'fingerprint_id' => $fingerprint_id,
+                ]
+            );
+        } catch (\Throwable $exception) {
+            Logger::log(
+                'File generation exception for fingerprint ' .
+                    $fingerprint_id .
+                    ': ' .
+                    $exception->getMessage()
+            );
+
+            return;
+        }
 
         if (!$generated) {
             Logger::log('File generation failed for fingerprint: ' . $fingerprint_id);
