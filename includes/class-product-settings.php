@@ -156,10 +156,7 @@ class Product_Settings
         );
 
         if ($enabled === 'yes') {
-            $product->set_downloadable(false);
             $product->set_downloads([]);
-            $product->set_download_limit(-1);
-            $product->set_download_expiry(-1);
         }
 
         if ($enabled === 'yes' && empty($assets)) {
@@ -267,8 +264,28 @@ class Product_Settings
 
                     $('.dww-fp-native-downloads-notice').toggle(enabled);
 
-                    $('#_downloadable_files')
-                        .closest('.options_group')
+                    var nativeDownloadFields = [
+                        '#_downloadable_files',
+                        '#_download_limit',
+                        '#_download_expiry'
+                    ];
+
+                    nativeDownloadFields.forEach(function(selector) {
+                        var field = $(selector);
+
+                        if (!field.length) {
+                            return;
+                        }
+
+                        field.closest('p.form-field, .form-field, tr, .wc-metaboxes-wrapper')
+                            .toggle(!enabled);
+                    });
+
+                    $('label')
+                        .filter(function() {
+                            return $(this).text().trim() === 'Archivos descargables';
+                        })
+                        .closest('p.form-field, .form-field, tr')
                         .toggle(!enabled);
                 }
 
