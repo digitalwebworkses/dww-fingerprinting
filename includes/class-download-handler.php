@@ -140,7 +140,7 @@ class Download_Handler
         self::log_download_event(
             (string) $fingerprint->fingerprint_id,
             'download_success',
-            'Documento descargado correctamente.',
+            'Archivo descargado correctamente.',
             [
                 'token'               => self::mask_token($token),
                 'downloads_before'    => $downloads_before,

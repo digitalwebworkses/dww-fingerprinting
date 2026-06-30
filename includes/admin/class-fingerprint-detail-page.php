@@ -39,6 +39,7 @@ class Fingerprint_Detail_Page
 
         $source_filename = basename((string) $fingerprint->source_file);
         $generated_filename = basename((string) $fingerprint->generated_file);
+        $asset_format = self::get_fingerprint_format($fingerprint);
 
         $download_url = $token
             ? add_query_arg(
@@ -79,8 +80,8 @@ class Fingerprint_Detail_Page
             <?php
 
             Admin_UI::section(
-                'Documento',
-                function () use ($fingerprint, $source_filename, $generated_filename) {
+                'Archivo protegido',
+                function () use ($fingerprint, $source_filename, $generated_filename, $asset_format) {
             ?>
 
                 <table class="widefat striped">
@@ -107,6 +108,14 @@ class Fingerprint_Detail_Page
 
                                 echo esc_html($product);
                                 ?>
+                            </td>
+                        </tr>
+
+                        <tr>
+
+                            <td><strong>Formato</strong></td>
+                            <td>
+                                <?php echo esc_html(strtoupper($asset_format)); ?>
                             </td>
                         </tr>
 
@@ -145,7 +154,7 @@ class Fingerprint_Detail_Page
                     if (!$token) {
                         Admin_UI::empty_state(
                             'No existe token',
-                            'Este documento todavía no dispone de un token de descarga.'
+                            'Este archivo todavía no dispone de un token de descarga.'
                         );
 
                         return;
@@ -356,13 +365,13 @@ class Fingerprint_Detail_Page
                             class="button button-primary"
                             href="<?php echo esc_url($download_url); ?>">
 
-                            Descargar Archivo
+                            Descargar archivo
                         </a>
 
                     <?php else : ?>
 
                         <button class="button button-primary" disabled>
-                            Descargar Archivo
+                            Descargar archivo
                         </button>
 
                     <?php endif; ?>
@@ -536,7 +545,7 @@ class Fingerprint_Detail_Page
         } elseif ((int) $token->downloads_count >= (int) $token->max_downloads) {
             $status_message = 'Se alcanzó el número máximo de descargas.';
         } else {
-            $status_message = 'El documento todavía puede descargarse.';
+            $status_message = 'El archivo todavía puede descargarse.';
         }
 
         echo '<br>';
@@ -754,6 +763,18 @@ class Fingerprint_Detail_Page
         echo '<div class="notice notice-' . esc_attr($messages[$message]['type']) . ' is-dismissible">';
         echo '<p>' . esc_html($messages[$message]['text']) . '</p>';
         echo '</div>';
+    }
+
+    private static function get_fingerprint_format(object $fingerprint): string
+    {
+        if (!empty($fingerprint->asset_format)) {
+            return sanitize_key((string) $fingerprint->asset_format);
+        }
+
+        $generated_file = (string) ($fingerprint->generated_file ?? '');
+        $extension = strtolower(pathinfo($generated_file, PATHINFO_EXTENSION));
+
+        return $extension !== '' ? $extension : 'archivo';
     }
 
     private static function render_error(string $message): void

@@ -27,175 +27,181 @@ class Fingerprints_Page
 
 ?>
 
-<div class="wrap">
+        <div class="wrap">
 
-    <h1>Fingerprints</h1>
+            <h1>Fingerprints</h1>
 
-    <p>Registros de fingerprints generados por el sistema.</p>
+            <p>Registros de fingerprints generados por el sistema.</p>
 
-    <form method="get" style="margin:20px 0;">
+            <form method="get" style="margin:20px 0;">
 
-        <input
-            type="hidden"
-            name="page"
-            value="<?php echo esc_attr(Admin_Menu::get_fingerprints_slug()); ?>">
+                <input
+                    type="hidden"
+                    name="page"
+                    value="<?php echo esc_attr(Admin_Menu::get_fingerprints_slug()); ?>">
 
-        <input
-            type="search"
-            name="dww_fp_search"
-            value="<?php echo esc_attr($search); ?>"
-            placeholder="Buscar por fingerprint, email, pedido o producto"
-            style="min-width:360px;">
+                <input
+                    type="search"
+                    name="dww_fp_search"
+                    value="<?php echo esc_attr($search); ?>"
+                    placeholder="Buscar por fingerprint, email, pedido o producto"
+                    style="min-width:360px;">
 
-        <button type="submit" class="button button-primary">
-            Buscar
-        </button>
+                <button type="submit" class="button button-primary">
+                    Buscar
+                </button>
 
-        <?php if ($search !== '') : ?>
+                <?php if ($search !== '') : ?>
 
-            <a
-                class="button"
-                href="<?php echo esc_url(admin_url('admin.php?page=' . Admin_Menu::get_fingerprints_slug())); ?>">
+                    <a
+                        class="button"
+                        href="<?php echo esc_url(admin_url('admin.php?page=' . Admin_Menu::get_fingerprints_slug())); ?>">
 
-                Limpiar
-            </a>
+                        Limpiar
+                    </a>
 
-        <?php endif; ?>
+                <?php endif; ?>
 
-    </form>
+            </form>
 
-    <table class="widefat striped">
+            <table class="widefat striped">
 
-        <thead>
-            <tr>
-                <th>ID</th>
-                <th>Pedido</th>
-                <th>Cliente</th>
-                <th>Producto</th>
-                <th>Fingerprint</th>
-                <th>Descargas</th>
-                <th>Estado</th>
-                <th>Fecha</th>
-                <th>Acciones</th>
-            </tr>
-        </thead>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Pedido</th>
+                        <th>Cliente</th>
+                        <th>Producto</th>
+                        <th>Formato</th>
+                        <th>Fingerprint</th>
+                        <th>Descargas</th>
+                        <th>Estado</th>
+                        <th>Fecha</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
 
-        <tbody>
+                <tbody>
 
-        <?php if (empty($rows)) : ?>
+                    <?php if (empty($rows)) : ?>
 
-            <tr>
-                <td colspan="9">No hay registros.</td>
-            </tr>
+                        <tr>
+                            <td colspan="10">No hay registros.</td>
+                        </tr>
 
-        <?php else : ?>
+                    <?php else : ?>
 
-            <?php foreach ($rows as $row) :
+                        <?php foreach ($rows as $row) :
 
-                $short_fp = strlen($row->fingerprint_id) > 18
-                    ? substr($row->fingerprint_id, 0, 18) . '…'
-                    : $row->fingerprint_id;
+                            $short_fp = strlen($row->fingerprint_id) > 18
+                                ? substr($row->fingerprint_id, 0, 18) . '…'
+                                : $row->fingerprint_id;
 
-                $detail_url = add_query_arg(
-                    [
-                        'page'        => Admin_Menu::get_fingerprints_slug(),
-                        'action'      => 'view',
-                        'fingerprint' => $row->fingerprint_id,
-                    ],
-                    admin_url('admin.php')
-                );
-
-                $product = !empty($row->product_name)
-                    ? $row->product_name
-                    : 'Producto #' . $row->product_id;
-
-            ?>
-
-                <tr>
-
-                    <td><?php echo esc_html($row->id); ?></td>
-
-                    <td><?php echo esc_html($row->order_id); ?></td>
-
-                    <td><?php echo esc_html($row->customer_email); ?></td>
-
-                    <td><?php echo esc_html($product); ?></td>
-
-                    <td>
-                        <code title="<?php echo esc_attr($row->fingerprint_id); ?>">
-                            <?php echo esc_html($short_fp); ?>
-                        </code>
-                    </td>
-
-                    <td>
-                        <?php
-
-                        if ($row->max_downloads) {
-                            echo esc_html(
-                                (int) $row->downloads_count .
-                                ' / ' .
-                                (int) $row->max_downloads
+                            $detail_url = add_query_arg(
+                                [
+                                    'page'        => Admin_Menu::get_fingerprints_slug(),
+                                    'action'      => 'view',
+                                    'fingerprint' => $row->fingerprint_id,
+                                ],
+                                admin_url('admin.php')
                             );
-                        } else {
-                            echo '—';
-                        }
+
+                            $product = !empty($row->product_name)
+                                ? $row->product_name
+                                : 'Producto #' . $row->product_id;
+
+                            $asset_format = !empty($row->asset_format)
+                                ? strtoupper((string) $row->asset_format)
+                                : strtoupper(pathinfo((string) $row->generated_file, PATHINFO_EXTENSION));
+
+                            if ($asset_format === '') {
+                                $asset_format = 'ARCHIVO';
+                            }
 
                         ?>
-                    </td>
 
-                    <td>
-                        <?php
+                            <tr>
 
-                        if (!$row->expires_at) {
+                                <td><?php echo esc_html($row->id); ?></td>
 
-                            Admin_UI::badge('Sin token', 'info');
+                                <td><?php echo esc_html($row->order_id); ?></td>
 
-                        } elseif (!empty($row->revoked_at)) {
+                                <td><?php echo esc_html($row->customer_email); ?></td>
 
-                            Admin_UI::badge('Revocado', 'danger');
+                                <td><?php echo esc_html($product); ?></td>
 
-                        } elseif (strtotime($row->expires_at) < time()) {
+                                <td><?php echo esc_html($asset_format); ?></td>
 
-                            Admin_UI::badge('Caducado', 'danger');
+                                <td>
+                                    <code title="<?php echo esc_attr($row->fingerprint_id); ?>">
+                                        <?php echo esc_html($short_fp); ?>
+                                    </code>
+                                </td>
 
-                        } elseif (
-                            (int) $row->downloads_count >=
-                            (int) $row->max_downloads
-                        ) {
+                                <td>
+                                    <?php
 
-                            Admin_UI::badge('Agotado', 'warning');
+                                    if ($row->max_downloads) {
+                                        echo esc_html(
+                                            (int) $row->downloads_count .
+                                                ' / ' .
+                                                (int) $row->max_downloads
+                                        );
+                                    } else {
+                                        echo '—';
+                                    }
 
-                        } else {
+                                    ?>
+                                </td>
 
-                            Admin_UI::badge('Activo', 'success');
+                                <td>
+                                    <?php
 
-                        }
+                                    if (!$row->expires_at) {
 
-                        ?>
-                    </td>
+                                        Admin_UI::badge('Sin token', 'info');
+                                    } elseif (!empty($row->revoked_at)) {
 
-                    <td><?php echo esc_html($row->created_at); ?></td>
+                                        Admin_UI::badge('Revocado', 'danger');
+                                    } elseif (strtotime($row->expires_at) < time()) {
 
-                    <td>
-                        <a
-                            class="button button-secondary"
-                            href="<?php echo esc_url($detail_url); ?>">
+                                        Admin_UI::badge('Caducado', 'danger');
+                                    } elseif (
+                                        (int) $row->downloads_count >=
+                                        (int) $row->max_downloads
+                                    ) {
 
-                            Ver
-                        </a>
-                    </td>
+                                        Admin_UI::badge('Agotado', 'warning');
+                                    } else {
 
-                </tr>
+                                        Admin_UI::badge('Activo', 'success');
+                                    }
 
-            <?php endforeach; ?>
+                                    ?>
+                                </td>
 
-        <?php endif; ?>
+                                <td><?php echo esc_html($row->created_at); ?></td>
 
-        </tbody>
+                                <td>
+                                    <a
+                                        class="button button-secondary"
+                                        href="<?php echo esc_url($detail_url); ?>">
 
-    </table>
+                                        Ver
+                                    </a>
+                                </td>
 
-</div>
+                            </tr>
+
+                        <?php endforeach; ?>
+
+                    <?php endif; ?>
+
+                </tbody>
+
+            </table>
+
+        </div>
 
 <?php
 

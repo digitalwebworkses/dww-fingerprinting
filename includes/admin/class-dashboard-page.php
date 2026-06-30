@@ -75,7 +75,7 @@ class Dashboard_Page
                         ) {
 
                             Admin_UI::stat_card(
-                                'Documentos protegidos',
+                                'Archivos protegidos',
                                 (string) $total_documents,
                                 'blue'
                             );
@@ -233,14 +233,14 @@ class Dashboard_Page
             <?php
 
             Admin_UI::section(
-                'Últimos documentos generados',
+                'Últimos archivos generados',
                 function () use ($last_documents) {
 
                     if (empty($last_documents)) {
 
                         Admin_UI::empty_state(
-                            'Todavía no hay documentos.',
-                            'Los documentos protegidos aparecerán aquí automáticamente.'
+                            'Todavía no hay archivos.',
+                            'Los archivos protegidos aparecerán aquí automáticamente.'
                         );
 
                         return;
@@ -259,6 +259,8 @@ class Dashboard_Page
                             <th>Cliente</th>
 
                             <th>Producto</th>
+
+                            <th>Formato</th>
 
                             <th>Fingerprint</th>
 
@@ -280,6 +282,14 @@ class Dashboard_Page
                                 ? substr($row->fingerprint_id, 0, 18) . '…'
                                 : $row->fingerprint_id;
 
+                            $asset_format = !empty($row->asset_format)
+                                ? strtoupper((string) $row->asset_format)
+                                : strtoupper(pathinfo((string) $row->generated_file, PATHINFO_EXTENSION));
+
+                            if ($asset_format === '') {
+                                $asset_format = 'ARCHIVO';
+                            }
+
                         ?>
 
                             <tr>
@@ -289,6 +299,8 @@ class Dashboard_Page
                                 <td><?php echo esc_html($row->customer_email); ?></td>
 
                                 <td><?php echo esc_html($product_name); ?></td>
+
+                                <td><?php echo esc_html($asset_format); ?></td>
 
                                 <td>
 
