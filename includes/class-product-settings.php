@@ -242,15 +242,6 @@ class Product_Settings
         return $assets[0]->get_file_path();
     }
 
-    /**
-     * @deprecated
-     * Usar Product_Assets::get_supported_assets().
-     */
-
-    public static function get_source_pdf($product): string
-    {
-        return self::get_source_file($product);
-    }
 
     private static function get_media_uploader_script(): string
     {
