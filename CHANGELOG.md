@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.9.0 - 2026-06-30
+
+- Añadida arquitectura multi-activo por producto.
+- Añadido soporte para múltiples formatos por producto.
+- Añadidos fingerprints independientes por activo.
+- Añadidos tokens y contadores independientes por activo.
+- Adaptado el panel de administración a formatos múltiples.
+- Ocultadas las descargas nativas de WooCommerce cuando DWW Fingerprinting está activo.
+- Eliminadas marcas visibles en PDF para entrega limpia.
+- Mejorada la robustez ante errores de generación por activo.
+
 Todas las modificaciones importantes de este proyecto se documentan en este archivo.
 
 El formato está basado en **Keep a Changelog** y el proyecto sigue **Semantic Versioning**.

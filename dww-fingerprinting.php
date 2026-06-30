@@ -4,7 +4,7 @@
  * Plugin Name: DWW Fingerprinting
  * Plugin URI: https://www.digitalwebworks.es
  * Description: Trazabilidad documental para WooCommerce.
- * Version: 0.7.0
+ * Version: 0.9.0
  * Author: Digital Web Works
  * Author URI: https://www.digitalwebworks.es
  * Text Domain: dww-fingerprinting
@@ -14,7 +14,7 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-define('DWW_FP_VERSION', '0.7.0');
+define('DWW_FP_VERSION', '0.9.0');
 define('DWW_FP_PLUGIN_FILE', __FILE__);
 define('DWW_FP_PLUGIN_DIR', plugin_dir_path(__FILE__));
 define('DWW_FP_PLUGIN_URL', plugin_dir_url(__FILE__));
