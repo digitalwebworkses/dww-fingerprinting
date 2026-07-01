@@ -10,11 +10,15 @@ class Plugin
 {
     public static function init(): void
     {
-        add_action('admin_notices', [self::class, 'admin_notice']);
+        Migration_Manager::run();
+
+        Installer::ensure_runtime_environment();
+
+        self::register_fingerprint_handlers();
     }
 
-    public static function admin_notice(): void
+    private static function register_fingerprint_handlers(): void
     {
-        echo '<div class="notice notice-success"><p>DWW Fingerprinting activo.</p></div>';
+        Fingerprint_Manager::register_default_handlers();
     }
 }

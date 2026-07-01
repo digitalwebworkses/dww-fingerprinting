@@ -27,13 +27,15 @@ class Download_Token_DB
             fingerprint_id VARCHAR(64) NOT NULL,
             token VARCHAR(128) NOT NULL,
             expires_at DATETIME NOT NULL,
+            revoked_at DATETIME NULL,
             downloads_count INT UNSIGNED NOT NULL DEFAULT 0,
             max_downloads INT UNSIGNED NOT NULL DEFAULT 3,
             created_at DATETIME NOT NULL,
             PRIMARY KEY (id),
             UNIQUE KEY token (token),
             KEY fingerprint_id (fingerprint_id),
-            KEY expires_at (expires_at)
+            KEY expires_at (expires_at),
+            KEY revoked_at (revoked_at)
         ) {$charset_collate};";
 
         require_once ABSPATH . 'wp-admin/includes/upgrade.php';
@@ -48,19 +50,24 @@ class Download_Token_DB
     ): string {
         global $wpdb;
 
+        $fingerprint_id = sanitize_text_field($fingerprint_id);
+        $max_downloads = absint($max_downloads);
+        $expires_at = gmdate('Y-m-d H:i:s', time() + ($expires_in_hours * HOUR_IN_SECONDS));
         $token = self::generate_token();
 
         $inserted = $wpdb->insert(
             self::get_table_name(),
             [
-                'fingerprint_id'   => sanitize_text_field($fingerprint_id),
-                'token'            => $token,
-                'expires_at'       => gmdate('Y-m-d H:i:s', time() + ($expires_in_hours * HOUR_IN_SECONDS)),
-                'downloads_count'  => 0,
-                'max_downloads'    => absint($max_downloads),
-                'created_at'       => current_time('mysql'),
+                'fingerprint_id'  => $fingerprint_id,
+                'token'           => $token,
+                'expires_at'      => $expires_at,
+                'revoked_at'      => null,
+                'downloads_count' => 0,
+                'max_downloads'   => $max_downloads,
+                'created_at'      => current_time('mysql'),
             ],
             [
+                '%s',
                 '%s',
                 '%s',
                 '%s',
@@ -74,7 +81,107 @@ class Download_Token_DB
             return '';
         }
 
+        self::log_event(
+            $fingerprint_id,
+            'token_created',
+            'Token de descarga creado.',
+            [
+                'token' => self::mask_token($token),
+                'expires_at' => $expires_at,
+                'max_downloads' => $max_downloads,
+            ]
+        );
+
         return $token;
+    }
+
+    public static function regenerate_token(
+        string $fingerprint_id,
+        int $expires_in_hours = 72,
+        int $max_downloads = 3
+    ): string {
+        $fingerprint_id = sanitize_text_field($fingerprint_id);
+
+        if ($fingerprint_id === '') {
+            return '';
+        }
+
+        $previous_token = self::get_by_fingerprint($fingerprint_id);
+
+        self::revoke_by_fingerprint(
+            $fingerprint_id,
+            false
+        );
+
+        $new_token = self::create_token(
+            $fingerprint_id,
+            $expires_in_hours,
+            $max_downloads
+        );
+
+        if ($new_token !== '') {
+            self::log_event(
+                $fingerprint_id,
+                'token_regenerated',
+                'Token de descarga regenerado.',
+                [
+                    'previous_token' => $previous_token
+                        ? self::mask_token((string) $previous_token->token)
+                        : null,
+                    'new_token' => self::mask_token($new_token),
+                ]
+            );
+        }
+
+        return $new_token;
+    }
+
+    public static function revoke_by_fingerprint(
+        string $fingerprint_id,
+        bool $log = true
+    ): bool {
+        global $wpdb;
+
+        $fingerprint_id = sanitize_text_field($fingerprint_id);
+
+        if ($fingerprint_id === '') {
+            return false;
+        }
+
+        $current_token = self::get_by_fingerprint($fingerprint_id);
+
+        $updated = $wpdb->query(
+            $wpdb->prepare(
+                "UPDATE " . self::get_table_name() . "
+                 SET revoked_at = %s
+                 WHERE fingerprint_id = %s
+                 AND revoked_at IS NULL",
+                current_time('mysql', true),
+                $fingerprint_id
+            )
+        );
+
+        $success = $updated !== false;
+
+        if ($success && $log) {
+            self::log_event(
+                $fingerprint_id,
+                'token_revoked',
+                'Token de descarga revocado.',
+                [
+                    'token' => $current_token
+                        ? self::mask_token((string) $current_token->token)
+                        : null,
+                ]
+            );
+        }
+
+        return $success;
+    }
+
+    public static function expire_by_fingerprint(string $fingerprint_id): bool
+    {
+        return self::revoke_by_fingerprint($fingerprint_id);
     }
 
     public static function get_by_token(string $token): ?object
@@ -99,7 +206,7 @@ class Download_Token_DB
             $wpdb->prepare(
                 "SELECT * FROM " . self::get_table_name() . "
                  WHERE fingerprint_id = %s
-                 ORDER BY created_at DESC
+                 ORDER BY created_at DESC, id DESC
                  LIMIT 1",
                 sanitize_text_field($fingerprint_id)
             )
@@ -108,8 +215,32 @@ class Download_Token_DB
         return $result ?: null;
     }
 
+    public static function get_all_by_fingerprint(string $fingerprint_id): array
+    {
+        global $wpdb;
+
+        $results = $wpdb->get_results(
+            $wpdb->prepare(
+                "SELECT *
+                 FROM " . self::get_table_name() . "
+                 WHERE fingerprint_id = %s
+                 ORDER BY created_at DESC, id DESC",
+                sanitize_text_field($fingerprint_id)
+            )
+        );
+
+        return is_array($results) ? $results : [];
+    }
+
     public static function is_valid(object $token_row): bool
     {
+        if (
+            property_exists($token_row, 'revoked_at') &&
+            !empty($token_row->revoked_at)
+        ) {
+            return false;
+        }
+
         if ((int) $token_row->downloads_count >= (int) $token_row->max_downloads) {
             return false;
         }
@@ -131,7 +262,10 @@ class Download_Token_DB
             $wpdb->prepare(
                 "UPDATE " . self::get_table_name() . "
                  SET downloads_count = downloads_count + 1
-                 WHERE token = %s",
+                 WHERE token = %s
+                 AND revoked_at IS NULL
+                 AND downloads_count < max_downloads
+                 AND expires_at >= UTC_TIMESTAMP()",
                 sanitize_text_field($token)
             )
         );
@@ -142,5 +276,32 @@ class Download_Token_DB
     private static function generate_token(): string
     {
         return bin2hex(random_bytes(32));
+    }
+
+    private static function log_event(
+        string $fingerprint_id,
+        string $action,
+        string $message,
+        array $context = []
+    ): void {
+        if (!class_exists(Fingerprint_Log_DB::class)) {
+            return;
+        }
+
+        Fingerprint_Log_DB::insert(
+            $fingerprint_id,
+            $action,
+            $message,
+            $context
+        );
+    }
+
+    private static function mask_token(string $token): string
+    {
+        if (strlen($token) <= 16) {
+            return $token;
+        }
+
+        return substr($token, 0, 8) . '…' . substr($token, -8);
     }
 }

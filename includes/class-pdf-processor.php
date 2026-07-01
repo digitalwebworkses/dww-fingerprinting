@@ -57,9 +57,9 @@ class PDF_Processor
                 $order_id
             );
 
-            self::add_header_fingerprint($pdf, $fingerprint_text, $size);
-            self::add_footer_fingerprint($pdf, $fingerprint_text, $size);
-            self::add_diagonal_fingerprint($pdf, $customer_email, $order_id, $size);
+            //self::add_header_fingerprint($pdf, $fingerprint_text, $size);
+            //self::add_footer_fingerprint($pdf, $fingerprint_text, $size);
+            //self::add_diagonal_fingerprint($pdf, $customer_email, $order_id, $size);
         }
 
         $pdf->Output('F', $destination_path);

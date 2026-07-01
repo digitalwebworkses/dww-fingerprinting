@@ -1,0 +1,354 @@
+/*
+|--------------------------------------------------------------------------
+| DWW Fingerprinting - Admin
+|--------------------------------------------------------------------------
+*/
+
+/* ==========================================================================
+   General
+   ========================================================================== */
+
+.dww-admin-section {
+    margin-bottom: 36px;
+}
+
+.dww-admin-section-title {
+    margin: 0 0 20px;
+    padding-bottom: 8px;
+
+    border-bottom: 1px solid #dcdcde;
+
+    font-size: 22px;
+    font-weight: 600;
+}
+
+
+/* ==========================================================================
+   Dashboard Layout
+   ========================================================================== */
+
+.dww-dashboard-top {
+
+    display: flex;
+
+    gap: 32px;
+
+    align-items: flex-start;
+
+    margin-bottom: 36px;
+
+}
+
+.dww-dashboard-main {
+
+    flex: 2;
+
+}
+
+.dww-dashboard-side {
+
+    flex: 1;
+
+}
+
+.dww-dashboard-side table {
+
+    max-width: none !important;
+
+}
+
+
+/* ==========================================================================
+   Stat Cards
+   ========================================================================== */
+
+.dww-stat-card {
+
+    display: inline-block;
+
+    width: 210px;
+
+    margin: 0 12px 12px 0;
+
+    padding: 18px 22px;
+
+    background: #fff;
+
+    border: 1px solid #dcdcde;
+
+    border-radius: 10px;
+
+    border-top: 4px solid #2271b1;
+
+    box-shadow: 0 2px 6px rgba(0, 0, 0, .05);
+
+    transition:
+        transform .2s ease,
+        box-shadow .2s ease;
+
+    vertical-align: top;
+
+}
+
+.dww-stat-card:hover {
+
+    transform: translateY(-3px);
+
+    box-shadow: 0 8px 18px rgba(0, 0, 0, .08);
+
+}
+
+.dww-stat-card-value {
+
+    font-size: 44px;
+
+    line-height: 1;
+
+    font-weight: 700;
+
+    color: #1d2327;
+
+}
+
+.dww-stat-card-title {
+
+    margin-top: 10px;
+
+    color: #646970;
+
+    font-size: 14px;
+
+}
+
+
+/* ==========================================================================
+   Card Colors
+   ========================================================================== */
+
+.dww-stat-card-blue {
+
+    border-top-color: #2271b1;
+
+}
+
+.dww-stat-card-green {
+
+    border-top-color: #00a32a;
+
+}
+
+.dww-stat-card-orange {
+
+    border-top-color: #dba617;
+
+}
+
+.dww-stat-card-red {
+
+    border-top-color: #d63638;
+
+}
+
+
+/* ==========================================================================
+   Badges
+   ========================================================================== */
+
+.dww-badge {
+
+    display: inline-block;
+
+    padding: 4px 10px;
+
+    border-radius: 999px;
+
+    font-size: 12px;
+
+    font-weight: 600;
+
+}
+
+.dww-badge-default {
+
+    background: #dcdcde;
+
+    color: #1d2327;
+
+}
+
+.dww-badge-success {
+
+    background: #d1e7dd;
+
+    color: #0f5132;
+
+}
+
+.dww-badge-warning {
+
+    background: #fff3cd;
+
+    color: #664d03;
+
+}
+
+.dww-badge-danger {
+
+    background: #f8d7da;
+
+    color: #842029;
+
+}
+
+.dww-badge-info {
+
+    background: #cff4fc;
+
+    color: #055160;
+
+}
+
+
+/* ==========================================================================
+   Empty State
+   ========================================================================== */
+
+.dww-empty-state {
+
+    padding: 48px;
+
+    text-align: center;
+
+    background: #fff;
+
+    border: 2px dashed #ccd0d4;
+
+    border-radius: 10px;
+
+}
+
+.dww-empty-state-title {
+
+    margin-top: 0;
+
+    margin-bottom: 10px;
+
+}
+
+.dww-empty-state-message {
+
+    margin-bottom: 0;
+
+    color: #646970;
+
+}
+
+
+/* ==========================================================================
+   Tables
+   ========================================================================== */
+
+.widefat {
+
+    background: #fff;
+
+}
+
+.widefat th {
+
+    font-weight: 600;
+
+}
+
+.widefat td,
+.widefat th {
+
+    padding: 12px 14px;
+
+}
+
+.widefat code {
+
+    font-size: 12px;
+
+}
+
+
+/* ==========================================================================
+   Responsive
+   ========================================================================== */
+
+@media (max-width: 1200px) {
+
+    .dww-dashboard-top {
+
+        display: block;
+
+    }
+
+    .dww-dashboard-side {
+
+        margin-top: 32px;
+
+    }
+
+}
+
+@media (max-width: 782px) {
+
+    .dww-stat-card {
+
+        display: block;
+
+        width: auto;
+
+        margin-right: 0;
+
+    }
+
+}
+
+/* ==========================================================================
+   Current Token Highlight
+   ========================================================================== */
+
+.dww-current-token td {
+    background: #f6fbff !important;
+}
+
+.dww-current-token td:first-child {
+    border-left: 4px solid #2271b1;
+}
+
+.dww-current-token code {
+    font-weight: 600;
+}
+
+.dww-badge-current {
+    display: inline-block;
+    margin-bottom: 6px;
+    padding: 2px 8px;
+    border-radius: 12px;
+    background: #2271b1;
+    color: #fff;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+
+.dww-log-context {
+    margin-top: 8px;
+    padding-top: 8px;
+    border-top: 1px solid #f0f0f1;
+    font-size: 12px;
+    color: #50575e;
+}
+
+.dww-log-context div {
+    margin: 2px 0;
+}
+
+.dww-log-context code {
+    font-size: 11px;
+}
