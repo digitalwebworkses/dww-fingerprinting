@@ -1,19 +1,66 @@
 # Changelog
 
-## 0.9.0 - 2026-06-30
+Todos los cambios importantes de este proyecto se documentan en este archivo.
 
-- Añadida arquitectura multi-activo por producto.
-- Añadido soporte para múltiples formatos por producto.
-- Añadidos fingerprints independientes por activo.
-- Añadidos tokens y contadores independientes por activo.
-- Adaptado el panel de administración a formatos múltiples.
-- Ocultadas las descargas nativas de WooCommerce cuando DWW Fingerprinting está activo.
-- Eliminadas marcas visibles en PDF para entrega limpia.
-- Mejorada la robustez ante errores de generación por activo.
+El formato está basado en **Keep a Changelog** y este proyecto sigue **Semantic Versioning**.
 
-Todas las modificaciones importantes de este proyecto se documentan en este archivo.
+## [0.9.1] - 2026-07-01
 
-El formato está basado en **Keep a Changelog** y el proyecto sigue **Semantic Versioning**.
+### Added
+
+- Soporte para Microsoft Office Open XML.
+- Handler DOCX.
+- Handler XLSX.
+- Handler PPTX.
+- Processor común `Office_Open_XML_Processor`.
+- Inserción de fingerprints en propiedades personalizadas de Office.
+- Soporte para metadatos invisibles en DOCX, XLSX y PPTX.
+
+### Changed
+
+- Ampliado el motor multi-handler para soportar la familia Office Open XML.
+- Actualizada la interfaz de producto para mostrar DOCX, XLSX y PPTX como formatos disponibles.
+
+### Fixed
+
+- Implementados correctamente `supports()` y `validate()` en handlers Office.
+
+---
+
+## [0.9.0] - 2026-06-30
+
+### Added
+
+- Arquitectura Multi-Asset para WooCommerce.
+- Soporte para múltiples activos por producto.
+- Clase `Product_Asset`.
+- Fingerprints independientes por activo.
+- Tokens independientes por activo.
+- Contadores de descargas independientes.
+- Adaptación completa del panel de administración para múltiples formatos.
+- Visualización del formato del activo en Dashboard, listados y detalle.
+- Manejo seguro de excepciones durante el proceso de fingerprinting.
+
+### Changed
+
+- Refactorización completa del flujo de generación documental.
+- La integración con WooCommerce ahora trabaja sobre activos en lugar de documentos únicos.
+- La generación de archivos se basa en handlers independientes por formato.
+- Los nombres de los archivos generados pasan a ser aleatorios.
+- Eliminadas las descargas nativas de WooCommerce cuando DWW Fingerprinting está activo.
+- Eliminado el watermark visible de las entregas PDF.
+
+### Removed
+
+- Arquitectura centrada exclusivamente en PDF.
+- Métodos y código legado relacionados con documentos únicos.
+- Funciones obsoletas (`get_source_pdf()` y utilidades asociadas).
+
+### Fixed
+
+- Mejor gestión de errores durante la generación de documentos.
+- Correcciones en la generación de múltiples activos.
+- Mejoras de estabilidad durante el procesamiento por activo.
 
 ---
 
@@ -34,15 +81,15 @@ El formato está basado en **Keep a Changelog** y el proyecto sigue **Semantic V
 
 - Reorganización completa del panel de administración.
 - Separación de responsabilidades entre Dashboard, Fingerprints y componentes comunes.
-- Mejora de la experiencia de usuario del panel.
-- Simplificación de la navegación eliminando páginas ocultas.
-- Presentación optimizada de documentos y tokens.
+- Mejora de la experiencia de usuario.
+- Simplificación de la navegación.
+- Presentación optimizada de fingerprints y tokens.
 
 ### Fixed
 
 - Corregida la navegación entre listado y detalle.
-- Eliminadas advertencias relacionadas con páginas internas del administrador.
-- Mejorada la presentación de nombres de archivo y fingerprints largos.
+- Eliminadas advertencias relacionadas con páginas internas.
+- Mejorada la presentación de fingerprints largos.
 
 ---
 
@@ -54,19 +101,19 @@ El formato está basado en **Keep a Changelog** y el proyecto sigue **Semantic V
 - Integración completa con WooCommerce.
 - Personalización automática de documentos PDF.
 - Configuración por producto.
-- Página **Mi cuenta** con documentos protegidos.
-- Descargas limitadas por número de usos.
-- Caducidad configurable de enlaces.
+- Descargas protegidas en el área **Mi cuenta**.
+- Caducidad configurable.
+- Límite de descargas.
 - Sistema de migraciones de base de datos.
-- Primer gestor de migraciones (`Migration_Manager`).
+- `Migration_Manager`.
 
 ---
 
-## [0.1.0]
+## [0.1.0] - 2026-06-26
 
 ### Added
 
 - Primera prueba de concepto.
 - Generación de fingerprints.
-- Personalización de PDF mediante FPDI.
+- Personalización de documentos PDF mediante FPDI.
 - Registro de documentos protegidos.
