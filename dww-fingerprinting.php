@@ -4,7 +4,7 @@
  * Plugin Name: DWW Fingerprinting
  * Plugin URI: https://www.digitalwebworks.es
  * Description: Trazabilidad documental para WooCommerce.
- * Version: 0.9.1
+ * Version: 0.9.2
  * Author: Digital Web Works
  * Author URI: https://www.digitalwebworks.es
  * Text Domain: dww-fingerprinting
@@ -14,7 +14,7 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-define('DWW_FP_VERSION', '0.9.1');
+define('DWW_FP_VERSION', '0.9.2');
 define('DWW_FP_PLUGIN_FILE', __FILE__);
 define('DWW_FP_PLUGIN_DIR', plugin_dir_path(__FILE__));
 define('DWW_FP_PLUGIN_URL', plugin_dir_url(__FILE__));
@@ -51,6 +51,7 @@ require_once DWW_FP_PLUGIN_DIR . 'includes/admin/class-admin-ui.php';
 require_once DWW_FP_PLUGIN_DIR . 'includes/class-pdf-processor.php';
 require_once DWW_FP_PLUGIN_DIR . 'includes/class-epub-processor.php';
 require_once DWW_FP_PLUGIN_DIR . 'includes/class-office-open-xml-processor.php';
+require_once DWW_FP_PLUGIN_DIR . 'includes/class-open-document-processor.php';
 
 /*
 |--------------------------------------------------------------------------
@@ -65,6 +66,9 @@ require_once DWW_FP_PLUGIN_DIR . 'includes/handlers/class-epub-fingerprint-handl
 require_once DWW_FP_PLUGIN_DIR . 'includes/handlers/class-docx-fingerprint-handler.php';
 require_once DWW_FP_PLUGIN_DIR . 'includes/handlers/class-xlsx-fingerprint-handler.php';
 require_once DWW_FP_PLUGIN_DIR . 'includes/handlers/class-pptx-fingerprint-handler.php';
+require_once DWW_FP_PLUGIN_DIR . 'includes/handlers/class-odt-fingerprint-handler.php';
+require_once DWW_FP_PLUGIN_DIR . 'includes/handlers/class-ods-fingerprint-handler.php';
+require_once DWW_FP_PLUGIN_DIR . 'includes/handlers/class-odp-fingerprint-handler.php';
 
 /*
 |--------------------------------------------------------------------------

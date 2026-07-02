@@ -55,25 +55,19 @@ El sistema está diseñado mediante una arquitectura extensible basada en handle
 
 ---
 
-# Formatos soportados
-
-## Actualmente
-
-- ✅ PDF
-- ✅ EPUB
-
-## Próximamente
-
-- 🚧 DOCX
-- 🚧 XLSX
-- 🚧 PPTX
-- 📋 ODT
-- 📋 ODS
-- 📋 ODP
-
----
-
 # Estado del proyecto
+
+**Versión actual:** `0.9.2`
+
+Formatos soportados:
+- PDF
+- EPUB
+- DOCX
+- XLSX
+- PPTX
+- ODT
+- ODS
+- ODP
 
 **Versión actual:** `0.9.1`
 
