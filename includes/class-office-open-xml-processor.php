@@ -11,10 +11,16 @@ class Office_Open_XML_Processor
     private const CUSTOM_PROPERTIES_PATH = 'docProps/custom.xml';
 
     private const CUSTOM_PROPERTIES_REL_TYPE =
-        'http://schemas.openxmlformats.org/officeDocument/2006/relationships/custom-properties';
+    'http://schemas.openxmlformats.org/officeDocument/2006/relationships/custom-properties';
 
     private const CUSTOM_PROPERTIES_CONTENT_TYPE =
-        'application/vnd.openxmlformats-officedocument.custom-properties+xml';
+    'application/vnd.openxmlformats-officedocument.custom-properties+xml';
+
+    private const CUSTOM_PROPERTIES_NS =
+    'http://schemas.openxmlformats.org/officeDocument/2006/custom-properties';
+
+    private const CUSTOM_PROPERTY_TYPES_NS =
+    'http://schemas.openxmlformats.org/officeDocument/2006/docPropsVTypes';
 
     public static function personalize(
         string $source_path,
@@ -29,15 +35,15 @@ class Office_Open_XML_Processor
             return false;
         }
 
-        $zip = new \ZipArchive();
+        $zip = self::open_zip($destination_path);
 
-        if ($zip->open($destination_path) !== true) {
+        if (!$zip) {
             return false;
         }
 
         self::write_custom_properties(
             $zip,
-            self::build_fingerprint_properties($context)
+            Fingerprint_Payload::property_map($context)
         );
 
         self::ensure_root_relationship($zip);
@@ -48,35 +54,48 @@ class Office_Open_XML_Processor
         return true;
     }
 
-    private static function build_fingerprint_properties(array $context): array
-    {
-        $allowed = [
-            'fingerprint_id' => 'DWW Fingerprint',
-            'customer_email' => 'DWW Customer',
-            'customer_name'  => 'DWW Customer Name',
-            'order_id'       => 'DWW Order',
-            'product_id'     => 'DWW Product ID',
-            'product_name'   => 'DWW Product',
-            'asset_format'   => 'DWW Format',
-            'asset_id'       => 'DWW Asset ID',
-        ];
+    public static function extract(
+        string $file_path,
+        string $format = ''
+    ): array {
+        $format = $format !== ''
+            ? strtoupper($format)
+            : strtoupper(pathinfo($file_path, PATHINFO_EXTENSION));
 
-        $properties = [];
+        $zip = self::open_zip($file_path);
 
-        foreach ($allowed as $context_key => $property_name) {
-            $value = trim((string) ($context[$context_key] ?? ''));
+        if (!$zip) {
+            $evidence = Fingerprint_Evidence::empty($format);
+            $evidence['errors'][] = 'No se pudo abrir el archivo Office Open XML.';
 
-            if ($value === '') {
-                continue;
-            }
-
-            $properties[$property_name] = $value;
+            return $evidence;
         }
 
-        $properties['DWW Generated At'] = current_time('mysql');
-        $properties['DWW Plugin Version'] = DWW_FP_VERSION;
+        $xml = $zip->getFromName(self::CUSTOM_PROPERTIES_PATH);
+        $zip->close();
 
-        return $properties;
+        if ($xml === false) {
+            $evidence = Fingerprint_Evidence::empty($format);
+            $evidence['warnings'][] = 'No existe docProps/custom.xml.';
+
+            return $evidence;
+        }
+
+        return Fingerprint_Evidence::from_properties(
+            $format,
+            self::read_custom_properties_xml((string) $xml)
+        );
+    }
+
+    private static function open_zip(string $file_path): ?\ZipArchive
+    {
+        $zip = new \ZipArchive();
+
+        if ($zip->open($file_path) !== true) {
+            return null;
+        }
+
+        return $zip;
     }
 
     private static function write_custom_properties(
@@ -98,14 +117,14 @@ class Office_Open_XML_Processor
         $dom->formatOutput = false;
 
         $root = $dom->createElementNS(
-            'http://schemas.openxmlformats.org/officeDocument/2006/custom-properties',
+            self::CUSTOM_PROPERTIES_NS,
             'Properties'
         );
 
         $root->setAttributeNS(
             'http://www.w3.org/2000/xmlns/',
             'xmlns:vt',
-            'http://schemas.openxmlformats.org/officeDocument/2006/docPropsVTypes'
+            self::CUSTOM_PROPERTY_TYPES_NS
         );
 
         $dom->appendChild($root);
@@ -113,21 +132,76 @@ class Office_Open_XML_Processor
         $pid = 2;
 
         foreach ($properties as $name => $value) {
-            $property = $dom->createElement('property');
-            $property->setAttribute('fmtid', '{D5CDD505-2E9C-101B-9397-08002B2CF9AE}');
-            $property->setAttribute('pid', (string) $pid);
-            $property->setAttribute('name', $name);
-
-            $vt = $dom->createElement('vt:lpwstr');
-            $vt->appendChild($dom->createTextNode((string) $value));
-
-            $property->appendChild($vt);
-            $root->appendChild($property);
+            self::append_custom_property(
+                $dom,
+                $root,
+                (string) $name,
+                (string) $value,
+                $pid
+            );
 
             $pid++;
         }
 
         return (string) $dom->saveXML();
+    }
+
+    private static function append_custom_property(
+        \DOMDocument $dom,
+        \DOMElement $root,
+        string $name,
+        string $value,
+        int $pid
+    ): void {
+        $property = $dom->createElement('property');
+        $property->setAttribute('fmtid', '{D5CDD505-2E9C-101B-9397-08002B2CF9AE}');
+        $property->setAttribute('pid', (string) $pid);
+        $property->setAttribute('name', $name);
+
+        $vt = $dom->createElement('vt:lpwstr');
+        $vt->appendChild($dom->createTextNode($value));
+
+        $property->appendChild($vt);
+        $root->appendChild($property);
+    }
+
+    private static function read_custom_properties_xml(string $xml): array
+    {
+        $dom = File_Validator::load_xml($xml);
+
+        if (!$dom) {
+            return [];
+        }
+
+        $xpath = new \DOMXPath($dom);
+
+        $xpath->registerNamespace(
+            'cp',
+            self::CUSTOM_PROPERTIES_NS
+        );
+
+        $properties = [];
+        $nodes = $xpath->query('//cp:property');
+
+        if (!$nodes) {
+            return [];
+        }
+
+        foreach ($nodes as $node) {
+            if (!$node instanceof \DOMElement) {
+                continue;
+            }
+
+            $name = $node->getAttribute('name');
+
+            if (!str_starts_with($name, 'DWW ')) {
+                continue;
+            }
+
+            $properties[$name] = trim((string) $node->textContent);
+        }
+
+        return $properties;
     }
 
     private static function ensure_root_relationship(\ZipArchive $zip): void
@@ -144,11 +218,9 @@ class Office_Open_XML_Processor
             return;
         }
 
-        $dom = new \DOMDocument();
-        $dom->preserveWhiteSpace = false;
-        $dom->formatOutput = false;
+        $dom = self::load_xml_document((string) $xml);
 
-        if (!$dom->loadXML($xml)) {
+        if (!$dom) {
             return;
         }
 
@@ -165,6 +237,63 @@ class Office_Open_XML_Processor
 
         $relationships->appendChild($relationship);
 
+        self::replace_zip_xml($zip, $path, $dom);
+    }
+
+    private static function ensure_content_type(\ZipArchive $zip): void
+    {
+        $path = '[Content_Types].xml';
+
+        $xml = $zip->getFromName($path);
+
+        if ($xml === false) {
+            return;
+        }
+
+        if (strpos($xml, self::CUSTOM_PROPERTIES_CONTENT_TYPE) !== false) {
+            return;
+        }
+
+        $dom = self::load_xml_document((string) $xml);
+
+        if (!$dom) {
+            return;
+        }
+
+        $types = $dom->documentElement;
+
+        if (!$types) {
+            return;
+        }
+
+        $override = $dom->createElement('Override');
+        $override->setAttribute('PartName', '/' . self::CUSTOM_PROPERTIES_PATH);
+        $override->setAttribute('ContentType', self::CUSTOM_PROPERTIES_CONTENT_TYPE);
+
+        $types->appendChild($override);
+
+        self::replace_zip_xml($zip, $path, $dom);
+    }
+
+    private static function load_xml_document(string $xml): ?\DOMDocument
+    {
+        $dom = File_Validator::load_xml($xml);
+
+        if (!$dom) {
+            return null;
+        }
+
+        $dom->preserveWhiteSpace = false;
+        $dom->formatOutput = false;
+
+        return $dom;
+    }
+
+    private static function replace_zip_xml(
+        \ZipArchive $zip,
+        string $path,
+        \DOMDocument $dom
+    ): void {
         $zip->deleteName($path);
         $zip->addFromString($path, (string) $dom->saveXML());
     }
@@ -182,43 +311,5 @@ class Office_Open_XML_Processor
         }
 
         return 'rId' . ($max + 1);
-    }
-
-    private static function ensure_content_type(\ZipArchive $zip): void
-    {
-        $path = '[Content_Types].xml';
-
-        $xml = $zip->getFromName($path);
-
-        if ($xml === false) {
-            return;
-        }
-
-        if (strpos($xml, self::CUSTOM_PROPERTIES_CONTENT_TYPE) !== false) {
-            return;
-        }
-
-        $dom = new \DOMDocument();
-        $dom->preserveWhiteSpace = false;
-        $dom->formatOutput = false;
-
-        if (!$dom->loadXML($xml)) {
-            return;
-        }
-
-        $types = $dom->documentElement;
-
-        if (!$types) {
-            return;
-        }
-
-        $override = $dom->createElement('Override');
-        $override->setAttribute('PartName', '/' . self::CUSTOM_PROPERTIES_PATH);
-        $override->setAttribute('ContentType', self::CUSTOM_PROPERTIES_CONTENT_TYPE);
-
-        $types->appendChild($override);
-
-        $zip->deleteName($path);
-        $zip->addFromString($path, (string) $dom->saveXML());
     }
 }

@@ -43,10 +43,24 @@ class Odp_Fingerprint_Handler extends Abstract_Fingerprint_Handler
         string $destination_path,
         array $context = []
     ): bool {
-        return Open_Document_Processor::personalize(
-            $source_path,
-            $destination_path,
-            $context
-        );
+        try {
+
+            return Open_Document_Processor::personalize(
+                $source_path,
+                $destination_path,
+                $context
+            );
+        } catch (\Throwable $exception) {
+
+            \DWW_Fingerprinting\Logger::log(
+                sprintf(
+                    '%s handler exception: %s',
+                    $this->get_name(),
+                    $exception->getMessage()
+                )
+            );
+
+            return false;
+        }
     }
 }

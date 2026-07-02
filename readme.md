@@ -1,10 +1,10 @@
 # DWW Fingerprinting
 
-Motor de fingerprinting documental para WordPress y WooCommerce.
+Motor profesional de fingerprinting documental para WordPress y WooCommerce.
 
-DWW Fingerprinting genera copias personalizadas de documentos digitales vendidos mediante WooCommerce, asignando a cada archivo un fingerprint único que permite su trazabilidad completa.
+DWW Fingerprinting genera copias personalizadas de documentos digitales vendidos mediante WooCommerce, asignando a cada activo un fingerprint único y un payload verificable que permite garantizar la trazabilidad, autenticidad e integridad documental.
 
-El sistema está diseñado mediante una arquitectura extensible basada en handlers, permitiendo incorporar nuevos formatos de documento sin modificar el núcleo del motor.
+Su arquitectura modular permite incorporar nuevos formatos documentales sin modificar el núcleo del sistema.
 
 ---
 
@@ -15,7 +15,19 @@ El sistema está diseñado mediante una arquitectura extensible basada en handle
 - Fingerprints únicos por activo.
 - Copias personalizadas por compra.
 - Asociación documento → pedido → cliente.
+- Payload documental unificado.
+- Payload Hash para verificación de integridad.
 - Registro permanente de trazabilidad.
+
+## Verificación
+
+- Extracción automática de fingerprints.
+- Verificación de autenticidad.
+- Comparación con Base de Datos.
+- Verificación de Payload Hash.
+- Detección de manipulación documental.
+- Trust Score.
+- Informe completo de verificación.
 
 ## Entrega segura
 
@@ -26,11 +38,20 @@ El sistema está diseñado mediante una arquitectura extensible basada en handle
 - Regeneración de enlaces.
 - Descarga protegida.
 
+## Seguridad
+
+- Payload firmado.
+- Validación XML segura.
+- Validación ZIP.
+- Validación estructural del documento.
+- Protección del almacenamiento.
+- Procesamiento seguro mediante handlers.
+
 ## WooCommerce
 
 - Integración completa.
 - Configuración por producto.
-- Soporte para múltiples activos por producto.
+- Soporte Multi-Asset.
 - Descarga integrada en "Mi cuenta".
 - Flujo completamente automático.
 
@@ -43,15 +64,19 @@ El sistema está diseñado mediante una arquitectura extensible basada en handle
 - Vista de detalle.
 - Gestión de tokens.
 - Historial de actividad.
+- Verificador documental.
 - Componentes reutilizables.
 
 ## Arquitectura
 
 - Motor basado en handlers.
+- Processors independientes.
 - Sistema Multi-Asset.
+- Payload centralizado.
+- Integridad desacoplada.
+- Trust Score independiente.
 - Migraciones automáticas.
 - Arquitectura modular.
-- Preparado para nuevos formatos documentales.
 
 ---
 
@@ -59,35 +84,37 @@ El sistema está diseñado mediante una arquitectura extensible basada en handle
 
 **Versión actual:** `0.9.2`
 
-Formatos soportados:
-- PDF
-- EPUB
-- DOCX
-- XLSX
-- PPTX
-- ODT
-- ODS
-- ODP
+## Formatos soportados
 
-**Versión actual:** `0.9.1`
+| Formato | Generación | Verificación |
+|----------|:----------:|:------------:|
+| PDF | ✅ | ✅ |
+| EPUB | ✅ | ✅ |
+| DOCX | ✅ | ✅ |
+| XLSX | ✅ | ✅ |
+| PPTX | ✅ | ✅ |
+| ODT | ✅ | ✅ |
+| ODS | ✅ | ✅ |
+| ODP | ✅ | ✅ |
 
-Formatos soportados:
+## Estado
 
-- PDF
-- EPUB
-- DOCX
-- XLSX
-- PPTX
+**Feature Complete (Pre-Release)**
 
-Estado:
+El núcleo del motor se considera completo y estable.
 
-**Beta avanzada.**
+Actualmente el sistema dispone de:
 
-El núcleo del motor se encuentra completamente operativo y estable.
+- Motor de fingerprint documental.
+- Soporte para ocho formatos documentales.
+- Integración completa con WooCommerce.
+- Descarga segura mediante tokens.
+- Motor de verificación documental.
+- Trust Score.
+- Auditoría documental.
+- Arquitectura completamente modular.
 
-Actualmente el sistema soporta múltiples activos por producto, fingerprints independientes, tokens independientes y trazabilidad completa de la entrega documental.
-
-Las siguientes versiones estarán orientadas a ampliar el número de formatos soportados y endurecer los mecanismos de protección documental.
+Las siguientes fases estarán orientadas a la preparación del producto (Health Check, UX, API, CLI y sistema de licenciamiento).
 
 ---
 
@@ -108,62 +135,92 @@ composer install
 
 Activar el plugin desde WordPress.
 
-Configurar un producto indicando los activos que serán protegidos.
+Configurar un producto indicando los activos documentales que serán protegidos.
 
 ---
 
-# Flujo de funcionamiento
+# Pipeline
 
 ```text
+Compra
+
+    │
+
+    ▼
+
 WooCommerce
 
-        │
+    │
 
-        ▼
+    ▼
 
-Compra realizada
+WooCommerce Integration
 
-        │
+    │
 
-        ▼
+    ▼
 
-Motor de Fingerprinting
+Fingerprint Manager
 
-        │
+    │
 
-        ▼
+    ▼
 
-Handler del formato
+Handler
 
-        │
+    │
 
-        ▼
+    ▼
 
-Generación del fingerprint
+Processor
 
-        │
+    │
 
-        ▼
+    ▼
 
-Registro en Base de Datos
+Payload
 
-        │
+    │
 
-        ▼
+    ▼
 
-Creación del token
+Fingerprint
 
-        │
+    │
 
-        ▼
+    ▼
 
-Entrega segura
+Payload Hash
 
-        │
+    │
 
-        ▼
+    ▼
 
-Auditoría
+Base de Datos
+
+    │
+
+    ▼
+
+Token
+
+    │
+
+    ▼
+
+Entrega Segura
+
+    │
+
+    ▼
+
+Verificación
+
+    │
+
+    ▼
+
+Trust Score
 ```
 
 ---
@@ -179,38 +236,69 @@ WooCommerce Integration
         ▼
 Fingerprint Manager
         │
-        ├───────────────┐
-        ▼               ▼
- PDF Handler      EPUB Handler
-        │               │
-        ▼               ▼
- Processor       Processor
+        ▼
+Handlers
         │
         ▼
-Storage
+Processors
+        │
+        ▼
+Generated Documents
+        │
+        ▼
+Fingerprint DB
         │
         ▼
 Download Tokens
         │
         ▼
-Secure Delivery
+Verification Engine
+        │
+        ├───────────────┐
+        ▼               ▼
+Fingerprint Integrity  Trust Score
+        │
+        ▼
+Verification Report
 ```
 
 ---
 
-# Principales componentes
+# Componentes principales
 
 - Fingerprint Manager
 - Fingerprint Generator
+- Fingerprint Payload
+- Fingerprint Extractor
+- Fingerprint Verifier
+- Fingerprint Integrity
+- Trust Score
 - Product Asset
+- Product Assets
 - Download Handler
 - Download Token DB
 - Fingerprint DB
+- File Validator
+- Storage Security
 - Logger
 - WooCommerce Integration
-- Dashboard
-- Fingerprints Administration
 - Migration Manager
+- Dashboard
+- Verification Report
+
+---
+
+# Estado del desarrollo
+
+| Fase | Estado |
+|------|:------:|
+| Core Engine | ✅ |
+| Multi-Asset | ✅ |
+| Secure Delivery | ✅ |
+| Verification Engine | ✅ |
+| Hardening | ✅ |
+| Product Readiness | ⏳ |
+| Licensing Engine | ⏳ |
 
 ---
 

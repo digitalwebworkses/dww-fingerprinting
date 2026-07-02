@@ -12,6 +12,8 @@ class Admin_Menu
 
     private const FINGERPRINTS_SLUG = 'dww-fingerprinting-fingerprints';
 
+    private const VERIFY_SLUG = 'dww-fingerprinting-verify';
+
     public static function init(): void
     {
         add_action(
@@ -49,6 +51,15 @@ class Admin_Menu
             self::FINGERPRINTS_SLUG,
             [Fingerprints_Page::class, 'render']
         );
+
+        add_submenu_page(
+            self::MENU_SLUG,
+            'Verificar documento',
+            'Verificar documento',
+            'manage_options',
+            self::VERIFY_SLUG,
+            [Verify_Page::class, 'render']
+        );
     }
 
     public static function get_dashboard_slug(): string
@@ -59,5 +70,10 @@ class Admin_Menu
     public static function get_fingerprints_slug(): string
     {
         return self::FINGERPRINTS_SLUG;
+    }
+
+    public static function get_verify_slug(): string
+    {
+        return self::VERIFY_SLUG;
     }
 }

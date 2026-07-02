@@ -4,6 +4,60 @@ Todos los cambios importantes de este proyecto se documentan en este archivo.
 
 El formato está basado en **Keep a Changelog** y este proyecto sigue **Semantic Versioning**.
 
+---
+
+## [0.9.2] - 2026-07-02
+
+### Added
+
+- Soporte completo para OpenDocument (ODT, ODS y ODP).
+- Soporte completo para verificación de OpenDocument.
+- Motor de extracción documental unificado (`Fingerprint_Extractor`).
+- Motor de verificación (`Fingerprint_Verifier`).
+- Sistema de integridad documental (`Fingerprint_Integrity`).
+- Trust Score para auditoría documental.
+- Informe reutilizable de verificación (`Verification_Report`).
+- Payload Hash integrado en el proceso de fingerprinting.
+- Clase `Fingerprint_Payload`.
+- Validación previa de archivos (`File_Validator`).
+- Validación de contenedores ZIP.
+- Validación estructural por formato documental.
+- Carga XML segura centralizada.
+- Protección del almacenamiento (`Storage_Security`).
+- Refactorización del procesamiento EPUB.
+- Refactorización del procesamiento OpenDocument.
+- Refactorización del procesamiento Office Open XML.
+- Verificador documental integrado en el panel de administración.
+- Auditoría documental basada en evidencias.
+
+### Changed
+
+- Refactorización completa del motor de verificación.
+- Separación de responsabilidades entre Verifier, Integrity y Trust Score.
+- Separación de la presentación mediante `Verification_Report`.
+- Arquitectura basada en payloads verificables.
+- Unificación de la carga segura de XML.
+- Mejoras de seguridad durante el procesamiento documental.
+- Reducción y simplificación de múltiples clases del núcleo.
+
+### Security
+
+- Verificación de Payload Hash.
+- Detección de manipulación documental.
+- Validación de documentos corruptos.
+- Validación de estructuras ZIP.
+- Protección frente a XML malformado.
+- Refuerzo del almacenamiento interno.
+
+### Fixed
+
+- Mejor detección de documentos manipulados.
+- Mejor clasificación de estados de verificación.
+- Correcciones durante la verificación de múltiples formatos.
+- Correcciones menores de estabilidad durante el hardening.
+
+---
+
 ## [0.9.1] - 2026-07-01
 
 ### Added
@@ -18,7 +72,7 @@ El formato está basado en **Keep a Changelog** y este proyecto sigue **Semantic
 
 ### Changed
 
-- Ampliado el motor multi-handler para soportar la familia Office Open XML.
+- Ampliado el motor Multi-Handler para soportar la familia Office Open XML.
 - Actualizada la interfaz de producto para mostrar DOCX, XLSX y PPTX como formatos disponibles.
 
 ### Fixed

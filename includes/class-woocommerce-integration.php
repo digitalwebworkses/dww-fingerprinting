@@ -77,7 +77,6 @@ class WooCommerce_Integration
         Logger::log('Customer email: ' . $customer_email);
 
         foreach ($order->get_items() as $item) {
-
             $product = $item->get_product();
 
             if (!$product) {
@@ -156,7 +155,21 @@ class WooCommerce_Integration
             $asset_id
         );
 
+        $context = [
+            'customer_name'  => $customer_name,
+            'customer_email' => $customer_email,
+            'order_id'       => (string) $order_id,
+            'product_id'     => $product_id,
+            'product_name'   => $product_name,
+            'asset_format'   => $format,
+            'asset_id'       => $asset_id,
+            'fingerprint_id' => $fingerprint_id,
+        ];
+
+        $payload_hash = Fingerprint_Payload::hash($context);
+
         Logger::log('Fingerprint: ' . $fingerprint_id);
+        Logger::log('Payload hash: ' . $payload_hash);
 
         Logger::log(
             'Fingerprint exists: ' .
@@ -182,16 +195,7 @@ class WooCommerce_Integration
             $generated = Fingerprint_Manager::process(
                 $source_file,
                 $destination,
-                [
-                    'customer_name'  => $customer_name,
-                    'customer_email' => $customer_email,
-                    'order_id'       => (string) $order_id,
-                    'product_id'     => $product_id,
-                    'product_name'   => $product_name,
-                    'asset_format'   => $format,
-                    'asset_id'       => $asset_id,
-                    'fingerprint_id' => $fingerprint_id,
-                ]
+                $context
             );
         } catch (\Throwable $exception) {
             Logger::log(
@@ -213,6 +217,7 @@ class WooCommerce_Integration
 
         $registry_id = Fingerprint_DB::insert([
             'fingerprint_id' => $fingerprint_id,
+            'payload_hash'   => $payload_hash,
             'customer_email' => $customer_email,
             'order_id'       => (string) $order_id,
             'product_id'     => $product_id,
@@ -260,9 +265,15 @@ class WooCommerce_Integration
         $generated_dir = trailingslashit($upload_dir['basedir'])
             . 'dww-fingerprinting/storage/generated';
 
-        if (!file_exists($generated_dir)) {
-            wp_mkdir_p($generated_dir);
-        }
+        Storage_Security::protect_directory(
+            trailingslashit($upload_dir['basedir']) . 'dww-fingerprinting'
+        );
+
+        Storage_Security::protect_directory(
+            trailingslashit($upload_dir['basedir']) . 'dww-fingerprinting/storage'
+        );
+
+        Storage_Security::protect_directory($generated_dir);
 
         $extension = strtolower(pathinfo($source_file, PATHINFO_EXTENSION));
 

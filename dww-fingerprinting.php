@@ -19,6 +19,10 @@ define('DWW_FP_PLUGIN_FILE', __FILE__);
 define('DWW_FP_PLUGIN_DIR', plugin_dir_path(__FILE__));
 define('DWW_FP_PLUGIN_URL', plugin_dir_url(__FILE__));
 
+if (!defined('DWW_FP_SECRET_KEY')) {
+    define('DWW_FP_SECRET_KEY', AUTH_KEY . SECURE_AUTH_KEY . LOGGED_IN_KEY . NONCE_KEY);
+}
+
 if (file_exists(DWW_FP_PLUGIN_DIR . 'vendor/autoload.php')) {
     require_once DWW_FP_PLUGIN_DIR . 'vendor/autoload.php';
 }
@@ -76,10 +80,18 @@ require_once DWW_FP_PLUGIN_DIR . 'includes/handlers/class-odp-fingerprint-handle
 |--------------------------------------------------------------------------
 */
 
+require_once DWW_FP_PLUGIN_DIR . 'includes/class-fingerprint-payload.php';
+require_once DWW_FP_PLUGIN_DIR . 'includes/class-fingerprint-evidence.php';
+require_once DWW_FP_PLUGIN_DIR . 'includes/class-fingerprint-extractor.php';
+require_once DWW_FP_PLUGIN_DIR . 'includes/class-fingerprint-verifier.php';
+require_once DWW_FP_PLUGIN_DIR . 'includes/class-trust-score.php';
+require_once DWW_FP_PLUGIN_DIR . 'includes/class-fingerprint-integrity.php';
+require_once DWW_FP_PLUGIN_DIR . 'includes/class-file-validator.php';
 require_once DWW_FP_PLUGIN_DIR . 'includes/class-fingerprint-manager.php';
 require_once DWW_FP_PLUGIN_DIR . 'includes/class-fingerprint-db.php';
 require_once DWW_FP_PLUGIN_DIR . 'includes/class-fingerprint-generator.php';
 require_once DWW_FP_PLUGIN_DIR . 'includes/class-fingerprint-log-db.php';
+require_once DWW_FP_PLUGIN_DIR . 'includes/class-storage-security.php';
 
 /*
 |--------------------------------------------------------------------------
@@ -101,6 +113,8 @@ require_once DWW_FP_PLUGIN_DIR . 'includes/admin/class-admin-menu.php';
 require_once DWW_FP_PLUGIN_DIR . 'includes/admin/class-dashboard-page.php';
 require_once DWW_FP_PLUGIN_DIR . 'includes/admin/class-fingerprints-page.php';
 require_once DWW_FP_PLUGIN_DIR . 'includes/admin/class-fingerprint-detail-page.php';
+require_once DWW_FP_PLUGIN_DIR . 'includes/admin/class-verify-page.php';
+require_once DWW_FP_PLUGIN_DIR . 'includes/admin/class-verification-report.php';
 
 /*
 |--------------------------------------------------------------------------
@@ -132,6 +146,7 @@ require_once DWW_FP_PLUGIN_DIR . 'includes/class-migration-manager.php';
 require_once DWW_FP_PLUGIN_DIR . 'includes/migrations/class-migration-020.php';
 require_once DWW_FP_PLUGIN_DIR . 'includes/migrations/class-migration-030.php';
 require_once DWW_FP_PLUGIN_DIR . 'includes/migrations/class-migration-040.php';
+require_once DWW_FP_PLUGIN_DIR . 'includes/migrations/class-migration-050.php';
 
 register_activation_hook(
     __FILE__,

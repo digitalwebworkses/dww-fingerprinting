@@ -108,6 +108,17 @@ class Fingerprint_Manager
         array $context = []
     ): bool {
 
+        $validation = File_Validator::validate($source_file);
+
+        if (!$validation['valid']) {
+            Logger::log(
+                'Source file validation failed: ' .
+                    implode(' | ', $validation['errors'])
+            );
+
+            return false;
+        }
+
         $handler = self::get_handler_for_file($source_file);
 
         if (!$handler) {

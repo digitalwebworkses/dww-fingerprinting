@@ -36,18 +36,30 @@ class Pdf_Fingerprint_Handler extends Abstract_Fingerprint_Handler
     }
 
     public function process(
-        string $source_file,
-        string $destination_file,
+        string $source_path,
+        string $destination_path,
         array $context = []
     ): bool {
-        $this->set_context($context);
+        try {
 
-        return PDF_Processor::personalize_pdf(
-            $source_file,
-            $destination_file,
-            (string) $this->get_context('customer_name', ''),
-            (string) $this->get_context('customer_email', ''),
-            (string) $this->get_context('order_id', '')
-        );
+            return PDF_Processor::personalize_pdf(
+                $source_path,
+                $destination_path,
+                (string) ($context['customer_name'] ?? ''),
+                (string) ($context['customer_email'] ?? ''),
+                (string) ($context['order_id'] ?? '')
+            );
+        } catch (\Throwable $exception) {
+
+            \DWW_Fingerprinting\Logger::log(
+                sprintf(
+                    '%s handler exception: %s',
+                    $this->get_name(),
+                    $exception->getMessage()
+                )
+            );
+
+            return false;
+        }
     }
 }

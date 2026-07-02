@@ -6,7 +6,7 @@ Estado del desarrollo de **DWW Fingerprinting**.
 
 # ✅ Fase 1 — Investigación y prueba de concepto
 
-Estado: **Completada**
+**Estado:** Completada
 
 ## Objetivos
 
@@ -19,48 +19,50 @@ Estado: **Completada**
 
 # ✅ Fase 2 — Núcleo del motor
 
-Estado: **Completada**
+**Estado:** Completada
 
 ## Objetivos
 
 - Arquitectura base.
 - Generador de fingerprints.
-- Registro en base de datos.
-- Asociación documento ↔ pedido ↔ cliente.
+- Registro en Base de Datos.
+- Asociación documento → pedido → cliente.
+- Motor de generación documental.
 
 ---
 
 # ✅ Fase 3 — Entrega segura
 
-Estado: **Completada**
+**Estado:** Completada
 
 ## Objetivos
 
 - Tokens de descarga.
-- Caducidad.
+- Caducidad configurable.
 - Límite de descargas.
 - Descarga protegida.
 - Validación de accesos.
+- Revocación de tokens.
 
 ---
 
 # ✅ Fase 4 — Integración WooCommerce
 
-Estado: **Completada**
+**Estado:** Completada
 
 ## Objetivos
 
 - Configuración por producto.
-- Automatización del proceso de generación.
+- Automatización completa del proceso.
 - Integración con pedidos.
-- Área "Mi Cuenta".
+- Área "Mi cuenta".
 - Flujo completo de compra.
 
 ---
 
 # ✅ Fase 5 — Administración
 
-Estado: **Completada**
+**Estado:** Completada
 
 ## Objetivos
 
@@ -76,38 +78,38 @@ Estado: **Completada**
 
 # ✅ Fase 6 — Auditoría
 
-Estado: **Completada**
+**Estado:** Completada
 
 ## Objetivos
 
 - Registro de eventos.
 - Historial de actividad.
-- Trazabilidad.
 - Auditoría de descargas.
 - Historial de tokens.
+- Trazabilidad documental.
 
 ---
 
 # ✅ Fase 7 — Arquitectura Multi-Asset
 
-Estado: **Completada**
+**Estado:** Completada
 
 ## Objetivos
 
 - Múltiples activos por producto.
 - Arquitectura basada en handlers.
-- Product_Asset.
+- Product Asset.
 - Fingerprints independientes.
 - Tokens independientes.
 - Contadores independientes.
-- Adaptación completa del panel.
 - Compatibilidad con múltiples formatos.
+- Adaptación completa del panel.
 
 ---
 
 # ✅ Fase 8 — Office Open XML
 
-Estado: **Completada**
+**Estado:** Completada
 
 ## Objetivos
 
@@ -115,14 +117,14 @@ Estado: **Completada**
 - Handler DOCX.
 - Handler XLSX.
 - Handler PPTX.
-- Fingerprints en propiedades personalizadas.
-- Pruebas completas en Word, Excel y PowerPoint.
+- Fingerprints invisibles mediante propiedades personalizadas.
+- Pruebas completas de interoperabilidad.
 
 ---
 
-# 🚧 Fase 9 — OpenDocument
+# ✅ Fase 9 — OpenDocument
 
-Pendiente.
+**Estado:** Completada
 
 ## Objetivos
 
@@ -130,50 +132,70 @@ Pendiente.
 - Handler ODT.
 - Handler ODS.
 - Handler ODP.
-
----
-
-# 📋 Fase 10 — Hardening
-
-Pendiente.
-
-## Objetivos
-
-- Fingerprints invisibles.
-- Endurecimiento frente a manipulación.
 - Verificación documental.
-- Detección de alteraciones.
-- Auditoría avanzada.
-- Mejoras criptográficas.
+- Compatibilidad completa con OpenDocument.
 
 ---
 
-# 📋 Fase 11 — API e Integraciones
+# ✅ Fase 10 — Hardening & Verification
 
-Pendiente.
+**Estado:** Completada
 
 ## Objetivos
 
+- Fingerprint Payload.
+- Payload Hash.
+- Fingerprint Extractor.
+- Fingerprint Verifier.
+- Fingerprint Integrity.
+- Trust Score.
+- Verification Report.
+- Validación XML segura.
+- Validación ZIP.
+- Validación estructural documental.
+- Protección del almacenamiento.
+- Refactorización del núcleo.
+- Auditoría documental.
+- Detección de manipulación.
+- Verificación de autenticidad.
+
+---
+
+# 🚧 Fase 11 — Product Readiness
+
+**Estado:** En planificación
+
+## Objetivos
+
+- Health Check del sistema.
+- Dashboard profesional.
+- Indicadores de salud.
+- Mejoras UX del panel.
+- Exportación de informes.
 - REST API.
-- Automatización.
-- Integraciones externas.
+- CLI.
 - Hooks públicos.
-- SDK.
+- Optimización de rendimiento.
+- Optimización de memoria.
+- Cobertura de pruebas.
+- Auditoría automática del entorno.
 
 ---
 
-# 📋 Fase 12 — Optimización
+# 📋 Fase 12 — Licensing Engine
 
-Pendiente.
+**Estado:** Pendiente
 
 ## Objetivos
 
-- Rendimiento.
-- Caché.
-- Optimización de memoria.
-- Cobertura de tests.
-- Refactorización final.
-- Preparación para la versión 1.0.
+- Sistema de licencias.
+- Activación online.
+- Validación offline.
+- Gestión de instalaciones.
+- Renovaciones.
+- Restricciones por dominio.
+- Protección del núcleo.
+- Preparación para distribución comercial.
 
 ---
 
@@ -181,7 +203,23 @@ Pendiente.
 
 ## Versión 1.0
 
-La versión 1.0 deberá proporcionar un motor de fingerprinting documental estable, extensible y preparado para producción, con soporte para:
+La versión **1.0** deberá proporcionar una plataforma profesional de fingerprinting documental para WordPress y WooCommerce, preparada para producción, basada en una arquitectura modular y extensible.
+
+### Funcionalidades principales
+
+- Fingerprinting documental.
+- Verificación de autenticidad.
+- Trust Score.
+- Auditoría documental.
+- Descarga segura.
+- Integración completa con WooCommerce.
+- Arquitectura Multi-Asset.
+- Payload verificable.
+- Protección del almacenamiento.
+- API pública.
+- Sistema de licencias.
+
+### Formatos soportados
 
 - PDF
 - EPUB
@@ -191,5 +229,3 @@ La versión 1.0 deberá proporcionar un motor de fingerprinting documental estab
 - ODT
 - ODS
 - ODP
-
-mediante una arquitectura basada en handlers, con trazabilidad completa, auditoría y entrega segura de documentos.

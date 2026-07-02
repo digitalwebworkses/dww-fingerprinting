@@ -25,6 +25,7 @@ class Fingerprint_DB
         $sql = "CREATE TABLE {$table_name} (
             id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
             fingerprint_id VARCHAR(64) NOT NULL,
+            payload_hash VARCHAR(64) NOT NULL DEFAULT '',
             customer_email VARCHAR(255) NOT NULL,
             order_id VARCHAR(50) NOT NULL,
             product_id VARCHAR(50) NOT NULL,
@@ -36,6 +37,7 @@ class Fingerprint_DB
             created_at DATETIME NOT NULL,
             PRIMARY KEY (id),
             KEY fingerprint_id (fingerprint_id),
+            KEY payload_hash (payload_hash),
             KEY order_id (order_id),
             KEY customer_email (customer_email),
             KEY asset_format (asset_format)
@@ -59,6 +61,7 @@ class Fingerprint_DB
             self::get_table_name(),
             [
                 'fingerprint_id' => sanitize_text_field($data['fingerprint_id'] ?? ''),
+                'payload_hash'   => sanitize_text_field($data['payload_hash'] ?? ''),
                 'customer_email' => sanitize_email($data['customer_email'] ?? ''),
                 'order_id'       => sanitize_text_field($data['order_id'] ?? ''),
                 'product_id'     => sanitize_text_field($data['product_id'] ?? ''),
@@ -80,10 +83,12 @@ class Fingerprint_DB
                 '%s',
                 '%s',
                 '%s',
+                '%s',
             ]
         );
 
         if ($inserted === false) {
+            Logger::log('Fingerprint DB insert failed: ' . (string) $wpdb->last_error);
             return 0;
         }
 
@@ -98,6 +103,20 @@ class Fingerprint_DB
             $wpdb->prepare(
                 "SELECT * FROM " . self::get_table_name() . " WHERE fingerprint_id = %s LIMIT 1",
                 sanitize_text_field($fingerprint_id)
+            )
+        );
+
+        return $result ?: null;
+    }
+
+    public static function get_by_payload_hash(string $payload_hash): ?object
+    {
+        global $wpdb;
+
+        $result = $wpdb->get_row(
+            $wpdb->prepare(
+                "SELECT * FROM " . self::get_table_name() . " WHERE payload_hash = %s LIMIT 1",
+                sanitize_text_field($payload_hash)
             )
         );
 
@@ -149,7 +168,6 @@ class Fingerprint_DB
         ";
 
         if ($search !== '') {
-
             $like = '%' . $wpdb->esc_like($search) . '%';
 
             $results = $wpdb->get_results(
@@ -158,6 +176,7 @@ class Fingerprint_DB
                     {$select}
                     WHERE
                         fp.fingerprint_id LIKE %s
+                        OR fp.payload_hash LIKE %s
                         OR fp.customer_email LIKE %s
                         OR fp.order_id LIKE %s
                         OR fp.product_id LIKE %s
@@ -172,11 +191,11 @@ class Fingerprint_DB
                     $like,
                     $like,
                     $like,
+                    $like,
                     $like
                 )
             );
         } else {
-
             $results = $wpdb->get_results(
                 "
                 {$select}
