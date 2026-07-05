@@ -31,8 +31,7 @@ class Fingerprint_Integrity
         $document_hash = (string) ($properties['DWW Hash'] ?? '');
 
         if ($document_hash !== '') {
-            $reconstructed_context = Fingerprint_Payload::context_from_properties($properties);
-            $recalculated_hash = Fingerprint_Payload::hash($reconstructed_context);
+            $recalculated_hash = Fingerprint_Payload::hash_from_properties($properties);
 
             if (!hash_equals($document_hash, $recalculated_hash)) {
                 $result['valid'] = false;

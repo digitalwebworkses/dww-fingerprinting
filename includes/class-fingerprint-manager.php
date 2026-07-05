@@ -21,18 +21,12 @@ class Fingerprint_Manager
         self::$handlers = [];
     }
 
-    /**
-     * Registra un handler.
-     */
     public static function register_handler(
         Fingerprint_Handler_Interface $handler
     ): void {
         self::$handlers[] = $handler;
     }
 
-    /**
-     * Descubre automáticamente todos los handlers cargados.
-     */
     public static function register_default_handlers(): void
     {
         self::clear_handlers();
@@ -57,15 +51,10 @@ class Fingerprint_Manager
             );
         }
 
-        /**
-         * Permite a plugins externos registrar handlers.
-         */
         do_action('dww_fingerprinting_register_handlers');
     }
 
     /**
-     * Devuelve todos los handlers registrados.
-     *
      * @return Fingerprint_Handler_Interface[]
      */
     public static function get_handlers(): array
@@ -73,9 +62,6 @@ class Fingerprint_Manager
         return self::$handlers;
     }
 
-    /**
-     * Obtiene el handler adecuado para un fichero.
-     */
     public static function get_handler_for_file(
         string $file_path
     ): ?Fingerprint_Handler_Interface {
@@ -90,18 +76,12 @@ class Fingerprint_Manager
         return null;
     }
 
-    /**
-     * Indica si existe un handler para el fichero.
-     */
     public static function can_process(
         string $file_path
     ): bool {
         return self::get_handler_for_file($file_path) !== null;
     }
 
-    /**
-     * Procesa un fichero utilizando el handler adecuado.
-     */
     public static function process(
         string $source_file,
         string $destination_file,
@@ -140,24 +120,30 @@ class Fingerprint_Manager
             return false;
         }
 
-        return $handler->process(
+        $processed = $handler->process(
             $source_file,
             $destination_file,
             $context
         );
+
+        if ($processed) {
+            do_action(
+                'dww_fingerprint_file_processed',
+                $source_file,
+                $destination_file,
+                $context,
+                $handler
+            );
+        }
+
+        return $processed;
     }
 
-    /**
-     * Número de handlers registrados.
-     */
     public static function count(): int
     {
         return count(self::$handlers);
     }
 
-    /**
-     * Devuelve los nombres de los handlers.
-     */
     public static function get_handler_names(): array
     {
         return array_map(
@@ -166,9 +152,6 @@ class Fingerprint_Manager
         );
     }
 
-    /**
-     * Devuelve todas las extensiones soportadas.
-     */
     public static function get_supported_extensions(): array
     {
         $extensions = [];
@@ -211,9 +194,6 @@ class Fingerprint_Manager
         return $options;
     }
 
-    /**
-     * Devuelve todos los MIME types soportados.
-     */
     public static function get_supported_mime_types(): array
     {
         $mime_types = [];

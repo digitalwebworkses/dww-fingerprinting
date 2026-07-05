@@ -14,6 +14,10 @@ class Admin_Menu
 
     private const VERIFY_SLUG = 'dww-fingerprinting-verify';
 
+    private const DOCTOR_SLUG = 'dww-fingerprinting-doctor';
+
+    private const REST_API_SLUG = 'dww-fingerprinting-rest-api';
+
     public static function init(): void
     {
         add_action(
@@ -60,6 +64,24 @@ class Admin_Menu
             self::VERIFY_SLUG,
             [Verify_Page::class, 'render']
         );
+
+        add_submenu_page(
+            self::MENU_SLUG,
+            'Doctor',
+            'Doctor',
+            'manage_options',
+            self::DOCTOR_SLUG,
+            [Doctor_Page::class, 'render']
+        );
+
+        add_submenu_page(
+            self::MENU_SLUG,
+            'REST API',
+            'REST API',
+            'manage_options',
+            self::REST_API_SLUG,
+            [REST_API_Page::class, 'render']
+        );
     }
 
     public static function get_dashboard_slug(): string
@@ -75,5 +97,15 @@ class Admin_Menu
     public static function get_verify_slug(): string
     {
         return self::VERIFY_SLUG;
+    }
+
+    public static function get_doctor_slug(): string
+    {
+        return self::DOCTOR_SLUG;
+    }
+
+    public static function get_rest_api_slug(): string
+    {
+        return self::REST_API_SLUG;
     }
 }

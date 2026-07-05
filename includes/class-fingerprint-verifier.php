@@ -114,6 +114,11 @@ class Fingerprint_Verifier
     {
         $result['trust'] = Trust_Score::calculate($result);
 
+        do_action(
+            'dww_document_verified',
+            $result
+        );
+
         return $result;
     }
 }

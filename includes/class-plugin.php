@@ -17,6 +17,8 @@ class Plugin
         self::verify_storage_security();
 
         self::register_fingerprint_handlers();
+
+        self::register_rest_api();
     }
 
     private static function register_fingerprint_handlers(): void
@@ -57,5 +59,16 @@ class Plugin
                 );
             }
         }
+    }
+
+    private static function register_rest_api(): void
+    {
+        add_action(
+            'rest_api_init',
+            static function (): void {
+                REST_API_Registry::register();
+                REST_API_Manager::boot();
+            }
+        );
     }
 }

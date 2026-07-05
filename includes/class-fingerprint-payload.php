@@ -23,8 +23,13 @@ class Fingerprint_Payload
             'product_name'   => self::string_value($context, 'product_name'),
             'asset_format'   => self::string_value($context, 'asset_format'),
             'asset_id'       => self::string_value($context, 'asset_id'),
-            'generated_at'   => current_time('mysql'),
-            'plugin_version' => DWW_FP_VERSION,
+            'generated_at'   => self::string_value($context, 'generated_at') !== ''
+                ? self::string_value($context, 'generated_at')
+                : current_time('mysql'),
+
+            'plugin_version' => self::string_value($context, 'plugin_version') !== ''
+                ? self::string_value($context, 'plugin_version')
+                : DWW_FP_VERSION,
         ];
     }
 
@@ -151,5 +156,46 @@ class Fingerprint_Payload
     private static function string_value(array $context, string $key): string
     {
         return trim((string) ($context[$key] ?? ''));
+    }
+
+    public static function context_from_properties(array $properties): array
+    {
+        return [
+            'fingerprint_id'  => (string) ($properties['DWW Fingerprint'] ?? ''),
+            'customer_email'  => (string) ($properties['DWW Customer'] ?? ''),
+            'customer_name'   => (string) ($properties['DWW Customer Name'] ?? ''),
+            'order_id'        => (string) ($properties['DWW Order'] ?? ''),
+            'product_id'      => (string) ($properties['DWW Product ID'] ?? ''),
+            'product_name'    => (string) ($properties['DWW Product'] ?? ''),
+            'asset_format'    => (string) ($properties['DWW Format'] ?? ''),
+            'asset_id'        => (string) ($properties['DWW Asset ID'] ?? ''),
+            'generated_at'    => (string) ($properties['DWW Generated At'] ?? ''),
+            'plugin_version'  => (string) ($properties['DWW Plugin Version'] ?? ''),
+            'hash_algorithm'  => (string) ($properties['DWW Hash Algorithm'] ?? ''),
+            'payload_version' => (string) ($properties['DWW Payload Version'] ?? ''),
+        ];
+    }
+
+    public static function hash_from_properties(array $properties): string
+    {
+        $context = self::context_from_properties($properties);
+        $compact = self::compact($context);
+
+        $algorithm = strtolower(
+            trim((string) ($properties['DWW Hash Algorithm'] ?? ''))
+        );
+
+        if ($algorithm === 'sha256') {
+            return hash(
+                self::HASH_ALGORITHM,
+                $compact
+            );
+        }
+
+        return hash_hmac(
+            self::HASH_ALGORITHM,
+            $compact,
+            self::secret_key()
+        );
     }
 }

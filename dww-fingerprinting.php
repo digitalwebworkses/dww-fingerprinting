@@ -45,6 +45,8 @@ require_once DWW_FP_PLUGIN_DIR . 'includes/class-upload-mimes.php';
 
 require_once DWW_FP_PLUGIN_DIR . 'includes/admin/class-admin-assets.php';
 require_once DWW_FP_PLUGIN_DIR . 'includes/admin/class-admin-ui.php';
+require_once DWW_FP_PLUGIN_DIR . 'includes/admin/class-doctor-page.php';
+require_once DWW_FP_PLUGIN_DIR . 'includes/admin/class-rest-api-page.php';
 
 /*
 |--------------------------------------------------------------------------
@@ -92,6 +94,30 @@ require_once DWW_FP_PLUGIN_DIR . 'includes/class-fingerprint-db.php';
 require_once DWW_FP_PLUGIN_DIR . 'includes/class-fingerprint-generator.php';
 require_once DWW_FP_PLUGIN_DIR . 'includes/class-fingerprint-log-db.php';
 require_once DWW_FP_PLUGIN_DIR . 'includes/class-storage-security.php';
+require_once DWW_FP_PLUGIN_DIR . 'includes/health-checks/interface-health-check.php';
+require_once DWW_FP_PLUGIN_DIR . 'includes/health-checks/interface-repairable-health-check.php';
+require_once DWW_FP_PLUGIN_DIR . 'includes/health-checks/class-health-check-abstract.php';
+require_once DWW_FP_PLUGIN_DIR . 'includes/health-checks/class-php-health-check.php';
+require_once DWW_FP_PLUGIN_DIR . 'includes/health-checks/class-wordpress-health-check.php';
+require_once DWW_FP_PLUGIN_DIR . 'includes/health-checks/class-woocommerce-health-check.php';
+require_once DWW_FP_PLUGIN_DIR . 'includes/health-checks/class-database-health-check.php';
+require_once DWW_FP_PLUGIN_DIR . 'includes/health-checks/class-storage-health-check.php';
+require_once DWW_FP_PLUGIN_DIR . 'includes/health-checks/class-handlers-health-check.php';
+require_once DWW_FP_PLUGIN_DIR . 'includes/health-checks/class-formats-health-check.php';
+require_once DWW_FP_PLUGIN_DIR . 'includes/health-checks/class-migrations-health-check.php';
+require_once DWW_FP_PLUGIN_DIR . 'includes/class-health-check-manager.php';
+require_once DWW_FP_PLUGIN_DIR . 'includes/class-health-check-registry.php';
+require_once DWW_FP_PLUGIN_DIR . 'includes/class-health-check.php';
+require_once DWW_FP_PLUGIN_DIR . 'includes/rest/interface-rest-endpoint.php';
+require_once DWW_FP_PLUGIN_DIR . 'includes/rest/class-rest-endpoint-abstract.php';
+require_once DWW_FP_PLUGIN_DIR . 'includes/rest/class-rest-api-manager.php';
+require_once DWW_FP_PLUGIN_DIR . 'includes/rest/class-rest-api-registry.php';
+require_once DWW_FP_PLUGIN_DIR . 'includes/rest/class-health-rest-endpoint.php';
+require_once DWW_FP_PLUGIN_DIR . 'includes/rest/class-stats-rest-endpoint.php';
+require_once DWW_FP_PLUGIN_DIR . 'includes/rest/class-rest-verification-response.php';
+require_once DWW_FP_PLUGIN_DIR . 'includes/rest/class-verify-rest-endpoint.php';
+require_once DWW_FP_PLUGIN_DIR . 'includes/rest/class-fingerprint-rest-endpoint.php';
+require_once DWW_FP_PLUGIN_DIR . 'includes/rest/class-rest-api-auth.php';
 
 /*
 |--------------------------------------------------------------------------
