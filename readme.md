@@ -65,6 +65,11 @@ Su arquitectura modular permite incorporar nuevos formatos documentales sin modi
 - Gestión de tokens.
 - Historial de actividad.
 - Verificador documental.
+- DWW Doctor.
+- Health Check.
+- Reparaciones automáticas.
+- REST API.
+- API Key Authentication.
 - Componentes reutilizables.
 
 ## Arquitectura
@@ -77,12 +82,16 @@ Su arquitectura modular permite incorporar nuevos formatos documentales sin modi
 - Trust Score independiente.
 - Migraciones automáticas.
 - Arquitectura modular.
+- REST API.
+- Health Check modular.
+- Sistema de reparaciones.
+- Hooks públicos.
 
 ---
 
 # Estado del proyecto
 
-**Versión actual:** `0.9.2`
+**Versión actual:** `0.9.3`
 
 ## Formatos soportados
 
@@ -112,9 +121,36 @@ Actualmente el sistema dispone de:
 - Motor de verificación documental.
 - Trust Score.
 - Auditoría documental.
+- DWW Doctor.
+- Health Check.
+- Reparaciones automáticas.
+- REST API completa.
+- Autenticación mediante API Key.
 - Arquitectura completamente modular.
 
-Las siguientes fases estarán orientadas a la preparación del producto (Health Check, UX, API, CLI y sistema de licenciamiento).
+Las siguientes fases estarán orientadas a la finalización del producto, incluyendo Dashboard Pro, CLI, Webhooks, SDK y sistema de licenciamiento.
+
+---
+
+# REST API
+
+La API REST permite integrar DWW Fingerprinting con aplicaciones externas sin necesidad de acceder a la interfaz de WordPress.
+
+## Endpoints disponibles
+
+| Endpoint | Método | Descripción |
+|----------|:------:|-------------|
+| `/health` | GET | Estado del sistema |
+| `/stats` | GET | Estadísticas del motor |
+| `/verify` | POST | Verificación documental |
+| `/fingerprint/{id}` | GET | Consulta de un fingerprint |
+
+## Autenticación
+
+La API admite dos mecanismos de autenticación:
+
+- `X-DWW-API-Key`
+- `Authorization: Bearer <API_KEY>`
 
 ---
 
@@ -216,9 +252,14 @@ Entrega Segura
 
 Verificación
 
-    │
+        │
+        ├───────────────┐
+        ▼               ▼
 
-    ▼
+Doctor          REST API
+
+        │
+        ▼
 
 Trust Score
 ```
@@ -254,9 +295,9 @@ Download Tokens
         ▼
 Verification Engine
         │
-        ├───────────────┐
-        ▼               ▼
-Fingerprint Integrity  Trust Score
+        ├───────────────┬───────────────┬───────────────┐
+        ▼               ▼               ▼               ▼
+Fingerprint Integrity  Trust Score   Doctor       REST API
         │
         ▼
 Verification Report
@@ -284,6 +325,11 @@ Verification Report
 - WooCommerce Integration
 - Migration Manager
 - Dashboard
+- DWW Doctor
+- Health Check
+- Health Check Manager
+- REST API
+- REST Authentication
 - Verification Report
 
 ---
@@ -297,7 +343,7 @@ Verification Report
 | Secure Delivery | ✅ |
 | Verification Engine | ✅ |
 | Hardening | ✅ |
-| Product Readiness | ⏳ |
+| Product Readiness | ✅ |
 | Licensing Engine | ⏳ |
 
 ---

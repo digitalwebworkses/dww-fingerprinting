@@ -6,6 +6,74 @@ El formato está basado en **Keep a Changelog** y este proyecto sigue **Semantic
 
 ---
 
+## [0.9.3] - 2026-07-05
+
+### Added
+
+#### DWW Doctor
+
+- Sistema modular de Health Checks.
+- `Health_Check_Manager`.
+- Registro automático de checks.
+- Puntuación global del sistema.
+- Clasificación por estados.
+- Diagnóstico centralizado.
+- Reparaciones automáticas.
+- Página administrativa **DWW Doctor**.
+
+#### REST API
+
+- Infraestructura REST desacoplada.
+- `REST_API_Manager`.
+- `REST_API_Registry`.
+- `REST_Endpoint_Abstract`.
+- Endpoint `GET /health`.
+- Endpoint `GET /stats`.
+- Endpoint `GET /fingerprint/{fingerprint_id}`.
+- Endpoint `POST /verify`.
+- Adaptador `REST_Verification_Response`.
+
+#### Autenticación
+
+- Autenticación mediante API Key.
+- Soporte para cabecera `X-DWW-API-Key`.
+- Soporte para `Authorization: Bearer`.
+- Página de administración de la REST API.
+- Generación y regeneración de API Keys.
+
+#### Extensibilidad
+
+- Hooks públicos para el motor documental.
+- Hooks públicos para la REST API.
+- Filtros para personalización de respuestas REST.
+
+### Changed
+
+- Separación completa entre Core y REST API.
+- Arquitectura del sistema de diagnóstico desacoplada del núcleo.
+- Compatibilidad de verificación con documentos SHA256 legacy.
+- Compatibilidad con SHA256-HMAC.
+- Mejor reutilización del motor de verificación desde interfaces externas.
+- Mejora de la arquitectura para futuras integraciones.
+
+### Security
+
+- Autenticación mediante API Key.
+- Compatibilidad con autenticación Bearer.
+- Validación centralizada de permisos REST.
+- Compatibilidad segura con documentos legacy.
+- Refuerzo del proceso de verificación documental.
+
+### Fixed
+
+- Correcciones durante la reconstrucción del Payload.
+- Correcciones de compatibilidad entre versiones del Payload.
+- Correcciones durante la verificación mediante REST API.
+- Mejor clasificación de estados de verificación.
+- Correcciones menores durante el proceso de hardening.
+
+---
+
 ## [0.9.2] - 2026-07-02
 
 ### Added
