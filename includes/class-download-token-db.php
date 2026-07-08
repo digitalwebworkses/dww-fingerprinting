@@ -296,6 +296,17 @@ class Download_Token_DB
         );
     }
 
+    public static function count_downloads(): int
+    {
+        global $wpdb;
+
+        $table = self::get_table_name();
+
+        return (int) $wpdb->get_var(
+            "SELECT COALESCE(SUM(downloads_count), 0) FROM {$table}"
+        );
+    }
+
     private static function mask_token(string $token): string
     {
         if (strlen($token) <= 16) {
@@ -303,5 +314,33 @@ class Download_Token_DB
         }
 
         return substr($token, 0, 8) . '…' . substr($token, -8);
+    }
+
+    public static function count_active(): int
+    {
+        global $wpdb;
+
+        $table = self::get_table_name();
+
+        return (int) $wpdb->get_var(
+            "SELECT COUNT(*)
+         FROM {$table}
+         WHERE downloads_count < max_downloads
+         AND expires_at >= UTC_TIMESTAMP()"
+        );
+    }
+
+    public static function count_expired(): int
+    {
+        global $wpdb;
+
+        $table = self::get_table_name();
+
+        return (int) $wpdb->get_var(
+            "SELECT COUNT(*)
+         FROM {$table}
+         WHERE downloads_count >= max_downloads
+         OR expires_at < UTC_TIMESTAMP()"
+        );
     }
 }

@@ -121,6 +121,29 @@ require_once DWW_FP_PLUGIN_DIR . 'includes/rest/class-rest-api-auth.php';
 
 /*
 |--------------------------------------------------------------------------
+| Dashboard Pro
+|--------------------------------------------------------------------------
+*/
+
+require_once DWW_FP_PATH . 'includes/dashboard/class-dashboard-widget-interface.php';
+require_once DWW_FP_PATH . 'includes/dashboard/class-dashboard-widget-abstract.php';
+require_once DWW_FP_PATH . 'includes/dashboard/class-dashboard-manager.php';
+require_once DWW_FP_PATH . 'includes/dashboard/class-dashboard-registry.php';
+require_once DWW_FP_PATH . 'includes/dashboard/class-dashboard-service.php';
+require_once DWW_FP_PATH . 'includes/dashboard/widgets/class-hero-dashboard-widget.php';
+require_once DWW_FP_PATH . 'includes/dashboard/widgets/class-kpi-dashboard-widget.php';
+require_once DWW_FP_PATH . 'includes/dashboard/widgets/class-health-dashboard-widget.php';
+require_once DWW_FP_PATH . 'includes/dashboard/widgets/class-quick-actions-dashboard-widget.php';
+require_once DWW_FP_PATH . 'includes/dashboard/widgets/class-api-dashboard-widget.php';
+require_once DWW_FP_PATH . 'includes/dashboard/widgets/class-recent-fingerprints-dashboard-widget.php';
+require_once DWW_FP_PATH . 'includes/dashboard/widgets/class-activity-dashboard-widget.php';
+require_once DWW_FP_PATH . 'includes/dashboard/widgets/class-alerts-dashboard-widget.php';
+require_once DWW_FP_PATH . 'includes/dashboard/widgets/class-formats-dashboard-widget.php';
+require_once DWW_FP_PATH . 'includes/dashboard/widgets/class-tokens-dashboard-widget.php';
+require_once DWW_FP_PATH . 'includes/dashboard/widgets/class-system-info-dashboard-widget.php';
+
+/*
+|--------------------------------------------------------------------------
 | Downloads
 |--------------------------------------------------------------------------
 */
