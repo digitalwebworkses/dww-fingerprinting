@@ -343,4 +343,15 @@ class Download_Token_DB
          OR expires_at < UTC_TIMESTAMP()"
         );
     }
+
+    public static function count(): int
+    {
+        global $wpdb;
+
+        $table = self::get_table_name();
+
+        return (int) $wpdb->get_var(
+            "SELECT COUNT(*) FROM {$table}"
+        );
+    }
 }

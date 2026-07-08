@@ -25,7 +25,7 @@ class Dashboard_Service
 
             'api' => [
                 'enabled' => REST_API_Auth::has_key(),
-                'key'      => REST_API_Auth::get_api_key(),
+                'key'      => REST_API_Auth::masked_api_key(),
             ],
 
 

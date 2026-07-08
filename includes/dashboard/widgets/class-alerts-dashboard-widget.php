@@ -31,7 +31,7 @@ class Alerts_Dashboard_Widget extends Dashboard_Widget_Abstract
 
         $this->card_start();
 
-        $this->title('🚨 Alertas');
+        $this->card_title('🚨 Alertas');
 
         if ($errors > 0) {
             echo '<p><strong>' .

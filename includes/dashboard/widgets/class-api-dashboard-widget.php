@@ -27,7 +27,7 @@ class API_Dashboard_Widget extends Dashboard_Widget_Abstract
 
         $this->card_start();
 
-        $this->title('🌐 REST API');
+        $this->card_title('🌐 REST API');
 
         echo '<p><strong>Estado:</strong> ';
 

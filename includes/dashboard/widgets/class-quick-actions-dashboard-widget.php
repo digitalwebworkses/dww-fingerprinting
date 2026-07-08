@@ -22,7 +22,7 @@ class Quick_Actions_Dashboard_Widget extends Dashboard_Widget_Abstract
     {
         $this->card_start();
 
-        $this->title('⚡ Acciones rápidas');
+        $this->card_title('⚡ Acciones rápidas');
 
         $this->button_group_start();
 

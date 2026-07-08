@@ -24,7 +24,7 @@ class Recent_Fingerprints_Dashboard_Widget extends Dashboard_Widget_Abstract
 
         $this->card_start();
 
-        $this->title('📄 Últimos fingerprints');
+        $this->card_title('📄 Últimos fingerprints');
 
         if (empty($items)) {
             $this->empty_state('No hay fingerprints recientes.');

@@ -26,7 +26,7 @@ class Formats_Dashboard_Widget extends Dashboard_Widget_Abstract
 
         $this->card_start();
 
-        $this->title('🧩 Formatos soportados');
+        $this->card_title('🧩 Formatos soportados');
 
         echo '<p><strong>' .
             esc_html((string) ($stats['formats'] ?? count($formats))) .

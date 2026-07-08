@@ -24,7 +24,7 @@ class Activity_Dashboard_Widget extends Dashboard_Widget_Abstract
 
         $this->card_start();
 
-        $this->title('🕒 Actividad reciente');
+        $this->card_title('🕒 Actividad reciente');
 
         if (empty($items)) {
             $this->empty_state('No hay actividad reciente.');

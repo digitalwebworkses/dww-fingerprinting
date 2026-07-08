@@ -57,7 +57,7 @@ abstract class Dashboard_Widget_Abstract implements Dashboard_Widget_Interface
         echo '</div>';
     }
 
-    protected function title(string $title): void
+    protected function card_title(string $title): void
     {
         echo '<h2 class="dww-dashboard-card-title">' .
             esc_html($title) .

@@ -24,7 +24,7 @@ class Tokens_Dashboard_Widget extends Dashboard_Widget_Abstract
 
         $this->card_start();
 
-        $this->title('🔐 Tokens');
+        $this->card_title('🔐 Tokens');
 
         $this->list_start();
 

@@ -30,7 +30,7 @@ class Health_Dashboard_Widget extends Dashboard_Widget_Abstract
 
         $this->card_start();
 
-        $this->title('🩺 Estado del sistema');
+        $this->card_title('🩺 Estado del sistema');
 
         $this->metric(
             (string) $score . '/100',

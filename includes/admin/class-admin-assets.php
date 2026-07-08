@@ -29,6 +29,13 @@ class Admin_Assets
             DWW_FP_VERSION
         );
 
+        wp_enqueue_style(
+            'dww-fingerprinting-dashboard',
+            DWW_FP_PLUGIN_URL . 'assets/css/admin-dashboard.css',
+            ['dww-fingerprinting-admin'],
+            DWW_FP_VERSION
+        );
+
         wp_enqueue_script(
             'dww-fingerprinting-admin',
             DWW_FP_PLUGIN_URL . 'assets/js/admin.js',

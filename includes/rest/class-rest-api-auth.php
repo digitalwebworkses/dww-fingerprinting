@@ -90,7 +90,7 @@ class REST_API_Auth
 
     public static function masked_api_key(): string
     {
-        $key = self::get_api_key();
+        $key = self::get_key();
 
         if ($key === '') {
             return 'No configurada';

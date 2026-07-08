@@ -27,7 +27,7 @@ class Hero_Dashboard_Widget extends Dashboard_Widget_Abstract
 
         $this->card_start('dww-dashboard-hero');
 
-        $this->title('DWW Fingerprinting');
+        $this->card_title('DWW Fingerprinting');
 
         $this->hero_score(
             $score,

@@ -24,7 +24,7 @@ class System_Info_Dashboard_Widget extends Dashboard_Widget_Abstract
 
         $this->card_start();
 
-        $this->title('⚙️ Información del sistema');
+        $this->card_title('⚙️ Información del sistema');
 
         $this->table_start();
         $this->table_body_start();
