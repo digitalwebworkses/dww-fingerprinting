@@ -32,10 +32,7 @@ class Dashboard_Registry
             new API_Dashboard_Widget()
         );
 
-        Dashboard_Manager::register(
-            new Recent_Fingerprints_Dashboard_Widget()
-        );
-
+        
         Dashboard_Manager::register(
             new Activity_Dashboard_Widget()
         );
@@ -54,6 +51,10 @@ class Dashboard_Registry
 
         Dashboard_Manager::register(
             new System_Info_Dashboard_Widget()
+        );
+
+        Dashboard_Manager::register(
+            new Recent_Fingerprints_Dashboard_Widget()
         );
     }
 }

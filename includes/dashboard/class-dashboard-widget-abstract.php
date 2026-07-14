@@ -47,9 +47,18 @@ abstract class Dashboard_Widget_Abstract implements Dashboard_Widget_Interface
 
     protected function card_start(string $extra_class = ''): void
     {
-        $classes = trim('dww-dashboard-card ' . $extra_class);
+        $classes = [
+            'dww-dashboard-card',
+            'dww-dashboard-card-' . sanitize_html_class($this->id()),
+        ];
 
-        echo '<div class="' . esc_attr($classes) . '">';
+        if ($extra_class !== '') {
+            $classes[] = $extra_class;
+        }
+
+        echo '<div class="' .
+            esc_attr(implode(' ', array_filter($classes))) .
+            '">';
     }
 
     protected function card_end(): void
