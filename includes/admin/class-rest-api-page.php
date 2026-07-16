@@ -17,77 +17,149 @@ class REST_API_Page
         self::handle_actions();
 
         $key = REST_API_Auth::get_key();
+        $is_active = $key !== '';
 
-        ?>
-        <div class="wrap">
+?>
 
-            <h1>REST API</h1>
+        <div class="wrap dww-rest-api-page">
+
+            <h1>API REST</h1>
 
             <p>
-                Configuración de la API REST de DWW Fingerprinting.
+                Configura el acceso externo a DWW Fingerprinting
+                y consulta los endpoints disponibles.
             </p>
 
-            <div style="background:#fff;border:1px solid #ccd0d4;padding:20px;margin:20px 0;">
+            <div class="dww-rest-api-grid">
 
-                <h2 style="margin-top:0;">Estado</h2>
+                <section class="dww-admin-card">
 
-                <p>
-                    <strong><?php echo $key !== '' ? '🟢 API activa' : '🔴 API sin clave'; ?></strong>
-                </p>
-
-                <p>
-                    La API permite consultar el estado del sistema, fingerprints y verificar documentos desde aplicaciones externas.
-                </p>
-
-            </div>
-
-            <div style="background:#fff;border:1px solid #ccd0d4;padding:20px;margin:20px 0;">
-
-                <h2 style="margin-top:0;">API Key</h2>
-
-                <?php if ($key !== '') : ?>
+                    <h2>Estado</h2>
 
                     <p>
-                        <code><?php echo esc_html(self::masked_key($key)); ?></code>
+                        <?php
+
+                        Admin_UI::badge(
+                            $is_active ? 'API activa' : 'API sin clave',
+                            $is_active ? 'success' : 'danger'
+                        );
+
+                        ?>
                     </p>
 
-                <?php else : ?>
+                    <p>
+                        La API permite consultar el estado del sistema,
+                        obtener fingerprints y verificar documentos
+                        desde aplicaciones externas.
+                    </p>
 
-                    <p>No hay ninguna API Key configurada.</p>
+                </section>
 
-                <?php endif; ?>
+                <section class="dww-admin-card">
 
-                <form method="post">
+                    <h2>API Key</h2>
 
-                    <?php wp_nonce_field('dww_rest_api_regenerate_key'); ?>
+                    <?php if ($is_active) : ?>
 
-                    <button
-                        type="submit"
-                        name="dww_regenerate_api_key"
-                        value="1"
-                        class="button button-primary">
-                        Regenerar API Key
-                    </button>
+                        <p>
+                            <code class="dww-rest-api-key">
+                                <?php echo esc_html(
+                                    self::masked_key($key)
+                                ); ?>
+                            </code>
+                        </p>
 
-                </form>
+                        <p class="description">
+                            La clave completa no se muestra por seguridad.
+                            Regenerarla invalidará inmediatamente la anterior.
+                        </p>
+
+                    <?php else : ?>
+
+                        <?php
+
+                        Admin_UI::empty_state(
+                            'No hay ninguna API Key configurada.',
+                            'Genera una clave para habilitar el acceso autenticado a la API.'
+                        );
+
+                        ?>
+
+                    <?php endif; ?>
+
+                    <form
+                        method="post"
+                        class="dww-rest-api-actions">
+
+                        <?php wp_nonce_field(
+                            'dww_rest_api_regenerate_key'
+                        ); ?>
+
+                        <button
+                            type="submit"
+                            name="dww_regenerate_api_key"
+                            value="1"
+                            class="button button-primary"
+                            onclick="return confirm('¿Regenerar la API Key? La clave anterior dejará de funcionar inmediatamente.');">
+
+                            <?php echo $is_active
+                                ? 'Regenerar API Key'
+                                : 'Generar API Key'; ?>
+
+                        </button>
+
+                    </form>
+
+                </section>
 
             </div>
 
-            <div style="background:#fff;border:1px solid #ccd0d4;padding:20px;margin:20px 0;">
+            <section class="dww-admin-card dww-rest-api-endpoints">
 
-                <h2 style="margin-top:0;">Endpoints disponibles</h2>
+                <h2>Endpoints disponibles</h2>
 
-                <ul>
-                    <li><code>GET /wp-json/dww/v1/health</code></li>
-                    <li><code>GET /wp-json/dww/v1/stats</code></li>
-                    <li><code>GET /wp-json/dww/v1/fingerprint/{fingerprint_id}</code></li>
-                    <li><code>POST /wp-json/dww/v1/verify</code></li>
-                </ul>
+                <div class="dww-rest-endpoint-list">
 
-            </div>
+                    <?php
+
+                    self::render_endpoint(
+                        'GET',
+                        '/wp-json/dww/v1/health',
+                        'Consulta el estado general del sistema.'
+                    );
+
+                    self::render_endpoint(
+                        'GET',
+                        '/wp-json/dww/v1/stats',
+                        'Devuelve estadísticas generales del plugin.'
+                    );
+
+                    self::render_endpoint(
+                        'GET',
+                        '/wp-json/dww/v1/fingerprint/{fingerprint_id}',
+                        'Obtiene el registro asociado a un fingerprint.'
+                    );
+
+                    self::render_endpoint(
+                        'POST',
+                        '/wp-json/dww/v1/verify',
+                        'Verifica la autenticidad e integridad de un documento.'
+                    );
+
+                    ?>
+
+                </div>
+
+                <p class="description">
+                    Envía la API Key mediante la cabecera
+                    <code>X-DWW-API-Key</code>.
+                </p>
+
+            </section>
 
         </div>
-        <?php
+
+<?php
     }
 
     private static function handle_actions(): void
@@ -96,23 +168,67 @@ class REST_API_Page
             return;
         }
 
-        check_admin_referer('dww_rest_api_regenerate_key');
+        check_admin_referer(
+            'dww_rest_api_regenerate_key'
+        );
 
         REST_API_Auth::set_key(
             REST_API_Auth::generate_key()
         );
 
-        echo '<div class="notice notice-success"><p><strong>API Key regenerada correctamente.</strong></p></div>';
+        echo '<div class="notice notice-success is-dismissible">';
+        echo '<p><strong>';
+        echo 'API Key generada correctamente.';
+        echo '</strong></p>';
+        echo '</div>';
     }
 
-    private static function masked_key(string $key): string
-    {
+    private static function render_endpoint(
+        string $method,
+        string $path,
+        string $description
+    ): void {
+        $badge_type = $method === 'POST'
+            ? 'warning'
+            : 'info';
+
+        echo '<div class="dww-rest-endpoint">';
+
+        echo '<div class="dww-rest-endpoint-header">';
+
+        Admin_UI::badge(
+            $method,
+            $badge_type
+        );
+
+        echo '<code>' .
+            esc_html($path) .
+            '</code>';
+
+        echo '</div>';
+
+        echo '<p>' .
+            esc_html($description) .
+            '</p>';
+
+        echo '</div>';
+    }
+
+    private static function masked_key(
+        string $key
+    ): string {
         if (strlen($key) <= 16) {
-            return str_repeat('*', strlen($key));
+            return str_repeat(
+                '*',
+                strlen($key)
+            );
         }
 
         return substr($key, 0, 8) .
-            str_repeat('*', max(0, strlen($key) - 16)) .
+            str_repeat(
+                '*',
+                max(0, strlen($key) - 16)
+            ) .
             substr($key, -8);
     }
 }

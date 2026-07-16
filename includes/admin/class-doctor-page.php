@@ -17,13 +17,14 @@ class Doctor_Page
         $repair_result = self::handle_repair_request();
         $health = Health_Check::run();
 
-        ?>
-        <div class="wrap">
+?>
+        <div class="wrap dww-doctor-page">
 
-            <h1>DWW Doctor</h1>
+            <h1>Diagnóstico del sistema</h1>
 
             <p>
-                Diagnóstico general de la instalación de DWW Fingerprinting.
+                Comprueba el estado del entorno, el almacenamiento,
+                la base de datos y el motor documental de DWW Fingerprinting.
             </p>
 
             <?php self::render_repair_notice($repair_result); ?>
@@ -35,7 +36,7 @@ class Doctor_Page
             <?php self::render_checks($health['checks'] ?? []); ?>
 
         </div>
-        <?php
+    <?php
     }
 
     private static function render_toolbar(array $health): void
@@ -101,11 +102,11 @@ class Doctor_Page
         $label = self::score_label($score);
         $color = self::score_color($score);
 
-        echo '<div style="background:#fff;border:1px solid #ccd0d4;padding:20px;margin:20px 0;">';
+        echo '<div class="dww-doctor-summary">';
 
-        echo '<h2 style="margin-top:0;">Estado general</h2>';
+        echo '<h2>Estado general</h2>';
 
-        echo '<p style="font-size:32px;font-weight:700;margin:8px 0;color:' .
+        echo '<p class="dww-doctor-score" style="color:' .
             esc_attr($color) .
             ';">' .
             esc_html((string) $score) .
@@ -113,12 +114,14 @@ class Doctor_Page
 
         echo '<p><strong>' . esc_html($label) . '</strong></p>';
 
-        echo '<div style="background:#e5e5e5;height:12px;border-radius:8px;overflow:hidden;margin:12px 0 18px;">';
-        echo '<div style="height:12px;width:' .
+        echo '<div class="dww-doctor-progress">';
+
+        echo '<div class="dww-doctor-progress-bar" style="width:' .
             esc_attr((string) $score) .
             '%;background:' .
             esc_attr($color) .
             ';"></div>';
+
         echo '</div>';
 
         echo '<p>';
@@ -134,13 +137,16 @@ class Doctor_Page
     private static function render_checks(array $checks): void
     {
         if (empty($checks)) {
-            echo '<p>No hay comprobaciones registradas.</p>';
+            Admin_UI::empty_state(
+                'No hay comprobaciones registradas.',
+                'El sistema no ha devuelto ningún diagnóstico.'
+            );
             return;
         }
 
         echo '<h2>Comprobaciones</h2>';
 
-        echo '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px;">';
+        echo '<div class="dww-doctor-checks">';
 
         foreach ($checks as $check) {
             self::render_check_card($check);
@@ -158,11 +164,11 @@ class Doctor_Page
         $color = self::severity_color($status, $severity);
         $icon = self::severity_icon($status, $severity);
 
-        echo '<div style="background:#fff;border-left:5px solid ' .
+        echo '<div class="dww-doctor-check" style="border-left-color:' .
             esc_attr($color) .
-            ';border-top:1px solid #ccd0d4;border-right:1px solid #ccd0d4;border-bottom:1px solid #ccd0d4;padding:16px;">';
+            ';">';
 
-        echo '<h3 style="margin-top:0;">' .
+        echo '<h3>' .
             esc_html($icon . ' ' . (string) ($check['name'] ?? 'Check')) .
             '</h3>';
 
@@ -189,9 +195,9 @@ class Doctor_Page
         }
 
         if (!empty($check['category'])) {
-            echo '<p style="color:#646970;"><small>' .
+            echo '<p class="dww-doctor-category">' .
                 esc_html((string) $check['category']) .
-                '</small></p>';
+                '</p>';
         }
 
         echo '</div>';
@@ -257,8 +263,8 @@ class Doctor_Page
     {
         ob_start();
 
-        ?>
-        <form method="post" style="margin-top:12px;">
+    ?>
+        <form method="post" class="dww-doctor-repair-form">
             <?php wp_nonce_field('dww_repair_check'); ?>
 
             <input
@@ -274,7 +280,7 @@ class Doctor_Page
                 🛠 Reparar automáticamente
             </button>
         </form>
-        <?php
+<?php
 
         return (string) ob_get_clean();
     }
