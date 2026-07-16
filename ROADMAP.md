@@ -4,6 +4,18 @@ Estado del desarrollo de **DWW Fingerprinting**.
 
 ---
 
+# Estado actual
+
+**Versión actual:** `0.9.4`
+
+**Estado del proyecto:** ✅ **Feature Complete (Beta)**
+
+El núcleo funcional del sistema está finalizado y validado mediante pruebas funcionales completas.
+
+Las siguientes fases estarán orientadas a preparar el producto para su distribución comercial.
+
+---
+
 # ✅ Fase 1 — Investigación y prueba de concepto
 
 **Estado:** Completada
@@ -201,28 +213,28 @@ Estado del desarrollo de **DWW Fingerprinting**.
 
 ---
 
-# 🚧 Fase 12 — Dashboard Pro
+# ✅ Fase 12 — Dashboard Pro & UX
 
-**Estado:** Planificada
+**Estado:** Completada
 
 ## Objetivos
 
 - Dashboard profesional.
-- Widgets.
-- Métricas avanzadas.
-- Gráficas.
+- Widgets reutilizables.
+- Métricas operativas.
 - Actividad reciente.
-- Estado de la API.
 - Estado del sistema.
-- KPIs.
-- Exportación de informes.
-- Mejoras UX.
+- Estado de la REST API.
+- Unificación completa de la interfaz administrativa.
+- Mejora integral de la experiencia de usuario.
+- Refactorización de las páginas administrativas.
+- Validación funcional completa del producto.
 
 ---
 
-# 📋 Fase 13 — Licensing Engine
+# 🚧 Fase 13 — Commercial Readiness
 
-**Estado:** Pendiente
+**Estado:** En desarrollo
 
 ## Objetivos
 
@@ -233,22 +245,29 @@ Estado del desarrollo de **DWW Fingerprinting**.
 - Renovaciones.
 - Restricciones por dominio.
 - Protección del núcleo.
+- Actualizaciones automáticas.
 - Preparación para distribución comercial.
+
+---
+
+# 📋 Fase 14 — Ecosystem
+
+**Estado:** Planificada
+
+## Objetivos
+
+- SDK oficial.
+- Webhooks.
+- CLI.
+- API pública ampliada.
+- Integraciones con LMS.
+- Integraciones con ERPs.
 
 ---
 
 # 🔮 Futuras mejoras
 
 Estas funcionalidades no forman parte del objetivo de la versión 1.0, pero la arquitectura ya está preparada para soportarlas.
-
-## Integraciones
-
-- Webhooks.
-- SDK oficial.
-- CLI.
-- API pública ampliada.
-- Integraciones con LMS.
-- Integraciones con ERPs.
 
 ## Formatos
 
@@ -266,6 +285,7 @@ Estas funcionalidades no forman parte del objetivo de la versión 1.0, pero la a
 - Auditoría REST.
 - Rate Limiting.
 - Monitorización.
+- Panel Enterprise.
 
 ---
 
@@ -273,7 +293,7 @@ Estas funcionalidades no forman parte del objetivo de la versión 1.0, pero la a
 
 ## Versión 1.0
 
-La versión **1.0** deberá proporcionar una plataforma profesional de fingerprinting documental para WordPress y WooCommerce, preparada para producción, basada en una arquitectura modular, extensible y preparada para integraciones externas.
+La versión **1.0** proporcionará una plataforma profesional de fingerprinting documental para WordPress y WooCommerce preparada para distribución comercial.
 
 ### Funcionalidades principales
 
@@ -291,13 +311,8 @@ La versión **1.0** deberá proporcionar una plataforma profesional de fingerpri
 - API Key Authentication.
 - Sistema de licencias.
 
-### Formatos soportados
+---
 
-- PDF
-- EPUB
-- DOCX
-- XLSX
-- PPTX
-- ODT
-- ODS
-- ODP
+# Visión
+
+DWW Fingerprinting nace con el objetivo de convertirse en una plataforma profesional para la distribución segura y la trazabilidad de documentación digital, ofreciendo una arquitectura modular, extensible y preparada para futuras integraciones con servicios externos y entornos empresariales.

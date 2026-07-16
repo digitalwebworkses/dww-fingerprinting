@@ -1,21 +1,40 @@
 # DWW Fingerprinting
 
-Motor profesional de fingerprinting documental para WordPress y WooCommerce.
+![Version](https://img.shields.io/badge/version-0.9.4-blue) ![PHP](https://img.shields.io/badge/PHP-8.1+-777BB4) ![WordPress](https://img.shields.io/badge/WordPress-6.8+-21759B) ![WooCommerce](https://img.shields.io/badge/WooCommerce-Compatible-96588A) ![License](https://img.shields.io/badge/license-Commercial-red) ![Status](https://img.shields.io/badge/status-Beta-success)
 
-DWW Fingerprinting genera copias personalizadas de documentos digitales vendidos mediante WooCommerce, asignando a cada activo un fingerprint único y un payload verificable que permite garantizar la trazabilidad, autenticidad e integridad documental.
+Motor profesional de trazabilidad documental para WordPress y WooCommerce.
 
-Su arquitectura modular permite incorporar nuevos formatos documentales sin modificar el núcleo del sistema.
+DWW Fingerprinting genera copias personalizadas de documentos digitales vendidos mediante WooCommerce, asignando a cada archivo un fingerprint único y un payload verificable que permite garantizar su autenticidad, integridad y trazabilidad.
+
+Diseñado para academias online, editoriales y autores, automatiza completamente el ciclo de vida del documento: generación, entrega segura, auditoría y verificación.
+
+---
+
+# Casos de uso
+
+DWW Fingerprinting está orientado a cualquier proyecto que necesite distribuir documentación digital de forma segura.
+
+Entre otros:
+
+- Academias online.
+- Editoriales.
+- Autores independientes.
+- Venta de ebooks.
+- Venta de documentación privada.
+- Formación corporativa.
+- Distribución de documentación técnica.
+- Entrega segura de contenidos digitales.
 
 ---
 
 # Características
 
-## Fingerprinting
+## Fingerprinting documental
 
-- Fingerprints únicos por activo.
+- Fingerprints únicos por documento.
 - Copias personalizadas por compra.
 - Asociación documento → pedido → cliente.
-- Payload documental unificado.
+- Payload documental firmado.
 - Payload Hash para verificación de integridad.
 - Registro permanente de trazabilidad.
 
@@ -24,7 +43,7 @@ Su arquitectura modular permite incorporar nuevos formatos documentales sin modi
 - Extracción automática de fingerprints.
 - Verificación de autenticidad.
 - Comparación con Base de Datos.
-- Verificación de Payload Hash.
+- Verificación del Payload Hash.
 - Detección de manipulación documental.
 - Trust Score.
 - Informe completo de verificación.
@@ -45,7 +64,7 @@ Su arquitectura modular permite incorporar nuevos formatos documentales sin modi
 - Validación ZIP.
 - Validación estructural del documento.
 - Protección del almacenamiento.
-- Procesamiento seguro mediante handlers.
+- Procesamiento seguro de documentos.
 
 ## WooCommerce
 
@@ -57,41 +76,34 @@ Su arquitectura modular permite incorporar nuevos formatos documentales sin modi
 
 ## Administración
 
-- Dashboard.
-- Estadísticas.
-- Listado de fingerprints.
-- Búsqueda avanzada.
-- Vista de detalle.
+- Dashboard operativo.
+- Gestión de fingerprints.
 - Gestión de tokens.
 - Historial de actividad.
-- Verificador documental.
+- Verificación documental.
 - DWW Doctor.
 - Health Check.
 - Reparaciones automáticas.
-- REST API.
-- API Key Authentication.
-- Componentes reutilizables.
+- REST API integrada.
 
 ## Arquitectura
 
-- Motor basado en handlers.
+- Arquitectura modular.
+- Sistema basado en Handlers.
 - Processors independientes.
 - Sistema Multi-Asset.
-- Payload centralizado.
-- Integridad desacoplada.
-- Trust Score independiente.
-- Migraciones automáticas.
-- Arquitectura modular.
 - REST API.
-- Health Check modular.
-- Sistema de reparaciones.
-- Hooks públicos.
+- Componentes desacoplados.
+
+Más información en:
+
+- docs/architecture.md
 
 ---
 
 # Estado del proyecto
 
-**Versión actual:** `0.9.3`
+**Versión actual:** `0.9.4`
 
 ## Formatos soportados
 
@@ -108,7 +120,7 @@ Su arquitectura modular permite incorporar nuevos formatos documentales sin modi
 
 ## Estado
 
-**Feature Complete (Pre-Release)**
+**Feature Complete (Beta)**
 
 El núcleo del motor se considera completo y estable.
 
@@ -128,7 +140,7 @@ Actualmente el sistema dispone de:
 - Autenticación mediante API Key.
 - Arquitectura completamente modular.
 
-Las siguientes fases estarán orientadas a la finalización del producto, incluyendo Dashboard Pro, CLI, Webhooks, SDK y sistema de licenciamiento.
+Las siguientes fases estarán orientadas a la finalización del producto comercial mediante la incorporación del sistema de licencias, SDK, Webhooks y herramientas adicionales para integraciones externas.
 
 ---
 
@@ -169,13 +181,14 @@ La API admite dos mecanismos de autenticación:
 composer install
 ```
 
-Activar el plugin desde WordPress.
-
-Configurar un producto indicando los activos documentales que serán protegidos.
+1. Instalar el plugin.
+2. Activarlo desde WordPress.
+3. Asociar uno o varios activos maestros a los productos de WooCommerce.
+4. El sistema gestionará automáticamente la generación, entrega y trazabilidad de los documentos.
 
 ---
 
-# Pipeline
+# Flujo de trabajo
 
 ```text
 Compra
@@ -305,35 +318,6 @@ Verification Report
 
 ---
 
-# Componentes principales
-
-- Fingerprint Manager
-- Fingerprint Generator
-- Fingerprint Payload
-- Fingerprint Extractor
-- Fingerprint Verifier
-- Fingerprint Integrity
-- Trust Score
-- Product Asset
-- Product Assets
-- Download Handler
-- Download Token DB
-- Fingerprint DB
-- File Validator
-- Storage Security
-- Logger
-- WooCommerce Integration
-- Migration Manager
-- Dashboard
-- DWW Doctor
-- Health Check
-- Health Check Manager
-- REST API
-- REST Authentication
-- Verification Report
-
----
-
 # Estado del desarrollo
 
 | Fase | Estado |
@@ -344,15 +328,18 @@ Verification Report
 | Verification Engine | ✅ |
 | Hardening | ✅ |
 | Product Readiness | ✅ |
-| Licensing Engine | ⏳ |
+| Licensing | ⏳ |
 
 ---
 
-# Roadmap
+# Documentación
 
-Consultar:
-
-**ROADMAP.md**
+- docs/installation.md
+- docs/user-guide.md
+- docs/developer-guide.md
+- docs/architecture.md
+- docs/api-reference.md
+- docs/roadmap.md
 
 ---
 
@@ -360,10 +347,12 @@ Consultar:
 
 Consultar:
 
-**CHANGELOG.md**
+`CHANGELOG.md`
 
 ---
 
 # Licencia
 
-Pendiente.
+Licenciamiento comercial pendiente.
+
+© Digital Web Works

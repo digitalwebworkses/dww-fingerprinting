@@ -1,5 +1,25 @@
+# Composer
 /vendor/
+
+# macOS
 .DS_Store
+
+# Distribuciones
 *.zip
 
+# Archivos de prueba generados
 /tests/sample-personalized.pdf
+
+# IDEs
+.vscode/
+.idea/
+
+# Logs
+*.log
+
+# Archivos temporales
+*.tmp
+*.bak
+
+# Release artifacts
+/release/
