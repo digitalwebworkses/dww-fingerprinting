@@ -1,9 +1,11 @@
 {
     "name": "digitalwebworks/dww-fingerprinting",
-    "description": "Document fingerprinting for WooCommerce",
+    "description": "Professional document fingerprinting engine for WordPress and WooCommerce.",
+    "type": "wordpress-plugin",
     "license": "proprietary",
     "minimum-stability": "stable",
     "require": {
+        "php": "^8.1",
         "setasign/fpdf": "^1.9",
         "setasign/fpdi": "^2.6"
     }

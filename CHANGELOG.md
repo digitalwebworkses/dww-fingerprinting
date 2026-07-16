@@ -6,6 +6,80 @@ El formato está basado en **Keep a Changelog** y este proyecto sigue **Semantic
 
 ---
 
+## [0.9.4] - 2026-07-16
+
+### Added
+
+#### Dashboard profesional
+
+- Nuevo Dashboard completamente rediseñado.
+- Widgets modulares y reutilizables.
+- Información operativa centralizada.
+- Indicadores visuales del estado del sistema.
+- Acciones rápidas para las operaciones habituales.
+
+#### Administración
+
+- Nueva experiencia de usuario unificada en todo el panel.
+- Rediseño de Fingerprints.
+- Rediseño del detalle de fingerprints.
+- Rediseño del verificador documental.
+- Rediseño de DWW Doctor.
+- Rediseño de la gestión de la REST API.
+- Rediseño de la configuración de productos WooCommerce.
+
+#### Producto
+
+- Gestión visual de activos maestros.
+- Mejor integración con WooCommerce.
+- Simplificación del flujo de configuración.
+- Mejor soporte Multi-Asset.
+
+### Changed
+
+- Unificación completa del lenguaje visual del plugin.
+- Centralización del CSS administrativo.
+- Eliminación de estilos inline.
+- Refactorización de las páginas administrativas.
+- Mejora del rendimiento del Dashboard.
+- Simplificación del código de la interfaz administrativa.
+- Mejora de la mantenibilidad del panel.
+
+### Improved
+
+- Experiencia de usuario en toda la administración.
+- Navegación entre pantallas.
+- Consistencia visual.
+- Presentación de información.
+- Responsive del panel administrativo.
+- Accesibilidad general de la interfaz.
+
+### QA
+
+- Validación completa del flujo documental.
+- Validación del Dashboard.
+- Validación de DWW Doctor.
+- Validación de la REST API.
+- Validación del sistema Multi-Asset.
+- Validación de la generación documental.
+- Validación del sistema de tokens.
+- Validación del motor de verificación.
+- Validación de la integración completa con WooCommerce.
+
+### Fixed
+
+- Correcciones menores detectadas durante el proceso de QA.
+- Ajustes de estabilidad del Dashboard.
+- Correcciones de compatibilidad entre componentes administrativos.
+- Optimización de la carga de recursos.
+
+### Status
+
+- Proyecto declarado **Feature Complete (Beta)**.
+- Inicio de la fase previa al sistema de licencias.
+
+---
+
 ## [0.9.3] - 2026-07-05
 
 ### Added
@@ -239,3 +313,14 @@ El formato está basado en **Keep a Changelog** y este proyecto sigue **Semantic
 - Generación de fingerprints.
 - Personalización de documentos PDF mediante FPDI.
 - Registro de documentos protegidos.
+
+
+---
+
+## Próxima versión
+
+### 1.0.0
+
+- Motor de licencias.
+- Documentación completa.
+- Preparación para distribución comercial.

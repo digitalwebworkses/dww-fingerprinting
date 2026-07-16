@@ -3,8 +3,10 @@
 /**
  * Plugin Name: DWW Fingerprinting
  * Plugin URI: https://www.digitalwebworks.es
- * Description: Trazabilidad documental para WooCommerce.
+ * Description: Professional document fingerprinting for WooCommerce.
  * Version: 0.9.4
+ * Requires at least: 6.8
+ * Requires PHP: 8.1
  * Author: Digital Web Works
  * Author URI: https://www.digitalwebworks.es
  * Text Domain: dww-fingerprinting
@@ -210,7 +212,6 @@ require_once DWW_FP_PLUGIN_DIR . 'includes/class-woocommerce-integration.php';
 */
 
 require_once DWW_FP_PLUGIN_DIR . 'includes/class-plugin.php';
-require_once DWW_FP_PLUGIN_DIR . 'includes/class-test-runner.php';
 
 register_activation_hook(
     __FILE__,
@@ -228,4 +229,3 @@ DWW_Fingerprinting\Download_Handler::init();
 DWW_Fingerprinting\Order_Downloads::init();
 
 DWW_Fingerprinting\Plugin::init();
-DWW_Fingerprinting\Test_Runner::init();
