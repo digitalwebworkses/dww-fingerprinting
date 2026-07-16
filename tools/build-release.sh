@@ -133,6 +133,16 @@ shasum -a 256 "$ZIP_PATH" > "$SHA_PATH"
 
 rm -rf "$BUILD_DIR"
 
+if [[ ! -f "$ZIP_PATH" ]]; then
+    echo "✘ ZIP package was not created."
+    exit 1
+fi
+
+if [[ ! -f "$SHA_PATH" ]]; then
+    echo "✘ SHA256 file was not created."
+    exit 1
+fi
+
 echo "✔ ZIP package created."
 echo
 
