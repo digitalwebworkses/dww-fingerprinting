@@ -16,6 +16,8 @@ echo "[1/7] Checking repository status..."
 
 if ! git diff --quiet || ! git diff --cached --quiet; then
     echo "✘ Working tree is not clean."
+    echo
+    git status --short
     exit 1
 fi
 
@@ -44,7 +46,7 @@ required_files=(
 
 for file in "${required_files[@]}"; do
     if [[ ! -e "$file" ]]; then
-        echo "✘ Missing: $file"
+        echo "✘ Missing required file: $file"
         exit 1
     fi
 done
@@ -58,7 +60,13 @@ echo
 
 echo "[3/7] Validating composer.json..."
 
-composer validate --strict --no-check-publish >/dev/null
+if ! composer validate --strict --no-check-publish >/dev/null; then
+    echo "✘ Composer validation failed."
+    echo
+    echo "Hint:"
+    echo "  composer update --lock"
+    exit 1
+fi
 
 echo "✔ Composer OK."
 echo
@@ -69,12 +77,19 @@ echo
 
 echo "[4/7] Searching TODO/FIXME..."
 
-if grep -R \
+matches=$(
+grep -R \
     --exclude-dir=.git \
     --exclude-dir=vendor \
-    "TODO\|FIXME" . >/dev/null; then
+    --exclude-dir=tools \
+    --exclude-dir=release \
+    "TODO\|FIXME" . || true
+)
 
-    echo "✘ TODO or FIXME found."
+if [[ -n "$matches" ]]; then
+    echo "✘ TODO/FIXME markers found:"
+    echo
+    echo "$matches"
     exit 1
 fi
 
@@ -87,11 +102,19 @@ echo
 
 echo "[5/7] Searching debug code..."
 
-if grep -R \
-    "var_dump\|print_r\|dd(\|dump(" \
-    includes assets >/dev/null; then
+matches=$(
+grep -R \
+    --exclude-dir=.git \
+    --exclude-dir=vendor \
+    --exclude-dir=tools \
+    --exclude-dir=release \
+    "var_dump\|print_r\|dd(\|dump(" . || true
+)
 
-    echo "✘ Debug code found."
+if [[ -n "$matches" ]]; then
+    echo "✘ Debug code found:"
+    echo
+    echo "$matches"
     exit 1
 fi
 
@@ -99,7 +122,7 @@ echo "✔ No debug code found."
 echo
 
 ########################################
-# Version
+# Version consistency
 ########################################
 
 echo "[6/7] Checking version consistency..."
@@ -108,22 +131,22 @@ PLUGIN_VERSION=$(grep "Version:" dww-fingerprinting.php | head -1 | awk '{print 
 CONST_VERSION=$(grep "DWW_FP_VERSION" dww-fingerprinting.php | head -1 | cut -d"'" -f2)
 
 if [[ "$PLUGIN_VERSION" != "$CONST_VERSION" ]]; then
-    echo "✘ Version mismatch."
+    echo "✘ Plugin header version and constant do not match."
+    exit 1
+fi
+
+if ! grep -q "$PLUGIN_VERSION" CHANGELOG.md; then
+    echo "✘ Version $PLUGIN_VERSION not found in CHANGELOG.md"
+    exit 1
+fi
+
+if ! grep -q "$PLUGIN_VERSION" readme.md; then
+    echo "✘ Version $PLUGIN_VERSION not found in readme.md"
     exit 1
 fi
 
 echo "✔ Version $PLUGIN_VERSION"
 echo
-
-if ! grep -q "$PLUGIN_VERSION" CHANGELOG.md; then
-    echo "✘ Version not found in CHANGELOG.md"
-    exit 1
-fi
-
-if ! grep -q "$PLUGIN_VERSION" readme.md; then
-    echo "✘ Version not found in readme.md"
-    exit 1
-fi
 
 ########################################
 # Documentation
@@ -132,7 +155,7 @@ fi
 echo "[7/7] Checking documentation..."
 
 if [[ ! -d docs ]]; then
-    echo "✘ docs directory missing."
+    echo "✘ Documentation directory not found."
     exit 1
 fi
 
@@ -142,6 +165,7 @@ echo
 ########################################
 
 echo "========================================="
-echo "✔ Release validation completed."
+echo " Release ready for packaging."
+echo " Version: $PLUGIN_VERSION"
 echo "========================================="
 echo
