@@ -34,12 +34,12 @@ required_files=(
     "CHANGELOG.md"
     "ROADMAP.md"
     "composer.json"
+    "LICENSE"
     "docs/architecture.md"
     "docs/developer-guide.md"
     "docs/installation.md"
     "docs/user-guide.md"
     "docs/api-reference.md"
-    "docs/LICENSE"
 )
 
 for file in "${required_files[@]}"; do
