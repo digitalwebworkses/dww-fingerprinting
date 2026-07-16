@@ -208,4 +208,15 @@ class Fingerprint_DB
             ? $results
             : [];
     }
+
+    public static function count(): int
+    {
+        global $wpdb;
+
+        $table = self::get_table_name();
+
+        return (int) $wpdb->get_var(
+            "SELECT COUNT(*) FROM {$table}"
+        );
+    }
 }

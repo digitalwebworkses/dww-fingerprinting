@@ -45,8 +45,6 @@ require_once DWW_FP_PLUGIN_DIR . 'includes/class-upload-mimes.php';
 
 require_once DWW_FP_PLUGIN_DIR . 'includes/admin/class-admin-assets.php';
 require_once DWW_FP_PLUGIN_DIR . 'includes/admin/class-admin-ui.php';
-require_once DWW_FP_PLUGIN_DIR . 'includes/admin/class-doctor-page.php';
-require_once DWW_FP_PLUGIN_DIR . 'includes/admin/class-rest-api-page.php';
 
 /*
 |--------------------------------------------------------------------------
@@ -85,15 +83,44 @@ require_once DWW_FP_PLUGIN_DIR . 'includes/handlers/class-odp-fingerprint-handle
 require_once DWW_FP_PLUGIN_DIR . 'includes/class-fingerprint-payload.php';
 require_once DWW_FP_PLUGIN_DIR . 'includes/class-fingerprint-evidence.php';
 require_once DWW_FP_PLUGIN_DIR . 'includes/class-fingerprint-extractor.php';
-require_once DWW_FP_PLUGIN_DIR . 'includes/class-fingerprint-verifier.php';
 require_once DWW_FP_PLUGIN_DIR . 'includes/class-trust-score.php';
 require_once DWW_FP_PLUGIN_DIR . 'includes/class-fingerprint-integrity.php';
+require_once DWW_FP_PLUGIN_DIR . 'includes/class-fingerprint-verifier.php';
 require_once DWW_FP_PLUGIN_DIR . 'includes/class-file-validator.php';
 require_once DWW_FP_PLUGIN_DIR . 'includes/class-fingerprint-manager.php';
 require_once DWW_FP_PLUGIN_DIR . 'includes/class-fingerprint-db.php';
 require_once DWW_FP_PLUGIN_DIR . 'includes/class-fingerprint-generator.php';
 require_once DWW_FP_PLUGIN_DIR . 'includes/class-fingerprint-log-db.php';
 require_once DWW_FP_PLUGIN_DIR . 'includes/class-storage-security.php';
+
+/*
+|--------------------------------------------------------------------------
+| Downloads
+|--------------------------------------------------------------------------
+*/
+
+require_once DWW_FP_PLUGIN_DIR . 'includes/class-download-token-db.php';
+require_once DWW_FP_PLUGIN_DIR . 'includes/class-download-handler.php';
+require_once DWW_FP_PLUGIN_DIR . 'includes/class-order-downloads.php';
+
+/*
+|--------------------------------------------------------------------------
+| Migrations
+|--------------------------------------------------------------------------
+*/
+
+require_once DWW_FP_PLUGIN_DIR . 'includes/class-migration-manager.php';
+require_once DWW_FP_PLUGIN_DIR . 'includes/migrations/class-migration-020.php';
+require_once DWW_FP_PLUGIN_DIR . 'includes/migrations/class-migration-030.php';
+require_once DWW_FP_PLUGIN_DIR . 'includes/migrations/class-migration-040.php';
+require_once DWW_FP_PLUGIN_DIR . 'includes/migrations/class-migration-050.php';
+
+/*
+|--------------------------------------------------------------------------
+| Health Checks
+|--------------------------------------------------------------------------
+*/
+
 require_once DWW_FP_PLUGIN_DIR . 'includes/health-checks/interface-health-check.php';
 require_once DWW_FP_PLUGIN_DIR . 'includes/health-checks/interface-repairable-health-check.php';
 require_once DWW_FP_PLUGIN_DIR . 'includes/health-checks/class-health-check-abstract.php';
@@ -108,6 +135,14 @@ require_once DWW_FP_PLUGIN_DIR . 'includes/health-checks/class-migrations-health
 require_once DWW_FP_PLUGIN_DIR . 'includes/class-health-check-manager.php';
 require_once DWW_FP_PLUGIN_DIR . 'includes/class-health-check-registry.php';
 require_once DWW_FP_PLUGIN_DIR . 'includes/class-health-check.php';
+
+/*
+|--------------------------------------------------------------------------
+| REST API
+|--------------------------------------------------------------------------
+*/
+
+require_once DWW_FP_PLUGIN_DIR . 'includes/rest/class-rest-api-auth.php';
 require_once DWW_FP_PLUGIN_DIR . 'includes/rest/interface-rest-endpoint.php';
 require_once DWW_FP_PLUGIN_DIR . 'includes/rest/class-rest-endpoint-abstract.php';
 require_once DWW_FP_PLUGIN_DIR . 'includes/rest/class-rest-api-manager.php';
@@ -117,17 +152,30 @@ require_once DWW_FP_PLUGIN_DIR . 'includes/rest/class-stats-rest-endpoint.php';
 require_once DWW_FP_PLUGIN_DIR . 'includes/rest/class-rest-verification-response.php';
 require_once DWW_FP_PLUGIN_DIR . 'includes/rest/class-verify-rest-endpoint.php';
 require_once DWW_FP_PLUGIN_DIR . 'includes/rest/class-fingerprint-rest-endpoint.php';
-require_once DWW_FP_PLUGIN_DIR . 'includes/rest/class-rest-api-auth.php';
 
 /*
 |--------------------------------------------------------------------------
-| Downloads
+| Dashboard Pro
 |--------------------------------------------------------------------------
 */
 
-require_once DWW_FP_PLUGIN_DIR . 'includes/class-download-token-db.php';
-require_once DWW_FP_PLUGIN_DIR . 'includes/class-download-handler.php';
-require_once DWW_FP_PLUGIN_DIR . 'includes/class-order-downloads.php';
+require_once DWW_FP_PLUGIN_DIR . 'includes/dashboard/class-dashboard-widget-interface.php';
+require_once DWW_FP_PLUGIN_DIR . 'includes/dashboard/class-dashboard-widget-abstract.php';
+require_once DWW_FP_PLUGIN_DIR . 'includes/dashboard/class-dashboard-service.php';
+require_once DWW_FP_PLUGIN_DIR . 'includes/dashboard/class-dashboard-manager.php';
+require_once DWW_FP_PLUGIN_DIR . 'includes/dashboard/class-dashboard-registry.php';
+
+require_once DWW_FP_PLUGIN_DIR . 'includes/dashboard/widgets/class-hero-dashboard-widget.php';
+require_once DWW_FP_PLUGIN_DIR . 'includes/dashboard/widgets/class-alerts-dashboard-widget.php';
+require_once DWW_FP_PLUGIN_DIR . 'includes/dashboard/widgets/class-kpi-dashboard-widget.php';
+require_once DWW_FP_PLUGIN_DIR . 'includes/dashboard/widgets/class-health-dashboard-widget.php';
+require_once DWW_FP_PLUGIN_DIR . 'includes/dashboard/widgets/class-quick-actions-dashboard-widget.php';
+require_once DWW_FP_PLUGIN_DIR . 'includes/dashboard/widgets/class-api-dashboard-widget.php';
+require_once DWW_FP_PLUGIN_DIR . 'includes/dashboard/widgets/class-recent-fingerprints-dashboard-widget.php';
+require_once DWW_FP_PLUGIN_DIR . 'includes/dashboard/widgets/class-activity-dashboard-widget.php';
+require_once DWW_FP_PLUGIN_DIR . 'includes/dashboard/widgets/class-formats-dashboard-widget.php';
+require_once DWW_FP_PLUGIN_DIR . 'includes/dashboard/widgets/class-tokens-dashboard-widget.php';
+require_once DWW_FP_PLUGIN_DIR . 'includes/dashboard/widgets/class-system-info-dashboard-widget.php';
 
 /*
 |--------------------------------------------------------------------------
@@ -141,6 +189,8 @@ require_once DWW_FP_PLUGIN_DIR . 'includes/admin/class-fingerprints-page.php';
 require_once DWW_FP_PLUGIN_DIR . 'includes/admin/class-fingerprint-detail-page.php';
 require_once DWW_FP_PLUGIN_DIR . 'includes/admin/class-verify-page.php';
 require_once DWW_FP_PLUGIN_DIR . 'includes/admin/class-verification-report.php';
+require_once DWW_FP_PLUGIN_DIR . 'includes/admin/class-doctor-page.php';
+require_once DWW_FP_PLUGIN_DIR . 'includes/admin/class-rest-api-page.php';
 
 /*
 |--------------------------------------------------------------------------
@@ -161,18 +211,6 @@ require_once DWW_FP_PLUGIN_DIR . 'includes/class-woocommerce-integration.php';
 
 require_once DWW_FP_PLUGIN_DIR . 'includes/class-plugin.php';
 require_once DWW_FP_PLUGIN_DIR . 'includes/class-test-runner.php';
-
-/*
-|--------------------------------------------------------------------------
-| Migrations
-|--------------------------------------------------------------------------
-*/
-
-require_once DWW_FP_PLUGIN_DIR . 'includes/class-migration-manager.php';
-require_once DWW_FP_PLUGIN_DIR . 'includes/migrations/class-migration-020.php';
-require_once DWW_FP_PLUGIN_DIR . 'includes/migrations/class-migration-030.php';
-require_once DWW_FP_PLUGIN_DIR . 'includes/migrations/class-migration-040.php';
-require_once DWW_FP_PLUGIN_DIR . 'includes/migrations/class-migration-050.php';
 
 register_activation_hook(
     __FILE__,

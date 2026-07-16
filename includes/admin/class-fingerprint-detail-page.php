@@ -10,6 +10,12 @@ class Fingerprint_Detail_Page
 {
     public static function render(): void
     {
+
+        if (!current_user_can('manage_options')) {
+
+            wp_die(__('No tienes permisos suficientes.'));
+        }
+
         $fingerprint_id = isset($_GET['fingerprint'])
             ? sanitize_text_field(wp_unslash($_GET['fingerprint']))
             : '';
@@ -61,19 +67,27 @@ class Fingerprint_Detail_Page
 
 ?>
 
-        <div class="wrap">
+        <div class="wrap dww-fingerprint-detail-page">
 
             <?php self::render_admin_notice(); ?>
 
-            <p>
+            <div class="dww-detail-header">
+
+                <div>
+                    <h1>Detalle del fingerprint</h1>
+
+                    <p class="description">
+                        Consulta la trazabilidad, las descargas y la actividad asociada.
+                    </p>
+                </div>
+
                 <a class="button" href="<?php echo esc_url($back_url); ?>">
                     ← Volver al listado
                 </a>
-            </p>
 
-            <h1>Detalle del fingerprint</h1>
+            </div>
 
-            <p>
+            <p class="dww-detail-fingerprint">
                 <code><?php echo esc_html($fingerprint->fingerprint_id); ?></code>
             </p>
 
@@ -379,7 +393,7 @@ class Fingerprint_Detail_Page
                 <form
                     method="post"
                     action="<?php echo esc_url($current_url); ?>"
-                    style="display:inline-block;margin:0 4px;">
+                    class="dww-inline-form">
 
                     <?php wp_nonce_field('dww_fp_regenerate_token', 'dww_fp_nonce'); ?>
 
@@ -401,7 +415,7 @@ class Fingerprint_Detail_Page
                     <form
                         method="post"
                         action="<?php echo esc_url($current_url); ?>"
-                        style="display:inline-block;margin:0 4px;">
+                        class="dww-inline-form">
 
                         <?php wp_nonce_field('dww_fp_revoke_token', 'dww_fp_nonce'); ?>
 
@@ -549,7 +563,7 @@ class Fingerprint_Detail_Page
         }
 
         echo '<br>';
-        echo '<small style="display:block;margin-top:6px;color:#646970;">';
+        echo '<small class="dww-token-status-message">';
         echo esc_html($status_message);
         echo '</small>';
     }

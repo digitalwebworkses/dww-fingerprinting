@@ -51,13 +51,14 @@ class Product_Settings
         echo 'Añade los archivos origen que se usarán para generar copias personalizadas.';
         echo '</span>';
 
-        echo '<table class="widefat dww-fp-assets-table" style="margin-top:10px; max-width:850px;">';
+        echo '<div class="dww-fp-assets-table-wrap">';
+        echo '<table class="widefat dww-fp-assets-table">';
 
         echo '<thead>';
         echo '<tr>';
-        echo '<th style="width:180px;">Formato</th>';
-        echo '<th>Archivo</th>';
-        echo '<th style="width:220px;">Acciones</th>';
+        echo '<th class="dww-fp-assets-format-column">Formato</th>';
+        echo '<th>Archivo maestro</th>';
+        echo '<th class="dww-fp-assets-actions-column">Acciones</th>';
         echo '</tr>';
         echo '</thead>';
 
@@ -74,17 +75,18 @@ class Product_Settings
         echo '</tbody>';
 
         echo '</table>';
+        echo '</div>';
 
-        echo '<button type="button" class="button dww-fp-add-asset" style="margin-top:10px;">+ Añadir activo</button>';
+        echo '<button type="button" class="button dww-fp-add-asset">+ Añadir activo maestro</button>';
 
         echo '</p>';
 
-        echo '<p class="form-field dww-fp-native-downloads-notice" style="display:none;">';
-        echo '<label></label>';
-        echo '<span class="description" style="color:#996800;">';
-        echo 'DWW Fingerprinting está activo: los archivos descargables nativos de WooCommerce quedan ocultos para evitar duplicidades.';
-        echo '</span>';
+        echo '<div class="dww-fp-native-downloads-notice">';
+        echo '<p>';
+        echo '<strong>DWW Fingerprinting está activo.</strong> ';
+        echo 'Los archivos descargables nativos de WooCommerce se ocultan para evitar entregas duplicadas.';
         echo '</p>';
+        echo '</div>';
 
         echo '</div>';
     }
@@ -121,7 +123,9 @@ class Product_Settings
 
         echo '<td>';
         echo '<input type="hidden" class="dww-fp-asset-id" name="dww_fingerprinting_assets[' . esc_attr((string) $index) . '][attachment_id]" value="' . esc_attr((string) $attachment_id) . '" />';
-        echo '<input type="text" class="dww-fp-asset-file" value="' . esc_attr($attachment_name) . '" readonly style="width:95%;" placeholder="Ningún archivo seleccionado" />';
+        echo '<input type="text" class="dww-fp-asset-file" value="' .
+            esc_attr($attachment_name) .
+            '" readonly placeholder="Ningún archivo seleccionado" />';
         echo '</td>';
 
         echo '<td>';
@@ -129,10 +133,10 @@ class Product_Settings
         if (!empty($attachment_url)) {
             echo '<a href="' . esc_url($attachment_url) . '" target="_blank" class="button dww-fp-view-asset">Ver</a> ';
         } else {
-            echo '<a href="#" target="_blank" class="button dww-fp-view-asset" style="display:none;">Ver</a> ';
+            echo '<a href="#" target="_blank" class="button dww-fp-view-asset is-hidden">Ver</a> ';
         }
 
-        echo '<button type="button" class="button dww-fp-select-asset">Seleccionar</button> ';
+        echo '<button type="button" class="button dww-fp-select-asset">Seleccionar archivo</button> ';
         echo '<button type="button" class="button dww-fp-remove-asset">Quitar</button>';
 
         echo '</td>';
@@ -300,7 +304,9 @@ class Product_Settings
 
                     row.find('.dww-fp-asset-id').val('');
                     row.find('.dww-fp-asset-file').val('');
-                    row.find('.dww-fp-view-asset').attr('href', '#').hide();
+                    row.find('.dww-fp-view-asset')
+                        .attr('href', '#')
+                        .addClass('is-hidden');
 
                     $('.dww-fp-assets-rows').append(row);
 
@@ -334,7 +340,9 @@ class Product_Settings
 
                         currentRow.find('.dww-fp-asset-id').val(attachment.id);
                         currentRow.find('.dww-fp-asset-file').val(attachment.filename || attachment.title || attachment.url);
-                        currentRow.find('.dww-fp-view-asset').attr('href', attachment.url).show();
+                        currentRow.find('.dww-fp-view-asset')
+                            .attr('href', attachment.url)
+                            .removeClass('is-hidden');
                     });
 
                     frame.open();
@@ -355,7 +363,9 @@ class Product_Settings
 
                     row.find('.dww-fp-asset-id').val('');
                     row.find('.dww-fp-asset-file').val('');
-                    row.find('.dww-fp-view-asset').attr('href', '#').hide();
+                    row.find('.dww-fp-view-asset')
+                        .attr('href', '#')
+                        .addClass('is-hidden');
                 });
             });
         ";

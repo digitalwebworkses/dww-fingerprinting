@@ -87,4 +87,15 @@ class REST_API_Auth
     {
         return self::get_key() !== '';
     }
+
+    public static function masked_api_key(): string
+    {
+        $key = self::get_key();
+
+        if ($key === '') {
+            return 'No configurada';
+        }
+
+        return substr($key, 0, 12) . '••••••••';
+    }
 }
