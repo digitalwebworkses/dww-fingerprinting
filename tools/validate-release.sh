@@ -127,20 +127,43 @@ echo
 
 echo "[6/7] Checking version consistency..."
 
-PLUGIN_VERSION=$(grep "Version:" dww-fingerprinting.php | head -1 | awk '{print $2}')
-CONST_VERSION=$(grep "DWW_FP_VERSION" dww-fingerprinting.php | head -1 | cut -d"'" -f2)
+PLUGIN_VERSION=$(
+    sed -nE \
+        's/^[[:space:]]*\*[[:space:]]*Version:[[:space:]]*([^[:space:]]+).*$/\1/p' \
+        dww-fingerprinting.php |
+    head -1
+)
 
-if [[ "$PLUGIN_VERSION" != "$CONST_VERSION" ]]; then
-    echo "✘ Plugin header version and constant do not match."
+CONST_VERSION=$(
+    sed -nE \
+        "s/.*define\('DWW_FP_VERSION',[[:space:]]*'([^']+)'\).*/\1/p" \
+        dww-fingerprinting.php |
+    head -1
+)
+
+if [[ -z "$PLUGIN_VERSION" ]]; then
+    echo "✘ Plugin header version could not be detected."
     exit 1
 fi
 
-if ! grep -q "$PLUGIN_VERSION" CHANGELOG.md; then
+if [[ -z "$CONST_VERSION" ]]; then
+    echo "✘ DWW_FP_VERSION constant could not be detected."
+    exit 1
+fi
+
+if [[ "$PLUGIN_VERSION" != "$CONST_VERSION" ]]; then
+    echo "✘ Plugin header version and constant do not match."
+    echo "  Header:   $PLUGIN_VERSION"
+    echo "  Constant: $CONST_VERSION"
+    exit 1
+fi
+
+if ! grep -Fq "$PLUGIN_VERSION" CHANGELOG.md; then
     echo "✘ Version $PLUGIN_VERSION not found in CHANGELOG.md"
     exit 1
 fi
 
-if ! grep -q "$PLUGIN_VERSION" readme.md; then
+if ! grep -Fq "$PLUGIN_VERSION" readme.md; then
     echo "✘ Version $PLUGIN_VERSION not found in readme.md"
     exit 1
 fi
