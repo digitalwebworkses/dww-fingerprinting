@@ -103,12 +103,12 @@ echo
 echo "[5/7] Searching debug code..."
 
 matches=$(
-grep -R \
+grep -R -E \
     --exclude-dir=.git \
     --exclude-dir=vendor \
     --exclude-dir=tools \
     --exclude-dir=release \
-    "var_dump\|print_r\|dd(\|dump(" . || true
+    '\b(var_dump|print_r|dump|dd)\s*\(' . || true
 )
 
 if [[ -n "$matches" ]]; then
