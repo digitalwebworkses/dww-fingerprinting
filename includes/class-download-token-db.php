@@ -270,7 +270,7 @@ class Download_Token_DB
             )
         );
 
-        return $updated !== false;
+        return $updated === 1;
     }
 
     private static function generate_token(): string

@@ -8,7 +8,7 @@ if (!defined('ABSPATH')) {
 
 class Migrations_Health_Check extends Health_Check_Abstract implements Repairable_Health_Check_Interface
 {
-    private const EXPECTED_VERSION = '0.5.0';
+    private const EXPECTED_VERSION = '0.6.0';
 
     public function run(): array
     {

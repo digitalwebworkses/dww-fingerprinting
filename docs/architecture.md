@@ -200,6 +200,8 @@ Cada activo:
 - dispone de un token independiente;
 - controla sus propias descargas.
 
+La generación es idempotente. El fingerprint actúa como clave natural, la base de datos impone unicidad y el proceso utiliza un bloqueo por fingerprint para serializar eventos simultáneos de WooCommerce. Si un archivo ya existe, no se vuelve a generar; si falta el token por un fallo parcial, se crea en el siguiente intento. Los tokens existentes, incluidos los revocados deliberadamente, nunca se reactivan automáticamente.
+
 Esto permite distribuir varios formatos desde un único producto WooCommerce manteniendo una trazabilidad completamente independiente para cada uno.
 
 ---

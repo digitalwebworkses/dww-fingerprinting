@@ -363,9 +363,10 @@ class Epub_Processor
 
     private static function property_name_to_epub_key(string $name): string
     {
-        return 'dww:' . sanitize_key(
-            strtolower(str_replace('DWW ', '', $name))
-        );
+        $key = strtolower(str_replace('DWW ', '', $name));
+        $key = preg_replace('/[^a-z0-9]+/', '-', $key) ?: '';
+
+        return 'dww:' . trim($key, '-');
     }
 
     private static function epub_key_to_property_name(string $property): string
@@ -390,6 +391,7 @@ class Epub_Processor
             'hash' => 'DWW Hash',
             'hash-short' => 'DWW Hash Short',
             'hash-algorithm' => 'DWW Hash Algorithm',
+            'key-id' => 'DWW Key ID',
             'payload-version' => 'DWW Payload Version',
         ];
 

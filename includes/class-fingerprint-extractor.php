@@ -17,7 +17,7 @@ class Fingerprint_Extractor
             return $evidence;
         }
 
-        $validation = File_Validator::validate($file_path);
+        $validation = File_Validator::validate_for_verification($file_path);
 
         if (!$validation['valid']) {
             $evidence = Fingerprint_Evidence::empty(

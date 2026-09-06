@@ -31,9 +31,7 @@ class Fingerprint_Integrity
         $document_hash = (string) ($properties['DWW Hash'] ?? '');
 
         if ($document_hash !== '') {
-            $recalculated_hash = Fingerprint_Payload::hash_from_properties($properties);
-
-            if (!hash_equals($document_hash, $recalculated_hash)) {
+            if (!Fingerprint_Payload::verify_properties_hash($properties, $document_hash)) {
                 $result['valid'] = false;
                 $result['errors'][] =
                     'El hash del documento no coincide con el payload reconstruido.';

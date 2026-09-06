@@ -32,13 +32,11 @@ class Plugin
             return;
         }
 
-        $upload_dir = wp_upload_dir();
-
-        $base = trailingslashit($upload_dir['basedir']) . 'dww-fingerprinting';
+        $base = Storage_Security::get_storage_root();
 
         Storage_Security::protect_directory($base);
-        Storage_Security::protect_directory(trailingslashit($base) . 'storage');
-        Storage_Security::protect_directory(trailingslashit($base) . 'storage/generated');
+        Storage_Security::protect_directory(trailingslashit($base) . 'generated');
+        Storage_Security::protect_directory(trailingslashit($base) . 'temp');
 
         $status = Storage_Security::verify_upload_storage();
 
@@ -46,15 +44,17 @@ class Plugin
             if (
                 empty($directory_status['exists']) ||
                 empty($directory_status['writable']) ||
-                empty($directory_status['protected'])
+                empty($directory_status['protected']) ||
+                !empty($directory_status['public'])
             ) {
                 Logger::log(
                     sprintf(
-                        'Storage security warning [%s]: exists=%s writable=%s protected=%s',
+                        'Storage security warning [%s]: exists=%s writable=%s protected=%s public=%s',
                         $name,
                         !empty($directory_status['exists']) ? 'yes' : 'no',
                         !empty($directory_status['writable']) ? 'yes' : 'no',
-                        !empty($directory_status['protected']) ? 'yes' : 'no'
+                        !empty($directory_status['protected']) ? 'yes' : 'no',
+                        !empty($directory_status['public']) ? 'yes' : 'no'
                     )
                 );
             }

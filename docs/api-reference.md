@@ -140,6 +140,8 @@ multipart/form-data
 |--------|------|-------------|
 | document | File | Documento a verificar |
 
+El límite predeterminado para verificación es de 100 MB. El servidor rechaza formatos no soportados, firmas PDF incorrectas y contenedores ZIP con un número de entradas, tamaño descomprimido o ratio de compresión potencialmente peligrosos.
+
 ### Respuesta
 
 ```json

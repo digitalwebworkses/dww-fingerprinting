@@ -9,6 +9,10 @@ if (!defined('ABSPATH')) {
 class File_Validator
 {
     private const MAX_FILE_SIZE = 2147483648; // 2 GB
+    private const MAX_VERIFICATION_FILE_SIZE = 104857600; // 100 MB
+    private const MAX_ZIP_ENTRIES = 5000;
+    private const MAX_UNCOMPRESSED_SIZE = 268435456; // 256 MB
+    private const MAX_COMPRESSION_RATIO = 100;
 
     public static function validate(string $file_path): array
     {
@@ -70,6 +74,40 @@ class File_Validator
     public static function is_valid(string $file_path): bool
     {
         return self::validate($file_path)['valid'];
+    }
+
+    public static function validate_for_verification(string $file_path): array
+    {
+        if (is_file($file_path)) {
+            $size = filesize($file_path);
+
+            if ($size !== false && $size > self::verification_file_size_limit()) {
+                return self::result(false, [
+                    'El archivo supera el tamaño máximo permitido para verificación.',
+                ]);
+            }
+        }
+
+        $result = self::validate($file_path);
+
+        if (!$result['valid']) {
+            return $result;
+        }
+
+        $errors = array_merge(
+            self::validate_file_signature($file_path),
+            self::validate_zip_safety($file_path)
+        );
+
+        return self::result($errors === [], $errors);
+    }
+
+    private static function verification_file_size_limit(): int
+    {
+        return (int) apply_filters(
+            'dww_fingerprinting_max_verification_file_size',
+            self::MAX_VERIFICATION_FILE_SIZE
+        );
     }
 
     public static function get_supported_extensions(): array
@@ -212,6 +250,81 @@ class File_Validator
             ],
             default => [],
         };
+    }
+
+    private static function validate_zip_safety(string $file_path): array
+    {
+        if (!self::is_zip_container($file_path)) {
+            return [];
+        }
+
+        $extension = strtolower(pathinfo($file_path, PATHINFO_EXTENSION));
+
+        if (!in_array($extension, ['docx', 'xlsx', 'pptx', 'odt', 'ods', 'odp', 'epub'], true)) {
+            return [];
+        }
+
+        $zip = new \ZipArchive();
+
+        if ($zip->open($file_path) !== true) {
+            return ['No se pudo abrir el contenedor ZIP.'];
+        }
+
+        $errors = [];
+        $total_uncompressed = 0;
+
+        if ($zip->numFiles > self::MAX_ZIP_ENTRIES) {
+            $errors[] = 'El documento contiene demasiadas entradas ZIP.';
+        }
+
+        for ($index = 0; $index < $zip->numFiles && $errors === []; $index++) {
+            $stat = $zip->statIndex($index);
+
+            if (!is_array($stat)) {
+                $errors[] = 'No se pudo inspeccionar una entrada ZIP.';
+                break;
+            }
+
+            $size = max(0, (int) ($stat['size'] ?? 0));
+            $compressed = max(0, (int) ($stat['comp_size'] ?? 0));
+            $total_uncompressed += $size;
+
+            if ($total_uncompressed > self::MAX_UNCOMPRESSED_SIZE) {
+                $errors[] = 'El contenido descomprimido del documento es demasiado grande.';
+                break;
+            }
+
+            if ($compressed > 0 && $size / $compressed > self::MAX_COMPRESSION_RATIO) {
+                $errors[] = 'El documento contiene una entrada ZIP con compresión sospechosa.';
+                break;
+            }
+        }
+
+        $zip->close();
+
+        return $errors;
+    }
+
+    private static function validate_file_signature(string $file_path): array
+    {
+        $extension = strtolower(pathinfo($file_path, PATHINFO_EXTENSION));
+
+        if ($extension !== 'pdf') {
+            return [];
+        }
+
+        $handle = fopen($file_path, 'rb');
+
+        if ($handle === false) {
+            return ['No se pudo inspeccionar la firma del documento.'];
+        }
+
+        $signature = fread($handle, 5);
+        fclose($handle);
+
+        return $signature === '%PDF-'
+            ? []
+            : ['La firma interna del archivo no corresponde a un PDF.'];
     }
 
     public static function load_xml(

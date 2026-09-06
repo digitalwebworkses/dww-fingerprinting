@@ -61,8 +61,8 @@ class WooCommerce_Integration
         $customer_email = $order->get_billing_email();
 
         if (empty($customer_email)) {
-            $customer_email = 'test@example.com';
-            Logger::log('Empty customer email. Using fallback: ' . $customer_email);
+            Logger::log('Order has no customer email: ' . $order_id);
+            return;
         }
 
         $customer_name = trim(
@@ -74,7 +74,6 @@ class WooCommerce_Integration
         }
 
         Logger::log('Handling order: ' . $order_id);
-        Logger::log('Customer email: ' . $customer_email);
 
         foreach ($order->get_items() as $item) {
             $product = $item->get_product();
@@ -164,6 +163,8 @@ class WooCommerce_Integration
             'asset_format'   => $format,
             'asset_id'       => $asset_id,
             'fingerprint_id' => $fingerprint_id,
+            'generated_at'   => current_time('mysql'),
+            'plugin_version' => DWW_FP_VERSION,
         ];
 
         $payload_hash = Fingerprint_Payload::hash($context);
@@ -171,13 +172,51 @@ class WooCommerce_Integration
         Logger::log('Fingerprint: ' . $fingerprint_id);
         Logger::log('Payload hash: ' . $payload_hash);
 
-        Logger::log(
-            'Fingerprint exists: ' .
-                (Fingerprint_DB::exists($fingerprint_id) ? 'yes' : 'no')
-        );
+        if (!self::acquire_fingerprint_lock($fingerprint_id)) {
+            Logger::log('Fingerprint is already being processed: ' . $fingerprint_id);
+            return;
+        }
 
-        if (Fingerprint_DB::exists($fingerprint_id)) {
-            Logger::log('Skipping existing fingerprint: ' . $fingerprint_id);
+        try {
+            self::process_locked_asset(
+                $order_id,
+                $product_id,
+                $product_name,
+                $customer_email,
+                $source_file,
+                $format,
+                $asset_id,
+                $fingerprint_id,
+                $payload_hash,
+                $context
+            );
+        } catch (\Throwable $exception) {
+            Logger::log(
+                'Fingerprint processing failed [' . $fingerprint_id . ']: ' .
+                $exception->getMessage()
+            );
+        } finally {
+            self::release_fingerprint_lock($fingerprint_id);
+        }
+    }
+
+    private static function process_locked_asset(
+        int $order_id,
+        string $product_id,
+        string $product_name,
+        string $customer_email,
+        string $source_file,
+        string $format,
+        string $asset_id,
+        string $fingerprint_id,
+        string $payload_hash,
+        array $context
+    ): void {
+        $existing = Fingerprint_DB::get_by_fingerprint($fingerprint_id);
+
+        if ($existing && is_file((string) $existing->generated_file)) {
+            self::ensure_download_token($fingerprint_id);
+            Logger::log('Fingerprint already complete: ' . $fingerprint_id);
             return;
         }
 
@@ -192,30 +231,25 @@ class WooCommerce_Integration
         Logger::log('Generating protected file...');
 
         try {
-            $generated = Fingerprint_Manager::process(
-                $source_file,
-                $destination,
-                $context
-            );
+            $generated = Fingerprint_Manager::process($source_file, $destination, $context);
         } catch (\Throwable $exception) {
+            self::cleanup_generated_file($destination);
             Logger::log(
                 'File generation exception for fingerprint ' .
-                    $fingerprint_id .
-                    ': ' .
-                    $exception->getMessage()
+                    $fingerprint_id . ': ' . $exception->getMessage()
             );
-
             return;
         }
 
         if (!$generated) {
+            self::cleanup_generated_file($destination);
             Logger::log('File generation failed for fingerprint: ' . $fingerprint_id);
             return;
         }
 
         Logger::log('Protected file generated successfully: ' . $destination);
 
-        $registry_id = Fingerprint_DB::insert([
+        $record_data = [
             'fingerprint_id' => $fingerprint_id,
             'payload_hash'   => $payload_hash,
             'customer_email' => $customer_email,
@@ -226,14 +260,30 @@ class WooCommerce_Integration
             'asset_id'       => $asset_id,
             'source_file'    => $source_file,
             'generated_file' => $destination,
-        ]);
+        ];
 
-        if ($registry_id <= 0) {
-            Logger::log('Fingerprint insert failed: ' . $fingerprint_id);
+        $registered = $existing
+            ? Fingerprint_DB::update_generated_asset($fingerprint_id, $record_data)
+            : Fingerprint_DB::insert($record_data) > 0;
+
+        if (!$registered) {
+            self::cleanup_generated_file($destination);
+            Logger::log('Fingerprint registration failed: ' . $fingerprint_id);
             return;
         }
 
-        Logger::log('Fingerprint inserted: ' . $fingerprint_id);
+        Logger::log($existing
+            ? 'Fingerprint recovered: ' . $fingerprint_id
+            : 'Fingerprint inserted: ' . $fingerprint_id);
+
+        self::ensure_download_token($fingerprint_id);
+    }
+
+    private static function ensure_download_token(string $fingerprint_id): void
+    {
+        if (Download_Token_DB::get_all_by_fingerprint($fingerprint_id) !== []) {
+            return;
+        }
 
         $download_token = Download_Token_DB::create_token(
             $fingerprint_id,
@@ -254,24 +304,44 @@ class WooCommerce_Integration
         }
     }
 
+    private static function cleanup_generated_file(string $file): void
+    {
+        if (is_file($file)) {
+            unlink($file);
+        }
+    }
+
+    private static function acquire_fingerprint_lock(string $fingerprint_id): bool
+    {
+        global $wpdb;
+
+        $lock = self::lock_name($fingerprint_id);
+        $result = $wpdb->get_var($wpdb->prepare('SELECT GET_LOCK(%s, 10)', $lock));
+
+        return $result === null || (int) $result === 1;
+    }
+
+    private static function release_fingerprint_lock(string $fingerprint_id): void
+    {
+        global $wpdb;
+
+        $wpdb->get_var(
+            $wpdb->prepare('SELECT RELEASE_LOCK(%s)', self::lock_name($fingerprint_id))
+        );
+    }
+
+    private static function lock_name(string $fingerprint_id): string
+    {
+        return 'dww_fp_' . substr(hash('sha256', $fingerprint_id), 0, 56);
+    }
+
     private static function build_generated_file_path(
         int $order_id,
         string $product_id,
         string $fingerprint_id,
         string $source_file
     ): string {
-        $upload_dir = wp_upload_dir();
-
-        $generated_dir = trailingslashit($upload_dir['basedir'])
-            . 'dww-fingerprinting/storage/generated';
-
-        Storage_Security::protect_directory(
-            trailingslashit($upload_dir['basedir']) . 'dww-fingerprinting'
-        );
-
-        Storage_Security::protect_directory(
-            trailingslashit($upload_dir['basedir']) . 'dww-fingerprinting/storage'
-        );
+        $generated_dir = Storage_Security::get_generated_directory();
 
         Storage_Security::protect_directory($generated_dir);
 

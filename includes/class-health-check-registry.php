@@ -22,6 +22,8 @@ class Health_Check_Registry
 
         Health_Check_Manager::register(new Storage_Health_Check());
 
+        Health_Check_Manager::register(new Integrity_Key_Health_Check());
+
         Health_Check_Manager::register(new Handlers_Health_Check());
 
         Health_Check_Manager::register(new Formats_Health_Check());

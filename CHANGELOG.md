@@ -6,6 +6,31 @@ El formato está basado en **Keep a Changelog** y este proyecto sigue **Semantic
 
 ---
 
+## [Unreleased]
+
+### Fixed
+
+- Preservado el contexto Multi-Asset completo durante la generación de PDF.
+- Eliminada la variación temporal entre payload, HMAC y chunks.
+- Consumo atómico del límite de descargas.
+- Normalizados los nombres de metadatos Multi-Asset en EPUB.
+- Limpieza de archivos parciales cuando falla el procesamiento o el registro.
+
+### Security
+
+- Clave de integridad persistente e independiente de los salts de WordPress.
+- Compatibilidad de verificación con documentos HMAC legacy.
+- Almacenamiento privado configurable fuera de la raíz pública.
+- Límites defensivos de tamaño, estructura y compresión durante la verificación.
+- Logging detallado desactivado por defecto.
+
+### Changed
+
+- Generación idempotente con bloqueo por fingerprint y restricción única.
+- Migración de base de datos 0.6.0 no destructiva ante duplicados históricos.
+- Suite automatizada de ida y vuelta para los ocho formatos soportados.
+- Validación y empaquetado de releases reforzados.
+
 ## [0.9.4] - 2026-07-16
 
 ### Added

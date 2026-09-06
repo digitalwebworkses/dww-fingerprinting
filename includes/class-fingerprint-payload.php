@@ -36,24 +36,30 @@ class Fingerprint_Payload
     public static function metadata(array $context): array
     {
         $payload = self::build($context);
-        $hash = self::hash($context);
-        $chunks = self::chunks($context);
+        $compact = self::compact_payload($payload);
+        $hash = self::hash_compact($compact);
+        $chunks = str_split($hash, self::DEFAULT_CHUNK_LENGTH);
 
         return [
             'fingerprint_id' => $payload['fingerprint_id'],
-            'payload'        => self::compact($context),
+            'payload'        => $compact,
             'hash'           => $hash,
-            'hash_short'     => self::short_hash($context),
+            'hash_short'     => substr($hash, 0, 16),
             'chunks'         => $chunks,
             'chunk_count'    => count($chunks),
             'algorithm'      => self::HASH_ALGORITHM . '-hmac',
+            'key_id'         => 'v1',
             'version'        => self::PAYLOAD_VERSION,
         ];
     }
 
     public static function compact(array $context): string
     {
-        $payload = self::build($context);
+        return self::compact_payload(self::build($context));
+    }
+
+    private static function compact_payload(array $payload): string
+    {
 
         $payload = array_filter(
             $payload,
@@ -75,11 +81,12 @@ class Fingerprint_Payload
 
     public static function hash(array $context): string
     {
-        return hash_hmac(
-            self::HASH_ALGORITHM,
-            self::compact($context),
-            self::secret_key()
-        );
+        return self::hash_compact(self::compact($context));
+    }
+
+    private static function hash_compact(string $compact): string
+    {
+        return hash_hmac(self::HASH_ALGORITHM, $compact, self::secret_key());
     }
 
     private static function secret_key(): string
@@ -92,8 +99,29 @@ class Fingerprint_Payload
             return $secret;
         }
 
-        return defined('AUTH_KEY')
-            ? (string) AUTH_KEY
+        if (function_exists('get_option')) {
+            $secret = (string) get_option(Installer::INTEGRITY_KEY_OPTION, '');
+
+            if ($secret !== '') {
+                return $secret;
+            }
+        }
+
+        return self::legacy_secret_key();
+    }
+
+    private static function legacy_secret_key(): string
+    {
+        $parts = [];
+
+        foreach (['AUTH_KEY', 'SECURE_AUTH_KEY', 'LOGGED_IN_KEY', 'NONCE_KEY'] as $constant) {
+            if (defined($constant)) {
+                $parts[] = (string) constant($constant);
+            }
+        }
+
+        return $parts !== []
+            ? implode('', $parts)
             : 'dww-fingerprinting-fallback-secret';
     }
 
@@ -124,7 +152,7 @@ class Fingerprint_Payload
     public static function property_map(array $context): array
     {
         $payload = self::build($context);
-        $metadata = self::metadata($context);
+        $metadata = self::metadata($payload);
 
         $properties = [
             'DWW Fingerprint'     => $payload['fingerprint_id'],
@@ -140,6 +168,7 @@ class Fingerprint_Payload
             'DWW Hash'            => $metadata['hash'],
             'DWW Hash Short'      => $metadata['hash_short'],
             'DWW Hash Algorithm'  => $metadata['algorithm'],
+            'DWW Key ID'          => $metadata['key_id'],
             'DWW Payload Version' => $metadata['version'],
         ];
 
@@ -197,5 +226,23 @@ class Fingerprint_Payload
             $compact,
             self::secret_key()
         );
+    }
+
+    public static function verify_properties_hash(array $properties, string $expected): bool
+    {
+        $current = self::hash_from_properties($properties);
+
+        if (hash_equals($expected, $current)) {
+            return true;
+        }
+
+        if (!empty($properties['DWW Key ID'])) {
+            return false;
+        }
+
+        $compact = self::compact(self::context_from_properties($properties));
+        $legacy = hash_hmac(self::HASH_ALGORITHM, $compact, self::legacy_secret_key());
+
+        return hash_equals($expected, $legacy);
     }
 }

@@ -26,6 +26,10 @@ class Storage_Health_Check extends Health_Check_Abstract implements Repairable_H
             if (empty($directory['protected'])) {
                 $errors[] = $name . ': no protegido';
             }
+
+            if (!empty($directory['public'])) {
+                $errors[] = $name . ': dentro del directorio público';
+            }
         }
 
         $passed = empty($errors);
@@ -44,14 +48,12 @@ class Storage_Health_Check extends Health_Check_Abstract implements Repairable_H
 
     public function repair(): array
     {
-        $upload_dir = wp_upload_dir();
-
-        $base = trailingslashit($upload_dir['basedir']) . 'dww-fingerprinting';
+        $base = Storage_Security::get_storage_root();
 
         $paths = [
             $base,
-            trailingslashit($base) . 'storage',
-            trailingslashit($base) . 'storage/generated',
+            trailingslashit($base) . 'generated',
+            trailingslashit($base) . 'temp',
         ];
 
         $success = true;

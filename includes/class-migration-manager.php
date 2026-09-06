@@ -21,6 +21,7 @@ class Migration_Manager
             '0.3.0' => Migration_030::class,
             '0.4.0' => Migration_040::class,
             '0.5.0' => Migration_050::class,
+            '0.6.0' => Migration_060::class,
         ];
 
         foreach ($migrations as $version => $migration_class) {

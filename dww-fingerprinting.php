@@ -21,10 +21,6 @@ define('DWW_FP_PLUGIN_FILE', __FILE__);
 define('DWW_FP_PLUGIN_DIR', plugin_dir_path(__FILE__));
 define('DWW_FP_PLUGIN_URL', plugin_dir_url(__FILE__));
 
-if (!defined('DWW_FP_SECRET_KEY')) {
-    define('DWW_FP_SECRET_KEY', AUTH_KEY . SECURE_AUTH_KEY . LOGGED_IN_KEY . NONCE_KEY);
-}
-
 if (file_exists(DWW_FP_PLUGIN_DIR . 'vendor/autoload.php')) {
     require_once DWW_FP_PLUGIN_DIR . 'vendor/autoload.php';
 }
@@ -116,6 +112,7 @@ require_once DWW_FP_PLUGIN_DIR . 'includes/migrations/class-migration-020.php';
 require_once DWW_FP_PLUGIN_DIR . 'includes/migrations/class-migration-030.php';
 require_once DWW_FP_PLUGIN_DIR . 'includes/migrations/class-migration-040.php';
 require_once DWW_FP_PLUGIN_DIR . 'includes/migrations/class-migration-050.php';
+require_once DWW_FP_PLUGIN_DIR . 'includes/migrations/class-migration-060.php';
 
 /*
 |--------------------------------------------------------------------------
@@ -131,6 +128,7 @@ require_once DWW_FP_PLUGIN_DIR . 'includes/health-checks/class-wordpress-health-
 require_once DWW_FP_PLUGIN_DIR . 'includes/health-checks/class-woocommerce-health-check.php';
 require_once DWW_FP_PLUGIN_DIR . 'includes/health-checks/class-database-health-check.php';
 require_once DWW_FP_PLUGIN_DIR . 'includes/health-checks/class-storage-health-check.php';
+require_once DWW_FP_PLUGIN_DIR . 'includes/health-checks/class-integrity-key-health-check.php';
 require_once DWW_FP_PLUGIN_DIR . 'includes/health-checks/class-handlers-health-check.php';
 require_once DWW_FP_PLUGIN_DIR . 'includes/health-checks/class-formats-health-check.php';
 require_once DWW_FP_PLUGIN_DIR . 'includes/health-checks/class-migrations-health-check.php';

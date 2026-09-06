@@ -81,7 +81,7 @@ class Verify_REST_Endpoint extends REST_Endpoint_Abstract
 
             return new \WP_REST_Response(
                 $response,
-                200
+                ($result['status'] ?? '') === 'extract_error' ? 400 : 200
             );
         } finally {
             if (

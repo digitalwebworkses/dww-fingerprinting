@@ -47,7 +47,8 @@ class Pdf_Fingerprint_Handler extends Abstract_Fingerprint_Handler
                 $destination_path,
                 (string) ($context['customer_name'] ?? ''),
                 (string) ($context['customer_email'] ?? ''),
-                (string) ($context['order_id'] ?? '')
+                (string) ($context['order_id'] ?? ''),
+                $context
             );
         } catch (\Throwable $exception) {
 

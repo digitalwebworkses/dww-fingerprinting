@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-set -e
+set -euo pipefail
 
 echo
 echo "========================================="
@@ -12,7 +12,7 @@ echo
 # Repository status
 ########################################
 
-echo "[1/7] Checking repository status..."
+echo "[1/10] Checking repository status..."
 
 if ! git diff --quiet || ! git diff --cached --quiet; then
     echo "✘ Working tree is not clean."
@@ -28,7 +28,7 @@ echo
 # Required files
 ########################################
 
-echo "[2/7] Checking required files..."
+echo "[2/10] Checking required files..."
 
 required_files=(
     "dww-fingerprinting.php"
@@ -58,7 +58,7 @@ echo
 # Composer
 ########################################
 
-echo "[3/7] Validating composer.json..."
+echo "[3/10] Validating composer.json..."
 
 if ! composer validate --strict --no-check-publish >/dev/null; then
     echo "✘ Composer validation failed."
@@ -72,10 +72,40 @@ echo "✔ Composer OK."
 echo
 
 ########################################
+# PHP syntax
+########################################
+
+echo "[4/10] Checking PHP syntax..."
+
+while IFS= read -r file; do
+    php -l "$file" >/dev/null
+done < <(find . -type f -name '*.php' \
+    -not -path './vendor/*' \
+    -not -path './release/*')
+
+echo "✔ PHP syntax OK."
+echo
+
+########################################
+# Regression tests
+########################################
+
+echo "[5/10] Running regression tests..."
+
+php tests/phase1-regression.php
+php tests/phase1-pdf-integration.php
+php tests/phase2-security-regression.php
+php tests/phase3-idempotency-regression.php
+php tests/all-formats-integration.php
+
+echo "✔ Regression tests OK."
+echo
+
+########################################
 # TODO / FIXME
 ########################################
 
-echo "[4/7] Searching TODO/FIXME..."
+echo "[6/10] Searching TODO/FIXME..."
 
 matches=$(
 grep -R \
@@ -100,7 +130,7 @@ echo
 # Debug code
 ########################################
 
-echo "[5/7] Searching debug code..."
+echo "[7/10] Searching debug code..."
 
 matches=$(
 grep -R -E \
@@ -125,7 +155,7 @@ echo
 # Version consistency
 ########################################
 
-echo "[6/7] Checking version consistency..."
+echo "[8/10] Checking version consistency..."
 
 PLUGIN_VERSION=$(
     sed -nE \
@@ -175,7 +205,7 @@ echo
 # Documentation
 ########################################
 
-echo "[7/7] Checking documentation..."
+echo "[9/10] Checking documentation..."
 
 if [[ ! -d docs ]]; then
     echo "✘ Documentation directory not found."
@@ -183,6 +213,29 @@ if [[ ! -d docs ]]; then
 fi
 
 echo "✔ Documentation OK."
+echo
+
+########################################
+# Production package inputs
+########################################
+
+echo "[10/10] Checking production package inputs..."
+
+package_inputs=(
+    "vendor/autoload.php"
+    "includes/class-plugin.php"
+    "assets/css/admin.css"
+    "assets/js/admin.js"
+)
+
+for file in "${package_inputs[@]}"; do
+    if [[ ! -f "$file" ]]; then
+        echo "✘ Missing production package input: $file"
+        exit 1
+    fi
+done
+
+echo "✔ Production package inputs OK."
 echo
 
 ########################################

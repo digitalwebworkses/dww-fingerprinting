@@ -8,6 +8,8 @@ if (!defined('ABSPATH')) {
 
 class Installer
 {
+    public const INTEGRITY_KEY_OPTION = 'dww_fingerprinting_integrity_key';
+
     public static function install(): void
     {
         Fingerprint_DB::create_table();
@@ -16,25 +18,38 @@ class Installer
 
         Migration_Manager::run();
 
+        self::ensure_integrity_key();
         self::create_upload_directories();
     }
 
     public static function ensure_runtime_environment(): void
     {
+        self::ensure_integrity_key();
         self::create_upload_directories();
+    }
+
+    public static function ensure_integrity_key(): string
+    {
+        $key = (string) get_option(self::INTEGRITY_KEY_OPTION, '');
+
+        if ($key !== '') {
+            return $key;
+        }
+
+        $key = bin2hex(random_bytes(32));
+        update_option(self::INTEGRITY_KEY_OPTION, $key, false);
+
+        return $key;
     }
 
     private static function create_upload_directories(): void
     {
-        $upload_dir = wp_upload_dir();
-
-        $base_dir = trailingslashit($upload_dir['basedir']) . 'dww-fingerprinting';
+        $base_dir = Storage_Security::get_storage_root();
 
         $directories = [
             $base_dir,
-            $base_dir . '/storage',
-            $base_dir . '/storage/generated',
-            $base_dir . '/storage/temp',
+            $base_dir . '/generated',
+            $base_dir . '/temp',
         ];
 
         foreach ($directories as $directory) {
@@ -46,7 +61,7 @@ class Installer
         }
 
         self::write_htaccess_file($base_dir);
-        self::write_htaccess_file($base_dir . '/storage');
+        self::write_htaccess_file($base_dir . '/generated');
     }
 
     private static function write_index_file(string $directory): void

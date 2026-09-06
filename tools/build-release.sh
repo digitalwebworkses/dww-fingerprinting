@@ -25,7 +25,7 @@ echo
 # Validation
 ########################################
 
-echo "[1/6] Validating release..."
+echo "[1/7] Validating release..."
 
 "$ROOT_DIR/tools/validate-release.sh"
 
@@ -36,7 +36,7 @@ echo
 # Version
 ########################################
 
-echo "[2/6] Detecting version..."
+echo "[2/7] Detecting version..."
 
 PLUGIN_VERSION=$(
     sed -nE \
@@ -61,7 +61,7 @@ echo
 # Production dependencies
 ########################################
 
-echo "[3/6] Preparing production dependencies..."
+echo "[3/7] Preparing production dependencies..."
 
 composer install \
     --no-dev \
@@ -76,7 +76,7 @@ echo
 # Build directory
 ########################################
 
-echo "[4/6] Preparing build directory..."
+echo "[4/7] Preparing build directory..."
 
 rm -rf "$BUILD_DIR"
 mkdir -p "$PACKAGE_DIR"
@@ -88,7 +88,7 @@ echo
 # Copy release files
 ########################################
 
-echo "[5/6] Copying release files..."
+echo "[5/7] Copying release files..."
 
 rsync -a \
     --exclude='.git/' \
@@ -120,7 +120,7 @@ echo
 # ZIP and checksum
 ########################################
 
-echo "[6/6] Creating ZIP package..."
+echo "[6/7] Creating ZIP package..."
 
 rm -f "$ZIP_PATH" "$SHA_PATH"
 
@@ -142,6 +142,27 @@ if [[ ! -f "$SHA_PATH" ]]; then
     echo "✘ SHA256 file was not created."
     exit 1
 fi
+
+echo "[7/7] Verifying release package..."
+
+unzip -tq "$ZIP_PATH" >/dev/null
+
+ZIP_ENTRIES=$(unzip -Z1 "$ZIP_PATH")
+
+for forbidden in tests tools docs .git composer.json composer.lock; do
+    if grep -Eq "(^|/)${forbidden}(/|$)" <<< "$ZIP_ENTRIES"; then
+        echo "✘ Forbidden release entry found: $forbidden"
+        exit 1
+    fi
+done
+
+if ! grep -Fqx "$PROJECT_SLUG/vendor/autoload.php" <<< "$ZIP_ENTRIES"; then
+    echo "✘ Composer autoloader missing from release package."
+    exit 1
+fi
+
+echo "✔ Release package verified."
+echo
 
 echo "✔ ZIP package created."
 echo

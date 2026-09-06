@@ -36,7 +36,7 @@ class Fingerprint_DB
             generated_file TEXT NOT NULL,
             created_at DATETIME NOT NULL,
             PRIMARY KEY (id),
-            KEY fingerprint_id (fingerprint_id),
+            UNIQUE KEY fingerprint_id_unique (fingerprint_id),
             KEY payload_hash (payload_hash),
             KEY order_id (order_id),
             KEY customer_email (customer_email),
@@ -121,6 +121,25 @@ class Fingerprint_DB
         );
 
         return $result ?: null;
+    }
+
+    public static function update_generated_asset(string $fingerprint_id, array $data): bool
+    {
+        global $wpdb;
+
+        $updated = $wpdb->update(
+            self::get_table_name(),
+            [
+                'payload_hash'   => sanitize_text_field($data['payload_hash'] ?? ''),
+                'source_file'    => sanitize_text_field($data['source_file'] ?? ''),
+                'generated_file' => sanitize_text_field($data['generated_file'] ?? ''),
+            ],
+            ['fingerprint_id' => sanitize_text_field($fingerprint_id)],
+            ['%s', '%s', '%s'],
+            ['%s']
+        );
+
+        return $updated !== false;
     }
 
     public static function get_by_order(string $order_id): array
