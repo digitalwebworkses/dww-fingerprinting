@@ -4,7 +4,7 @@
  * Plugin Name: DWW Fingerprinting
  * Plugin URI: https://www.digitalwebworks.es
  * Description: Professional document fingerprinting for WooCommerce.
- * Version: 0.9.4
+ * Version: 1.0.0
  * Requires at least: 6.8
  * Requires PHP: 8.1
  * Author: Digital Web Works
@@ -16,7 +16,7 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-define('DWW_FP_VERSION', '0.9.4');
+define('DWW_FP_VERSION', '1.0.0');
 define('DWW_FP_PLUGIN_FILE', __FILE__);
 define('DWW_FP_PLUGIN_DIR', plugin_dir_path(__FILE__));
 define('DWW_FP_PLUGIN_URL', plugin_dir_url(__FILE__));

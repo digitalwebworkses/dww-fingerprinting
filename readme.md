@@ -1,6 +1,6 @@
 # DWW Fingerprinting
 
-![Version](https://img.shields.io/badge/version-0.9.4-blue) ![PHP](https://img.shields.io/badge/PHP-8.1+-777BB4) ![WordPress](https://img.shields.io/badge/WordPress-6.8+-21759B) ![WooCommerce](https://img.shields.io/badge/WooCommerce-Compatible-96588A) ![License](https://img.shields.io/badge/license-Commercial-red) ![Status](https://img.shields.io/badge/status-Release_Candidate-orange)
+![Version](https://img.shields.io/badge/version-1.0.0-blue) ![PHP](https://img.shields.io/badge/PHP-8.1+-777BB4) ![WordPress](https://img.shields.io/badge/WordPress-6.8+-21759B) ![WooCommerce](https://img.shields.io/badge/WooCommerce-Compatible-96588A) ![License](https://img.shields.io/badge/license-Commercial-red) ![Status](https://img.shields.io/badge/status-Stable-brightgreen)
 
 Motor profesional de trazabilidad documental para WordPress y WooCommerce.
 
@@ -103,7 +103,7 @@ Más información en:
 
 # Estado del proyecto
 
-**Versión actual:** `0.9.4`
+**Versión actual:** `1.0.0`
 
 ## Formatos soportados
 
@@ -120,7 +120,7 @@ Más información en:
 
 ## Estado
 
-**Feature Complete (Beta)**
+**Versión estable y distribuible**
 
 El núcleo del motor se considera completo y estable.
 

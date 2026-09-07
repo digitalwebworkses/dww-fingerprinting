@@ -8,6 +8,10 @@ El formato está basado en **Keep a Changelog** y este proyecto sigue **Semantic
 
 ## [Unreleased]
 
+## [1.0.0] - 2026-09-07
+
+Primera versión estable y distribuible de DWW Fingerprinting.
+
 ### Fixed
 
 - Preservado el contexto Multi-Asset completo durante la generación de PDF.

@@ -6,9 +6,9 @@ Estado del desarrollo de **DWW Fingerprinting**.
 
 # Estado actual
 
-**Versión actual:** `0.9.4`
+**Versión actual:** `1.0.0`
 
-**Estado del proyecto:** ✅ **Feature Complete (Beta)**
+**Estado del proyecto:** ✅ **Versión estable y distribuible**
 
 El núcleo funcional del sistema está finalizado y validado mediante pruebas funcionales completas.
 
