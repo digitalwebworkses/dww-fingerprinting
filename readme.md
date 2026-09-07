@@ -1,6 +1,6 @@
 # DWW Fingerprinting
 
-![Version](https://img.shields.io/badge/version-1.0.0-blue) ![PHP](https://img.shields.io/badge/PHP-8.1+-777BB4) ![WordPress](https://img.shields.io/badge/WordPress-6.8+-21759B) ![WooCommerce](https://img.shields.io/badge/WooCommerce-Compatible-96588A) ![License](https://img.shields.io/badge/license-Commercial-red) ![Status](https://img.shields.io/badge/status-Stable-brightgreen)
+![Version](https://img.shields.io/badge/version-1.0.0-blue) ![PHP](https://img.shields.io/badge/PHP-8.1+-777BB4) ![WordPress](https://img.shields.io/badge/WordPress-6.8+-21759B) ![WooCommerce](https://img.shields.io/badge/WooCommerce-Compatible-96588A) ![License](https://img.shields.io/badge/license-GPL--2.0--or--later-blue) ![Status](https://img.shields.io/badge/status-Stable-brightgreen)
 
 Motor profesional de trazabilidad documental para WordPress y WooCommerce.
 
@@ -353,6 +353,10 @@ Consultar:
 
 # Licencia
 
-Licenciamiento comercial pendiente.
+Copyright © 2026 Digital Web Works.
+
+DWW Fingerprinting se distribuye bajo la licencia **GNU General Public License v2.0 o posterior (GPL-2.0-or-later)**. Digital Web Works conserva la autoría y el copyright del software.
+
+Consulta el archivo `LICENSE` para conocer los términos completos.
 
 © Digital Web Works

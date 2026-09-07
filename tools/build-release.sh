@@ -110,7 +110,6 @@ rsync -a \
     --exclude='readme.md' \
     --exclude='CHANGELOG.md' \
     --exclude='ROADMAP.md' \
-    --exclude='LICENSE' \
     ./ "$PACKAGE_DIR/"
 
 echo "✔ Release files copied."

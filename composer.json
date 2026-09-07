@@ -2,7 +2,7 @@
     "name": "digitalwebworks/dww-fingerprinting",
     "description": "Professional document fingerprinting engine for WordPress and WooCommerce.",
     "type": "wordpress-plugin",
-    "license": "proprietary",
+    "license": "GPL-2.0-or-later",
     "minimum-stability": "stable",
     "require": {
         "php": "^8.1",

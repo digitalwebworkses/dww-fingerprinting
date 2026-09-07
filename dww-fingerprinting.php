@@ -9,6 +9,8 @@
  * Requires PHP: 8.1
  * Author: Digital Web Works
  * Author URI: https://www.digitalwebworks.es
+ * License: GPL-2.0-or-later
+ * License URI: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
  * Text Domain: dww-fingerprinting
  */
 

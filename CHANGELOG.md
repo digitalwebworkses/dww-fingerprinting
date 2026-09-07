@@ -12,6 +12,10 @@ El formato está basado en **Keep a Changelog** y este proyecto sigue **Semantic
 
 Primera versión estable y distribuible de DWW Fingerprinting.
 
+### License
+
+- Publicado bajo GPL-2.0-or-later, conservando Digital Web Works la autoría y el copyright.
+
 ### Fixed
 
 - Preservado el contexto Multi-Asset completo durante la generación de PDF.
